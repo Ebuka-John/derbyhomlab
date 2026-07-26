@@ -4,7 +4,15 @@
 
 **Symptom:** Pydantic ValidationError on startup naming a missing variable.
 
-**Fix:** Create root `.env` from `.env.example`. Name it exactly `.env`, not `.env.txt`.
+**Fix:** From the project root in PowerShell:
+
+```powershell
+Copy-Item .env.example .env
+# Open .env and fill ADDRESS_API_* values
+Get-ChildItem -Force .env
+```
+
+Name it exactly `.env`, not `.env.txt`.
 
 ---
 
@@ -22,7 +30,12 @@
 
 **Fix:**
 
-- Start uvicorn on port 8000
+```powershell
+# Terminal A — project root
+.\.venv\Scripts\Activate.ps1
+uvicorn src.app:app --reload --host 0.0.0.0 --port 8000
+```
+
 - Set `frontend/.env.local` → `BACKEND_URL=http://127.0.0.1:8000`
 - In Docker Compose use `http://backend:8000` (the Compose **service name**), not `127.0.0.1`
 

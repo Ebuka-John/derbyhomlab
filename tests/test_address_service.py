@@ -6,17 +6,13 @@ import httpx
 import pytest
 import respx
 
-from src.services.address_service import (
-    AddressService,
-    find_matching_address,
-)
-from src.utils.errors import (
+from src.services.address_service import AddressService, find_matching_address
+from src.utils.exceptions import (
     AddressApiUnreachableError,
     AddressNotFoundError,
     TargetAddressNotFoundError,
     UnexpectedSchemaError,
 )
-
 
 SAMPLE_ADDRESSES = [
     {
@@ -62,7 +58,7 @@ def test_find_matching_address_lat_lon_conversion() -> None:
 def test_unwrap_rejects_bad_schema() -> None:
     with pytest.raises(UnexpectedSchemaError):
         find_matching_address(
-            [{"Title": "X"}],  # no coordinates
+            [{"Title": "X"}],
             address="X",
             postcode="DE55 5PB",
         )
@@ -80,7 +76,6 @@ async def test_lookup_postcode_success(settings) -> None:
 
     assert route.called
     assert len(records) == 2
-    # Auth headers must come from env, never hard-coded in callers
     request = route.calls.last.request
     assert request.headers["x-alias"] == "test-alias"
     assert request.headers["x-auth-token"] == "test-token"
@@ -124,7 +119,6 @@ async def test_resolve_address_end_to_end(settings) -> None:
 
 
 def test_find_matching_derbyshire_live_schema() -> None:
-    """Live Address API uses BuildingName + SpatialFeature.Eastings/Northings."""
     records = [
         {
             "UPRN": "200004519931",

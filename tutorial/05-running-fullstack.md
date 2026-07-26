@@ -2,13 +2,15 @@
 
 ## What you will do
 
-Run backend + frontend together and verify the end-to-end path.
+Run backend + frontend together and verify the end-to-end path. All commands are
+PowerShell — run them yourself in two terminals.
 
 ## Start FastAPI
 
-Project root, venv active, `.env` present:
+**Terminal A** — project root:
 
 ```powershell
+.\.venv\Scripts\Activate.ps1
 uvicorn src.app:app --reload --host 0.0.0.0 --port 8000
 ```
 
@@ -17,10 +19,10 @@ uvicorn src.app:app --reload --host 0.0.0.0 --port 8000
 
 ## Start Next.js
 
-Second terminal:
+**Terminal B:**
 
 ```powershell
-cd frontend
+Set-Location frontend
 npm run dev
 ```
 
@@ -32,18 +34,24 @@ npm run dev
 2. Submit `HILLBROW` + `DE55 5PB`
 3. Confirm the browser network call is to `/api/nearest-grit-bin` (not `:8000`)
 4. Confirm FastAPI logs show the upstream work
-5. Compare:
+5. Compare in a third PowerShell window:
 
 ```powershell
-curl "http://127.0.0.1:8000/nearest-grit-bin?postcode=DE55%205PB&address=HILLBROW"
-curl "http://127.0.0.1:3000/api/nearest-grit-bin?postcode=DE55%205PB&address=HILLBROW"
+Invoke-RestMethod "http://127.0.0.1:8000/nearest-grit-bin?postcode=DE55%205PB&address=HILLBROW" |
+  ConvertTo-Json -Depth 5
+
+Invoke-RestMethod "http://127.0.0.1:3000/api/nearest-grit-bin?postcode=DE55%205PB&address=HILLBROW" |
+  ConvertTo-Json -Depth 5
 ```
 
 Both should return the same JSON shape.
 
 ## Optional: tests
 
+**Terminal** at project root (venv active):
+
 ```powershell
+.\.venv\Scripts\Activate.ps1
 pip install -r requirements-dev.txt
 pytest -v
 ```

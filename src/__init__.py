@@ -1,1 +1,1 @@
-"""Package marker for src."""
+"""Nearest Grit Bin API package."""

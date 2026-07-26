@@ -2,11 +2,19 @@
 
 ## What you will do
 
-1. Create the file at the path below (inside `frontend/`).
-2. Type the code carefully.
+1. Create the empty file with PowerShell (`New-Item`) from the project root.
+2. Open it and type the code carefully.
 3. Run the checkpoint before continuing.
 
 ## File to create: `app/layout.tsx`
+
+### Create it in PowerShell (project root)
+
+```powershell
+New-Item -ItemType File -Force -Path frontend\app\layout.tsx | Out-Null
+```
+
+Open `frontend/app/layout.tsx` in your editor and type the contents below yourself.
 
 **Path:** `app/layout.tsx` (relative to `frontend/`)
 

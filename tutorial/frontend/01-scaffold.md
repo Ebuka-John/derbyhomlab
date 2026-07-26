@@ -2,22 +2,30 @@
 
 ## What you will do
 
-1. Create the `frontend/` folder.
-2. Type the project config files.
+1. Create the `frontend/` folder tree with PowerShell.
+2. Create empty config files with PowerShell, then type their contents.
 3. Install Node dependencies.
 
 ## Folders to create
 
-Create these by hand in your editor's file explorer, starting at the **project root**.
-Create each parent before its child:
+From the **project root**, run:
 
-1. `frontend`
-2. `frontend/app`
-3. `frontend/app/api`
-4. `frontend/app/api/nearest-grit-bin`
-5. `frontend/components`
-6. `frontend/lib`
-7. `frontend/public`
+```powershell
+New-Item -ItemType Directory -Force -Path `
+  frontend,
+  frontend\app,
+  frontend\app\api,
+  frontend\app\api\nearest-grit-bin,
+  frontend\components,
+  frontend\lib,
+  frontend\public | Out-Null
+```
+
+Confirm:
+
+```powershell
+Get-ChildItem -Recurse frontend -Directory | Select-Object FullName
+```
 
 The result should look like this:
 
@@ -40,7 +48,13 @@ your-project/
 
 ## File to create: `frontend/package.json`
 
-**Type this exactly:**
+### Create it in PowerShell (project root)
+
+```powershell
+New-Item -ItemType File -Force -Path frontend\package.json | Out-Null
+```
+
+Open `frontend/package.json` in your editor and **type this exactly:**
 
 ```json
 {
@@ -71,7 +85,13 @@ your-project/
 
 ## File to create: `frontend/tsconfig.json`
 
-**Type this exactly:**
+### Create it in PowerShell (project root)
+
+```powershell
+New-Item -ItemType File -Force -Path frontend\tsconfig.json | Out-Null
+```
+
+Open `frontend/tsconfig.json` and **type this exactly:**
 
 ```json
 {
@@ -107,7 +127,13 @@ Lets you write `import … from "@/lib/types"` instead of long relative paths.
 
 ## File to create: `frontend/next.config.ts`
 
-**Type this exactly:**
+### Create it in PowerShell (project root)
+
+```powershell
+New-Item -ItemType File -Force -Path frontend\next.config.ts | Out-Null
+```
+
+Open `frontend/next.config.ts` and **type this exactly:**
 
 ```typescript
 import type { NextConfig } from "next";
@@ -126,11 +152,17 @@ export default nextConfig;
 ## Commands to run now
 
 ```powershell
-cd frontend
+Set-Location frontend
 npm install
+Set-Location ..
 ```
 
 ## Checkpoint
+
+```powershell
+Test-Path frontend\node_modules
+Test-Path frontend\package-lock.json
+```
 
 - `frontend/node_modules` exists
 - No install errors

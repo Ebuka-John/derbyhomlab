@@ -4,19 +4,18 @@ import math
 
 import pytest
 
-from src.utils.coordinates import (
-    Point27700,
+from src.models.domain.geometry import Point27700
+from src.utils.exceptions import CoordinateConversionError
+from src.utils.geospatial import (
     bng_to_lonlat,
     detect_crs_from_values,
     ensure_bng,
     euclidean_distance_meters,
     lonlat_to_bng,
 )
-from src.utils.errors import CoordinateConversionError
 
 
 def test_lonlat_to_bng_roundtrip_approx() -> None:
-    # Known-ish London point; round-trip should be within a metre
     lon, lat = -0.1278, 51.5074
     bng = lonlat_to_bng(lon, lat)
     back = bng_to_lonlat(bng.easting, bng.northing)

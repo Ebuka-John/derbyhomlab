@@ -31,15 +31,24 @@ the stack with one command — without installing Python or Node on their machin
 
 - Docker Desktop (or Docker Engine + Compose plugin) installed and running
 - Root `.env` already filled with real Address API credentials (from the backend lab)
-- Frontend has been built at least once locally (`npm install` in `frontend/`) so
-  `package-lock.json` exists — the frontend Dockerfile needs it for `npm ci`
+- Frontend has been built at least once locally so `package-lock.json` exists:
+
+```powershell
+Set-Location frontend
+npm install
+Set-Location ..
+Test-Path frontend\package-lock.json
+```
+
+(`npm ci` in the frontend Dockerfile needs that lockfile.)
 
 ## Before you start
 
-Stop any local `uvicorn` / `npm run dev` processes so ports **8000** and **3000**
-are free.
+Stop any local servers so ports **8000** and **3000** are free (`Ctrl+C` in their
+PowerShell windows).
 
-Then open **[01-backend-dockerfile.md](./01-backend-dockerfile.md)**.
+Then open **[01-backend-dockerfile.md](./01-backend-dockerfile.md)** — create each
+file with PowerShell `New-Item`, then type the contents yourself.
 
 ---
 

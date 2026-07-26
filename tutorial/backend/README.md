@@ -5,10 +5,11 @@ Type these files **in order**. Each step is one lesson file.
 Work from your **project root** (the folder that will contain `src/`, `.env`, and
 `requirements.txt`).
 
-## New to Python or FastAPI?
+## Layered design (read first)
 
-Read this short primer first — classes, async, decorators, and FastAPI in plain
-language:
+→ **[00-backend-design.md](./00-backend-design.md)** — Mermaid diagrams + layer rules
+
+## New to Python or FastAPI?
 
 → **[00-python-fastapi-basics.md](./00-python-fastapi-basics.md)**
 
@@ -18,30 +19,44 @@ Later steps also explain concepts **inline** where they first appear.
 
 | Step | Lesson file | You create |
 |-----:|-------------|------------|
-| 0 | [00-python-fastapi-basics.md](./00-python-fastapi-basics.md) | *(read only)* |
+| 0a | [00-backend-design.md](./00-backend-design.md) | *(read only — architecture)* |
+| 0b | [00-python-fastapi-basics.md](./00-python-fastapi-basics.md) | *(read only — primer)* |
 | 1 | [01-requirements.md](./01-requirements.md) | `requirements.txt`, `requirements-dev.txt`, venv |
 | 2 | [02-env.md](./02-env.md) | `.env.example`, `.env` |
-| 3 | [03-init-packages.md](./03-init-packages.md) | `src/__init__.py` (+ services/utils packages) |
-| 4 | [04-config.md](./04-config.md) | `src/config.py` |
-| 5 | [05-errors.md](./05-errors.md) | `src/utils/errors.py` |
-| 6 | [06-coordinates.md](./06-coordinates.md) | `src/utils/coordinates.py` |
-| 7 | [07-address-service.md](./07-address-service.md) | `src/services/address_service.py` |
-| 8 | [08-geoserver-service.md](./08-geoserver-service.md) | `src/services/geoserver_service.py` |
-| 9 | [09-app.md](./09-app.md) | `src/app.py` |
+| 3 | [03-init-packages.md](./03-init-packages.md) | Full `src/` package tree + `__init__.py` |
+| 4 | [04-config.md](./04-config.md) | `core/settings.py`, `core/logging.py`, `config.py` |
+| 5 | [05-errors.md](./05-errors.md) | `utils/exceptions.py` |
+| 6 | [06-coordinates.md](./06-coordinates.md) | `models/domain/*` + `utils/geospatial.py` |
+| 7 | [07-address-service.md](./07-address-service.md) | address repository + service |
+| 8 | [08-geoserver-service.md](./08-geoserver-service.md) | gritbin repository + service + DTO |
+| 9 | [09-app.md](./09-app.md) | dependencies, routers, `app.py`, `main.py` |
 | 10 | [10-run-and-test.md](./10-run-and-test.md) | Run uvicorn + hit `/docs` |
+
+```mermaid
+flowchart LR
+  A[settings + exceptions] --> B[domain + geospatial]
+  B --> C[repositories]
+  C --> D[services]
+  D --> E[routers + app]
+```
 
 ## Before you start
 
-1. Create an empty project folder by hand (e.g. `grit-bin-lab`) wherever you keep code.
-2. Open that folder in your editor.
-3. Open a terminal in that folder.
+Run these in **PowerShell** yourself:
 
-Every folder and file in this lab is created **manually** in the editor — you type
-the filenames and the code yourself. Terminal commands are only used for real
-actions like installing packages and starting the server.
+```powershell
+Set-Location $HOME\Cursor_AI_projects   # or any folder you prefer
+New-Item -ItemType Directory -Force -Path grit-bin-lab | Out-Null
+Set-Location grit-bin-lab
+```
 
-Then open **[00-python-fastapi-basics.md](./00-python-fastapi-basics.md)** (or skip
-straight to [01-requirements.md](./01-requirements.md) if you already know Python OOP).
+Open that folder in your editor, and keep PowerShell at the **project root** for
+every later command.
+
+**Workflow:** PowerShell `New-Item` creates an empty file → you open it and
+**type** the code → PowerShell runs the checkpoint.
+
+Then open **[00-backend-design.md](./00-backend-design.md)**.
 
 ---
 
@@ -49,4 +64,4 @@ straight to [01-requirements.md](./01-requirements.md) if you already know Pytho
 
 | Previous | Next |
 |:---------|-----:|
-| ← [Environment variables](../04-environment-variables.md) | [Python / FastAPI basics](./00-python-fastapi-basics.md) → |
+| ← [Environment variables](../04-environment-variables.md) | [Backend design](./00-backend-design.md) → |

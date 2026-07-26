@@ -23,8 +23,9 @@ and transitions are designed for retention.
 
 ## How to follow this lab
 
-1. Create an empty project folder (or work in a clean clone and delete `src/` /
-   `frontend/` first if you want a true type-from-scratch experience).
+1. Open **PowerShell** and create an empty project folder (or work in a clean
+   clone and delete `src/` / `frontend/` first if you want a true type-from-scratch
+   experience).
 2. Start at **[01-introduction.md](./01-introduction.md)** and read the overview docs
    (including **[09-sources-and-references.md](./09-sources-and-references.md)** if
    Derbyshire / postcodes / maps are new).
@@ -35,14 +36,33 @@ and transitions are designed for retention.
 
 Work **one step at a time**. Do not skip ahead until the checkpoint passes.
 
-### Create everything by hand
+### Type-along + PowerShell (how every step works)
 
-All folders and files are created **manually in your editor** (new folder / new
-file, type the exact name, then type the code). That is the whole point of the
-lab — the typing is what builds the mental model.
+This is a **type-along** lab on **Windows PowerShell**. You run every command
+yourself. The pattern never changes:
 
-Terminal commands appear only for real actions: installing packages, starting the
-servers, and verifying results.
+1. **PowerShell creates** the empty file or folder (`New-Item …`).
+2. **You open the file** in your editor and **type** the contents yourself.
+3. **PowerShell runs** installs, servers, and checkpoints.
+
+Do not paste a finished source tree from elsewhere — typing the code builds the
+mental model. Every command is in a `powershell` block: copy it into your
+terminal and run it.
+
+#### PowerShell conventions used throughout
+
+```powershell
+# Create folders / empty files (from the project root)
+New-Item -ItemType Directory -Force -Path src\utils | Out-Null
+New-Item -ItemType File -Force -Path src\utils\geospatial.py | Out-Null
+
+# Activate the Python virtual environment (every new terminal)
+.\.venv\Scripts\Activate.ps1
+
+# If Activate.ps1 is blocked by execution policy, run this once in that terminal:
+Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
+.\.venv\Scripts\Activate.ps1
+```
 
 ---
 
@@ -56,7 +76,7 @@ servers, and verifying results.
 | 3 | [02-architecture.md](./02-architecture.md) | How backend + frontend talk |
 | 4 | [03-folder-structure.md](./03-folder-structure.md) | Where files live |
 | 5 | [04-environment-variables.md](./04-environment-variables.md) | Secrets and config |
-| 6 | [backend/](./backend/README.md) | FastAPI (+ Python/OOP primer) |
+| 6 | [backend/](./backend/README.md) | FastAPI layered design (+ Mermaid) + type-along |
 | 7 | [frontend/](./frontend/README.md) | Next.js UI + proxy |
 | 8 | [05-running-fullstack.md](./05-running-fullstack.md) | Run both sides together locally |
 | 9 | [docker/](./docker/README.md) | Containerise with Docker Compose |
@@ -80,6 +100,7 @@ servers, and verifying results.
 
 - Python **3.11+**
 - Node.js **20+** (18+ usually fine)
+- **Windows PowerShell** (this lab’s command language)
 - A code editor of your choice
 - Docker Desktop (or Docker Engine + Compose) if you follow the Docker lab
 - Real Address API credentials in `.env` when you want live calls

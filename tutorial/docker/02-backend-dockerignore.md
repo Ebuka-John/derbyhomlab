@@ -2,12 +2,21 @@
 
 ## What you will do
 
-Create `.dockerignore` so the backend image build does not send secrets, virtualenvs,
-or the frontend tree into the Docker build context.
+Create `.dockerignore` with PowerShell (`New-Item`), then type its contents so
+the backend image build does not send secrets, virtualenvs, or the frontend tree
+into the Docker build context.
 
 ## File to create: `.dockerignore`
 
 **Path:** `.dockerignore` (project root)
+
+### Create it in PowerShell (project root)
+
+```powershell
+New-Item -ItemType File -Force -Path .dockerignore | Out-Null
+```
+
+Open `.dockerignore` in your editor and type the contents below yourself.
 
 ### Purpose
 

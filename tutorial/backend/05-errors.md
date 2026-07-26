@@ -2,26 +2,30 @@
 
 ## What you will do
 
-1. Create the file below.
-2. Type the code carefully (or type section by section).
-3. Run the checkpoint before continuing.
+1. Create the empty file with PowerShell (`New-Item`).
+2. Open it and type the code carefully (or section by section).
+3. Activate the venv and run the checkpoint before continuing.
 
-## File to create: `src/utils/errors.py`
+## File to create: `src/utils/exceptions.py`
 
-**Path:** `src/utils/errors.py`
+**Path:** `src/utils/exceptions.py`
+
+### Create it in PowerShell (project root)
+
+```powershell
+New-Item -ItemType File -Force -Path src\utils\exceptions.py | Out-Null
+```
+
+Open `src/utils/exceptions.py` in your editor and type the contents below yourself.
 
 ### Purpose
 
-Defines domain exceptions with HTTP status codes and machine-readable error codes. FastAPI will map these to consistent JSON bodies.
+Defines domain exceptions with HTTP status codes and machine-readable error codes. FastAPI will map these to consistent JSON bodies via a handler in `app.py`.
 
 ### Type this exactly
 
 ```python
-"""Domain-specific exception hierarchy for clean FastAPI error mapping.
-
-Each exception carries a machine-readable `code` and a human-readable message
-so the API can return consistent JSON error bodies without leaking stack traces.
-"""
+"""Domain and application exception hierarchy."""
 
 from __future__ import annotations
 
@@ -75,7 +79,7 @@ class AddressNotFoundError(AppError):
 
 
 class TargetAddressNotFoundError(AppError):
-    """Postcode resolved, but no Title matched the address parameter."""
+    """Postcode resolved, but no record matched the address parameter."""
 
     def __init__(self, address: str, postcode: str) -> None:
         super().__init__(
@@ -129,8 +133,6 @@ class CoordinateConversionError(AppError):
 
 ### How the code works
 
-#### Concepts in this file (OOP inheritance)
-
 Think of errors as a **family tree**:
 
 ```
@@ -145,17 +147,11 @@ Exception          ← Python’s built-in base
 
 | Concept | Where | Plain meaning |
 |---------|-------|---------------|
-| **Inheritance** | `class MissingParameterError(AppError)` | Child error **is an** AppError. One FastAPI handler can catch them all. |
-| **`__init__`** | constructor | Runs when you write `MissingParameterError("postcode")`. |
-| **`self`** | `self.message = message` | Stores data on **this** error object. |
-| **`super().__init__(...)`** | first line in child `__init__` | Call the parent constructor so shared fields are set correctly. |
-| **Keyword-only args** | `*, code=..., status_code=...` | The `*` means callers must name those arguments (`code="…"`), which avoids mix-ups. |
-| **`raise`** | (used later in services) | Throw this error up the call stack until something handles it. |
+| **Inheritance** | `class MissingParameterError(AppError)` | Child error **is an** `AppError`. One FastAPI handler catches them all. |
+| **`super().__init__(...)`** | child constructors | Run the parent constructor so shared fields are set correctly. |
+| **`raise`** | (used later in services) | Throw this error up the stack until something handles it. |
 
-#### Why this design
-
-Without typed errors, every function invents its own failure message. With this
-hierarchy:
+Without typed errors, every function invents its own failure message. With this hierarchy:
 
 1. Services `raise TargetAddressNotFoundError(...)` when matching fails.
 2. FastAPI’s exception handler (in `app.py`) catches **any** `AppError`.
@@ -165,7 +161,7 @@ HTTP status cheat sheet:
 
 | Code | Meaning in this app |
 |------|---------------------|
-| 400 | Bad input (you forgot a parameter) |
+| 400 | Bad input (missing query parameter) |
 | 404 | Not found (address / grit bin) |
 | 502 | Upstream failed (Address API or GeoServer) |
 
@@ -174,8 +170,10 @@ HTTP status cheat sheet:
 ## Checkpoint
 
 ```powershell
-python -c "from src.utils.errors import MissingParameterError as E; e=E('postcode'); print(e.status_code, e.code)"
+.\.venv\Scripts\Activate.ps1
+python -c "from src.utils.exceptions import MissingParameterError as E; e=E('postcode'); print(e.status_code, e.code)"
 ```
+
 Expected: `400 missing_parameter`
 
 ---

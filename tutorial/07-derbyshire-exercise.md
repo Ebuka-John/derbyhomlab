@@ -8,21 +8,21 @@ Use what you built as a springboard for interview-style changes.
 
 | Change | Where to edit |
 |--------|----------------|
-| Custom search radius | Query param in `src/app.py` → pass to `find_nearest` → optional UI field + proxy |
-| Different response fields | `NearestGritBinResponse` **and** `frontend/lib/types.ts` together |
-| New error case | Add subclass in `src/utils/errors.py` (handler already covers `AppError`) |
+| Custom search radius | Query param in `api/routers/gritbins.py` → pass to `GritBinService.find_nearest` → optional UI field + proxy |
+| Different response fields | `models/dto/gritbin.py` **and** `frontend/lib/types.ts` together |
+| New error case | Add subclass in `utils/exceptions.py` (handler in `app.py` already covers `AppError`) |
 
 ## Integrating real API calls
 
 1. Put live credentials in root `.env`
 2. Keep parsing tolerant (`_*_KEYS` in `address_service.py`)
-3. Watch logs for DWITHIN vs Euclidean fallback in `geoserver_service.py`
+3. Watch logs for DWITHIN vs Euclidean fallback in `gritbin_service.py`
 
 ## Adding spatial queries
 
-- Template: `query_dwithin` CQL filter
+- Template: `GritBinRepository.query_dwithin` CQL filter
 - Nearest **N** bins: sort distances and return top N (see `docs/nearest-5-grit-bins.md`)
-- Other asset types: change `GEOSERVER_LAYER` (see `docs/scale-multiple-asset-types.md`)
+- Other asset types: change `GEOSERVER_LAYER` or add a new repository (see `docs/scale-multiple-asset-types.md`)
 
 ## Spatial querying is the differentiator
 

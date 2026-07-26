@@ -44,7 +44,7 @@ machine can build it.
 | 0:10–0:25 | [09-sources-and-references.md](./09-sources-and-references.md) **§1–2 only** — grit bins, postcodes, British National Grid. Skim the rest; you'll return in hour 8 |
 | 0:25–0:35 | [02-architecture.md](./02-architecture.md) + [03-folder-structure.md](./03-folder-structure.md) — how backend and frontend talk, where files live |
 | 0:35–0:40 | [04-environment-variables.md](./04-environment-variables.md) — secrets strategy |
-| 0:40–0:55 | Environment setup: verify `python --version` (3.11+) and `node --version` (20+), create the project folder and a virtualenv |
+| 0:40–0:55 | Environment setup in **PowerShell**: `python --version` (3.11+), `node --version` (20+), create the project folder with `New-Item`, then follow [backend/01-requirements.md](./backend/01-requirements.md) for `python -m venv .venv` and `.\.venv\Scripts\Activate.ps1` |
 | 0:55–1:00 | Skim [backend/00-python-fastapi-basics.md](./backend/00-python-fastapi-basics.md) — bookmark it; you will consult it *as needed*, not read it linearly |
 
 **Exit checkpoint:** you can sketch the request path from memory —
@@ -63,12 +63,12 @@ environment, errors — import cleanly.
 
 | Time | Do this |
 |------|---------|
-| 0:00–0:05 | [backend/README.md](./backend/README.md) — the build order for the backend |
+| 0:00–0:05 | [backend/README.md](./backend/README.md) + [backend/00-backend-design.md](./backend/00-backend-design.md) — layered design (Mermaid) |
 | 0:05–0:15 | [backend/01-requirements.md](./backend/01-requirements.md) — type both requirements files, `pip install` |
 | 0:15–0:25 | [backend/02-env.md](./backend/02-env.md) — create `.env` / `.env.example` |
-| 0:25–0:35 | [backend/03-init-packages.md](./backend/03-init-packages.md) — package folders and `__init__.py` files |
-| 0:35–0:50 | [backend/04-config.md](./backend/04-config.md) — `Settings` with pydantic-settings |
-| 0:50–1:00 | [backend/05-errors.md](./backend/05-errors.md) — the `AppError` hierarchy |
+| 0:25–0:35 | [backend/03-init-packages.md](./backend/03-init-packages.md) — full layered `src/` tree |
+| 0:35–0:50 | [backend/04-config.md](./backend/04-config.md) — `core/settings` + logging |
+| 0:50–1:00 | [backend/05-errors.md](./backend/05-errors.md) — `utils/exceptions.py` |
 
 **Exit checkpoint:** the checkpoints in steps 04 and 05 both pass (settings
 load from `.env`; error classes import and carry status codes).
@@ -86,9 +86,9 @@ matching address from the Address API.
 
 | Time | Do this |
 |------|---------|
-| 0:00–0:20 | [backend/06-coordinates.md](./backend/06-coordinates.md) — `Point27700`, pyproj conversion, Euclidean distance. **Type slowly here**; this file is the foundation of everything spatial |
-| 0:20–0:25 | Pause and read [10-spatial-querying.md](./10-spatial-querying.md) **§1 only** (EPSG:27700) — now the code you just typed has a story |
-| 0:25–0:55 | [backend/07-address-service.md](./backend/07-address-service.md) — the credentialed Address API client with tolerant parsing |
+| 0:00–0:20 | [backend/06-coordinates.md](./backend/06-coordinates.md) — domain points + `utils/geospatial.py`. **Type slowly here** |
+| 0:20–0:25 | Pause and read [10-spatial-querying.md](./10-spatial-querying.md) **§1 only** (EPSG:27700) |
+| 0:25–0:55 | [backend/07-address-service.md](./backend/07-address-service.md) — address **repository** + **service** |
 | 0:55–1:00 | Run both checkpoints; take a 5-minute break if ahead |
 
 **Exit checkpoint:** `euclidean_distance_meters(P(0,0), P(3,4))` prints `5.0`,
@@ -106,9 +106,9 @@ ask GeoServer what's *near* that point.
 
 | Time | Do this |
 |------|---------|
-| 0:00–0:30 | [backend/08-geoserver-service.md](./backend/08-geoserver-service.md) — WFS client, CQL DWITHIN, Euclidean fallback |
-| 0:30–0:35 | Pause and read [10-spatial-querying.md](./10-spatial-querying.md) **§2–3** (WFS vs WMS, DWITHIN) — while the code is fresh |
-| 0:35–0:50 | [backend/09-app.md](./backend/09-app.md) — the FastAPI app wiring it all together |
+| 0:00–0:30 | [backend/08-geoserver-service.md](./backend/08-geoserver-service.md) — gritbin repository + service (DWITHIN + fallback) |
+| 0:30–0:35 | Pause and read [10-spatial-querying.md](./10-spatial-querying.md) **§2–3** (WFS vs WMS, DWITHIN) |
+| 0:35–0:50 | [backend/09-app.md](./backend/09-app.md) — dependencies, routers, `app.py`, `main.py` |
 | 0:50–1:00 | [backend/10-run-and-test.md](./backend/10-run-and-test.md) — `uvicorn` up, `/docs` open, tests green |
 
 **Exit checkpoint:** the interview example works — `HILLBROW` + `DE55 5PB`

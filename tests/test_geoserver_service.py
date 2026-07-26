@@ -1,4 +1,4 @@
-"""Unit tests for GeoServerService."""
+"""Unit tests for GritBinService."""
 
 from __future__ import annotations
 
@@ -6,16 +6,10 @@ import httpx
 import pytest
 import respx
 
-from src.services.geoserver_service import (
-    GeoServerService,
-    nearest_from_features,
-)
-from src.utils.coordinates import Point27700
-from src.utils.errors import (
-    GeoServerUnreachableError,
-    NoGritBinNearbyError,
-)
-
+from src.models.domain.geometry import Point27700
+from src.services.gritbin_service import GritBinService
+from src.utils.exceptions import GeoServerUnreachableError, NoGritBinNearbyError
+from src.utils.geospatial import nearest_from_features
 
 ORIGIN = Point27700(easting=443609.0, northing=351791.0)
 
@@ -59,12 +53,11 @@ async def test_dwithin_success(settings) -> None:
         )
     )
 
-    async with GeoServerService(settings) as svc:
+    async with GritBinService(settings) as svc:
         match = await svc.find_nearest(ORIGIN, radius_meters=100)
 
     assert match.title == "GB-NEAR"
     assert route.called
-    # Confirm DWITHIN CQL was issued
     params = str(route.calls.last.request.url)
     assert "DWITHIN" in params
     assert "SP_GEOMETRY" in params
@@ -91,7 +84,7 @@ async def test_dwithin_fallback_to_euclidean(settings) -> None:
 
     respx.get("https://wms.example.com/geoserver/DCC/ows").mock(side_effect=side_effect)
 
-    async with GeoServerService(settings) as svc:
+    async with GritBinService(settings) as svc:
         match = await svc.find_nearest(ORIGIN, radius_meters=100)
 
     assert match.title == "GB-NEAR"
@@ -105,7 +98,7 @@ async def test_geoserver_unreachable(settings) -> None:
         side_effect=httpx.ConnectError("down")
     )
 
-    async with GeoServerService(settings) as svc:
+    async with GritBinService(settings) as svc:
         with pytest.raises(GeoServerUnreachableError):
             await svc.find_nearest(ORIGIN)
 
@@ -120,6 +113,6 @@ async def test_no_bin_within_radius(settings) -> None:
         )
     )
 
-    async with GeoServerService(settings) as svc:
+    async with GritBinService(settings) as svc:
         with pytest.raises(NoGritBinNearbyError):
             await svc.find_nearest(ORIGIN, radius_meters=100)

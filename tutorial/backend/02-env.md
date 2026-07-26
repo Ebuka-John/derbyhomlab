@@ -2,7 +2,7 @@
 
 ## What you will do
 
-1. Create a safe template `.env.example`.
+1. Create a safe template `.env.example` (PowerShell + type contents).
 2. Copy it to `.env` and fill real values.
 3. Make sure `.env` is gitignored.
 
@@ -10,7 +10,13 @@
 
 **Path:** `.env.example` (project root)
 
-**Type this exactly:**
+### Create it in PowerShell (project root)
+
+```powershell
+New-Item -ItemType File -Force -Path .env.example | Out-Null
+```
+
+Open `.env.example` in your editor and **type this exactly:**
 
 ```text
 # Address Lookup API
@@ -37,18 +43,29 @@ Documents which variables exist without committing real secrets.
 
 **Path:** `.env` (project root)
 
-**What to do:**
+### Create it in PowerShell (project root)
 
-1. Create a new file in the project root named exactly `.env`.
-2. Copy the contents of `.env.example` into it (select all, copy, paste).
-3. Replace the Address API values with your real credentials:
-   - `ADDRESS_API_BASE_URL` — the real base URL you were given
-   - `ADDRESS_API_ALIAS` — your alias
-   - `ADDRESS_API_AUTH_TOKEN` — your token
-4. Leave the GeoServer and tuning values as they are.
+```powershell
+Copy-Item .env.example .env
+```
+
+Open `.env` in your editor and replace the Address API values with your real
+credentials:
+
+- `ADDRESS_API_BASE_URL` — the real base URL you were given
+- `ADDRESS_API_ALIAS` — your alias
+- `ADDRESS_API_AUTH_TOKEN` — your token
+
+Leave the GeoServer and tuning values as they are.
+
+Confirm the file is visible (dotfiles can be hidden):
+
+```powershell
+Get-ChildItem -Force .env, .env.example
+```
 
 > Some editors hide dotfiles. If `.env` disappears from the file tree, it still
-> exists — check with `Get-ChildItem -Force` or your editor's "show hidden files"
+> exists — use `Get-ChildItem -Force` or your editor's "show hidden files"
 > setting.
 
 ### Why this file
@@ -58,9 +75,15 @@ start correctly.
 
 ---
 
-## Also do this
+## Also do this — `.gitignore`
 
-If you use git, ensure `.gitignore` contains:
+### Create it in PowerShell (project root)
+
+```powershell
+New-Item -ItemType File -Force -Path .gitignore | Out-Null
+```
+
+Open `.gitignore` and type at least:
 
 ```text
 .env
@@ -68,7 +91,14 @@ If you use git, ensure `.gitignore` contains:
 __pycache__/
 ```
 
+(If you already have a fuller `.gitignore` from the finished repo, keep that.)
+
 ## Checkpoint
+
+```powershell
+Test-Path .env
+Get-Item .env | Select-Object Name, Length
+```
 
 - `.env` exists next to `requirements.txt`
 - File is named `.env` (not `.env.txt`)

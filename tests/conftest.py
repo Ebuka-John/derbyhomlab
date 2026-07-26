@@ -21,7 +21,6 @@ def settings(monkeypatch: pytest.MonkeyPatch) -> Settings:
     monkeypatch.setenv("NEAREST_SEARCH_RADIUS_METERS", "100")
     monkeypatch.setenv("HTTP_TIMEOUT_SECONDS", "5")
 
-    # Clear lru_cache so get_settings() can be re-evaluated if used
     from src.config import get_settings
 
     get_settings.cache_clear()

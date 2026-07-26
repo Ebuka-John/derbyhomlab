@@ -1,1 +1,1 @@
-"""Utility package."""
+"""Shared utilities — geospatial maths and exceptions."""

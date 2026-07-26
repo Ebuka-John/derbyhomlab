@@ -1,76 +1,9 @@
-"""Application configuration loaded from environment variables.
+"""Public configuration entrypoint.
 
-All sensitive values (API base URLs, auth headers, layer names) are read
-from a `.env` file via python-dotenv / pydantic-settings. Nothing is hard-coded
-so the same codebase can target local, staging, or production without edits.
+Re-exports settings from ``core.settings`` so callers can use
+``from src.config import Settings, get_settings``.
 """
 
-from functools import lru_cache
+from src.core.settings import Settings, get_settings
 
-from pydantic import Field, field_validator
-from pydantic_settings import BaseSettings, SettingsConfigDict
-
-
-class Settings(BaseSettings):
-    """Validated runtime configuration.
-
-    Missing required keys raise a clear ValidationError at startup rather than
-    failing later with an opaque HTTP 500 when an external call is made.
-    """
-
-    model_config = SettingsConfigDict(
-        env_file=".env",
-        env_file_encoding="utf-8",
-        extra="ignore",
-    )
-
-    # Address Lookup API
-    address_api_base_url: str = Field(..., alias="ADDRESS_API_BASE_URL")
-    address_api_alias: str = Field(..., alias="ADDRESS_API_ALIAS")
-    address_api_auth_token: str = Field(..., alias="ADDRESS_API_AUTH_TOKEN")
-
-    # GeoServer WFS
-    geoserver_base_url: str = Field(..., alias="GEOSERVER_BASE_URL")
-    geoserver_layer: str = Field(..., alias="GEOSERVER_LAYER")
-
-    # Tuning (optional with sensible defaults)
-    nearest_search_radius_meters: float = Field(
-        100.0, alias="NEAREST_SEARCH_RADIUS_METERS"
-    )
-    http_timeout_seconds: float = Field(30.0, alias="HTTP_TIMEOUT_SECONDS")
-
-    @field_validator(
-        "address_api_base_url",
-        "geoserver_base_url",
-        mode="before",
-    )
-    @classmethod
-    def strip_trailing_slash(cls, value: str) -> str:
-        """Normalise base URLs so path joins never produce double slashes."""
-        if isinstance(value, str):
-            return value.rstrip("/")
-        return value
-
-    @property
-    def address_api_headers(self) -> dict[str, str]:
-        """Reusable auth headers for every Address API call."""
-        return {
-            "x-alias": self.address_api_alias,
-            "x-auth-token": self.address_api_auth_token,
-            "Accept": "application/json",
-        }
-
-    @property
-    def geoserver_wfs_url(self) -> str:
-        """WFS GetFeature endpoint for the DCC workspace.
-
-        GeoServer convention: {base}/DCC/ows for the DCC workspace.
-        Layer name still uses the fully-qualified typeName (e.g. DCC:Gritbins).
-        """
-        return f"{self.geoserver_base_url}/DCC/ows"
-
-
-@lru_cache
-def get_settings() -> Settings:
-    """Cached settings singleton — load .env once per process."""
-    return Settings()
+__all__ = ["Settings", "get_settings"]

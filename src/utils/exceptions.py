@@ -1,8 +1,4 @@
-"""Domain-specific exception hierarchy for clean FastAPI error mapping.
-
-Each exception carries a machine-readable `code` and a human-readable message
-so the API can return consistent JSON error bodies without leaking stack traces.
-"""
+"""Domain and application exception hierarchy."""
 
 from __future__ import annotations
 
@@ -56,7 +52,7 @@ class AddressNotFoundError(AppError):
 
 
 class TargetAddressNotFoundError(AppError):
-    """Postcode resolved, but no Title matched the address parameter."""
+    """Postcode resolved, but no record matched the address parameter."""
 
     def __init__(self, address: str, postcode: str) -> None:
         super().__init__(

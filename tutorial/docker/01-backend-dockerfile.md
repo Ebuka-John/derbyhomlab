@@ -2,12 +2,21 @@
 
 ## What you will do
 
-Create the backend image recipe at the project root. This tells Docker how to
-package the FastAPI app.
+Create the backend image recipe at the project root with PowerShell (`New-Item`),
+then type the Dockerfile contents yourself. This tells Docker how to package the
+FastAPI app.
 
 ## File to create: `Dockerfile`
 
 **Path:** `Dockerfile` (project root — same folder as `requirements.txt` and `src/`)
+
+### Create it in PowerShell (project root)
+
+```powershell
+New-Item -ItemType File -Force -Path Dockerfile | Out-Null
+```
+
+Open `Dockerfile` in your editor and type the contents below yourself.
 
 ### Purpose
 

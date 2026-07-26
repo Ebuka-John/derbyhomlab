@@ -1,48 +1,47 @@
-# Backend Step 6 — Coordinates
+# Backend Step 6 — Domain geometry & geospatial helpers
 
 ## What you will do
 
-1. Create the file below.
-2. Type the code carefully (or type section by section).
-3. Run the checkpoint before continuing.
+1. Create five files with PowerShell (`New-Item`).
+2. Open each file and type the code carefully (or section by section).
+3. Activate the venv and run the checkpoint before continuing.
 
-## File to create: `src/utils/coordinates.py`
+**Domain models** (`models/domain/`) are internal value objects — what your business
+logic works with. **Geospatial helpers** (`utils/geospatial.py`) operate on those
+points (CRS conversion, distance, nearest-feature selection).
 
-**Path:** `src/utils/coordinates.py`
+```mermaid
+flowchart LR
+  GEO["domain/geometry.py<br/>Point27700, Point4326"]
+  ADDR["domain/address.py<br/>ResolvedAddress"]
+  GB["domain/gritbin.py<br/>GritBin, GritBinMatch"]
+  GEO --> GS["utils/geospatial.py"]
+  ADDR --> GS
+  GB --> GS
+```
 
-### Purpose
+---
 
-Converts between WGS84 (lat/lon) and British National Grid (EPSG:27700), and computes planar distance in metres.
+## File 1: `src/models/domain/geometry.py`
+
+**Path:** `src/models/domain/geometry.py`
+
+### Create it in PowerShell (project root)
+
+```powershell
+New-Item -ItemType File -Force -Path src\models\domain\geometry.py | Out-Null
+```
+
+Open `src/models/domain/geometry.py` in your editor and type the contents below yourself.
 
 ### Type this exactly
 
 ```python
-"""Coordinate conversion and planar distance helpers.
-
-UK local-authority geospatial layers (including Derbyshire GeoServer grit bins)
-are published in British National Grid — EPSG:27700. Address APIs may return
-either BNG easting/northing or WGS84 lat/lon (EPSG:4326).
-
-We normalise everything to EPSG:27700 before spatial queries so that:
-  - DWITHIN(... meters) is meaningful
-  - Euclidean distance approximates true ground distance (planar projection)
-"""
+"""Coordinate geometry value objects."""
 
 from __future__ import annotations
 
-import math
 from dataclasses import dataclass
-from typing import Literal
-
-from pyproj import Transformer
-
-from src.utils.errors import CoordinateConversionError
-
-CrsCode = Literal["EPSG:27700", "EPSG:4326"]
-
-# Lazily built transformers are expensive; cache module-level instances.
-_to_bng = Transformer.from_crs("EPSG:4326", "EPSG:27700", always_xy=True)
-_to_wgs84 = Transformer.from_crs("EPSG:27700", "EPSG:4326", always_xy=True)
 
 
 @dataclass(frozen=True, slots=True)
@@ -59,13 +58,166 @@ class Point4326:
 
     longitude: float
     latitude: float
+```
+
+---
+
+## File 2: `src/models/domain/address.py`
+
+**Path:** `src/models/domain/address.py`
+
+### Create it in PowerShell (project root)
+
+```powershell
+New-Item -ItemType File -Force -Path src\models\domain\address.py | Out-Null
+```
+
+Open `src/models/domain/address.py` in your editor and type the contents below yourself.
+
+### Type this exactly
+
+```python
+"""Address domain objects."""
+
+from __future__ import annotations
+
+from dataclasses import dataclass
+
+from src.models.domain.geometry import Point27700
+
+
+@dataclass(frozen=True, slots=True)
+class ResolvedAddress:
+    """Address match with coordinates normalised to EPSG:27700."""
+
+    title: str
+    postcode: str
+    point: Point27700
+```
+
+---
+
+## File 3: `src/models/domain/gritbin.py`
+
+**Path:** `src/models/domain/gritbin.py`
+
+### Create it in PowerShell (project root)
+
+```powershell
+New-Item -ItemType File -Force -Path src\models\domain\gritbin.py | Out-Null
+```
+
+Open `src/models/domain/gritbin.py` in your editor and type the contents below yourself.
+
+### Type this exactly
+
+```python
+"""Grit-bin domain objects."""
+
+from __future__ import annotations
+
+from dataclasses import dataclass, field
+from typing import Any
+
+from src.models.domain.geometry import Point27700
+
+
+@dataclass(frozen=True, slots=True)
+class GritBin:
+    """A grit-bin asset located in British National Grid."""
+
+    title: str
+    point: Point27700
+    properties: dict[str, Any] = field(default_factory=dict)
+
+
+@dataclass(frozen=True, slots=True)
+class GritBinMatch:
+    """Nearest grit bin relative to an origin point."""
+
+    title: str
+    distance_meters: float
+    point: Point27700
+    properties: dict[str, Any] = field(default_factory=dict)
+```
+
+---
+
+## File 4: `src/models/domain/__init__.py`
+
+**Path:** `src/models/domain/__init__.py`
+
+### Create it in PowerShell (project root)
+
+```powershell
+New-Item -ItemType File -Force -Path src\models\domain\__init__.py | Out-Null
+```
+
+Open `src/models/domain/__init__.py` in your editor and type the contents below yourself.
+
+### Type this exactly
+
+```python
+"""Domain models (entities and value objects)."""
+
+from src.models.domain.address import ResolvedAddress
+from src.models.domain.geometry import Point27700, Point4326
+from src.models.domain.gritbin import GritBin, GritBinMatch
+
+__all__ = [
+    "GritBin",
+    "GritBinMatch",
+    "Point27700",
+    "Point4326",
+    "ResolvedAddress",
+]
+```
+
+---
+
+## File 5: `src/utils/geospatial.py`
+
+**Path:** `src/utils/geospatial.py`
+
+### Create it in PowerShell (project root)
+
+```powershell
+New-Item -ItemType File -Force -Path src\utils\geospatial.py | Out-Null
+```
+
+Open `src/utils/geospatial.py` in your editor and type the contents below yourself.
+
+### Purpose
+
+Converts between WGS84 (lat/lon) and British National Grid (EPSG:27700), computes planar distance in metres, and picks the nearest grit-bin feature from a GeoJSON list.
+
+### Type this exactly
+
+```python
+"""Geospatial helpers: CRS conversion, planar distance, nearest-feature selection."""
+
+from __future__ import annotations
+
+import math
+from typing import Any, Literal
+
+from pyproj import Transformer
+
+from src.models.domain.geometry import Point27700, Point4326
+from src.models.domain.gritbin import GritBinMatch
+from src.utils.exceptions import CoordinateConversionError, NoGritBinNearbyError
+
+CrsCode = Literal["EPSG:27700", "EPSG:4326"]
+
+_to_bng = Transformer.from_crs("EPSG:4326", "EPSG:27700", always_xy=True)
+_to_wgs84 = Transformer.from_crs("EPSG:27700", "EPSG:4326", always_xy=True)
 
 
 def lonlat_to_bng(longitude: float, latitude: float) -> Point27700:
     """Convert WGS84 lon/lat (EPSG:4326) → BNG easting/northing (EPSG:27700)."""
     try:
         easting, northing = _to_bng.transform(longitude, latitude)
-    except Exception as exc:  # pragma: no cover - pyproj raises varied types
+    except Exception as exc:  # pragma: no cover
         raise CoordinateConversionError(str(exc)) from exc
     return Point27700(easting=float(easting), northing=float(northing))
 
@@ -86,12 +238,7 @@ def ensure_bng(
     latitude: float | None = None,
     longitude: float | None = None,
 ) -> Point27700:
-    """Return a BNG point from whichever coordinate pair is available.
-
-    Preference order:
-      1. Explicit easting/northing (already EPSG:27700)
-      2. lat/lon converted via pyproj
-    """
+    """Return a BNG point from whichever coordinate pair is available."""
     if easting is not None and northing is not None:
         return Point27700(easting=float(easting), northing=float(northing))
 
@@ -108,16 +255,8 @@ def euclidean_distance_meters(a: Point27700, b: Point27700) -> float:
     return math.hypot(a.easting - b.easting, a.northing - b.northing)
 
 
-def detect_crs_from_values(
-    x: float,
-    y: float,
-) -> CrsCode:
-    """Heuristic CRS detection when the payload does not declare an SRS.
-
-    BNG eastings are typically ~100_000–700_000 and northings ~0–1_300_000.
-    WGS84 lon is roughly -8..2 and lat 49..61 for the UK.
-    """
-    # Lon/lat ranges for the British Isles (with a small margin)
+def detect_crs_from_values(x: float, y: float) -> CrsCode:
+    """Heuristic CRS detection when the payload does not declare an SRS."""
     if -10.0 <= x <= 5.0 and 49.0 <= y <= 62.0:
         return "EPSG:4326"
     if 0.0 <= x <= 800_000 and -100_000 <= y <= 1_400_000:
@@ -125,37 +264,78 @@ def detect_crs_from_values(
     raise CoordinateConversionError(
         f"Unable to infer CRS for coordinates ({x}, {y})."
     )
+
+
+def feature_title(feature: dict[str, Any]) -> str:
+    props = feature.get("properties") or {}
+    for key in ("Title", "title", "NAME", "name", "Subtitle"):
+        if props.get(key):
+            return str(props[key]).strip()
+    return str(feature.get("id") or "unknown")
+
+
+def feature_point(feature: dict[str, Any]) -> Point27700 | None:
+    geometry = feature.get("geometry") or {}
+    coords = geometry.get("coordinates")
+    if (
+        isinstance(coords, (list, tuple))
+        and len(coords) >= 2
+        and isinstance(coords[0], (int, float))
+        and isinstance(coords[1], (int, float))
+    ):
+        return Point27700(easting=float(coords[0]), northing=float(coords[1]))
+    return None
+
+
+def nearest_from_features(
+    features: list[dict[str, Any]],
+    origin: Point27700,
+    *,
+    radius_meters: float,
+) -> GritBinMatch:
+    """Pick the closest grit bin within radius using planar Euclidean distance.
+
+    Used as the DWITHIN fallback path and for ranking filtered candidates.
+    """
+    best: GritBinMatch | None = None
+
+    for feature in features:
+        point = feature_point(feature)
+        if point is None:
+            continue
+        distance = euclidean_distance_meters(origin, point)
+        if distance > radius_meters:
+            continue
+        if best is None or distance < best.distance_meters:
+            best = GritBinMatch(
+                title=feature_title(feature),
+                distance_meters=distance,
+                point=point,
+                properties=dict(feature.get("properties") or {}),
+            )
+
+    if best is None:
+        raise NoGritBinNearbyError(radius_meters)
+    return best
 ```
 
 ### How the code works
 
-#### Concepts in this file
-
-| Concept | Where | Plain meaning |
-|---------|-------|---------------|
-| **`@dataclass`** | `Point27700`, `Point4326` | Auto-builds `__init__` so you don’t write boilerplate. Still a class/object. |
-| **`frozen=True`** | dataclass option | Points are immutable — once created, easting/northing cannot change. Safer for coordinates. |
-| **Named types vs tuples** | `Point27700` instead of `(x, y)` | Stops you mixing up order (“was x easting or lon?”). |
-| **Module-level constants** | `_to_bng`, `_to_wgs84` | Created once when the file loads. Transformers are expensive; reuse them. |
-| **`|` in types** | `float \| None` | Means “a float **or** None”. Older style was `Optional[float]`. |
-| **Keyword-only args** | `ensure_bng(*, easting=…)` | Callers must name arguments, so you can’t swap lat/lon by accident. |
-| **Pure functions** | `euclidean_distance_meters` | Take inputs, return a result, no hidden state. Easy to test. |
-
-#### What the code is doing
-
-1. UK map layers (grit bins) use **British National Grid** — metres east/north (EPSG:27700).
-2. Some APIs return **lat/lon** degrees (EPSG:4326) instead.
+1. Derbyshire GeoServer grit bins use **British National Grid** (EPSG:27700) — metres on the ground.
+2. Some Address APIs return **lat/lon** degrees (EPSG:4326) instead.
 3. `ensure_bng` normalises either flavour into a `Point27700`.
 4. Distance is then simple Pythagoras (`math.hypot`) because BNG is already in metres.
+5. `nearest_from_features` ranks raw GeoJSON features — reused by the grit-bin service fallback path.
 
-> Why OOP here? A bare `(440000, 355000)` is easy to misuse. A `Point27700` object
-> documents what the numbers mean. Primer: [00-python-fastapi-basics.md](./00-python-fastapi-basics.md) §4.
+> Why domain models? A bare `(440000, 355000)` is easy to misuse. A `Point27700` object documents what the numbers mean. Primer: [00-python-fastapi-basics.md](./00-python-fastapi-basics.md) §4.
 
 ## Checkpoint
 
 ```powershell
-python -c "from src.utils.coordinates import euclidean_distance_meters as d, Point27700 as P; print(d(P(0,0), P(3,4)))"
+.\.venv\Scripts\Activate.ps1
+python -c "from src.utils.geospatial import euclidean_distance_meters as d; from src.models.domain.geometry import Point27700 as P; print(d(P(0,0), P(3,4)))"
 ```
+
 Expected: `5.0`
 
 ---

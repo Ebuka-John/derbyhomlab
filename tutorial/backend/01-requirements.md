@@ -2,19 +2,21 @@
 
 ## What you will do
 
-1. Create two dependency files by hand at the project root.
+1. Create two dependency files at the project root (PowerShell + type contents).
 2. Create a Python virtual environment.
-3. Install packages.
-
-> Create every file in this lab **manually** in your editor: create a new file in
-> the correct folder, type the exact filename, then type the contents. Do not
-> generate them with scripts.
+3. Activate it and install packages.
 
 ## File to create: `requirements.txt`
 
 **Path:** `requirements.txt` (project root)
 
-**Type this exactly:**
+### Create it in PowerShell (project root)
+
+```powershell
+New-Item -ItemType File -Force -Path requirements.txt | Out-Null
+```
+
+Open `requirements.txt` in your editor and **type this exactly:**
 
 ```text
 fastapi>=0.115.0
@@ -37,7 +39,13 @@ server, HTTP client, env loading, coordinate conversion, and settings validation
 
 **Path:** `requirements-dev.txt` (project root)
 
-**Type this exactly:**
+### Create it in PowerShell (project root)
+
+```powershell
+New-Item -ItemType File -Force -Path requirements-dev.txt | Out-Null
+```
+
+Open `requirements-dev.txt` in your editor and **type this exactly:**
 
 ```text
 -r requirements.txt
@@ -55,9 +63,24 @@ Adds test tools. `-r requirements.txt` includes the runtime deps too.
 
 ## Commands to run now
 
+Type and run these in PowerShell from the **project root**:
+
 ```powershell
 python -m venv .venv
 .\.venv\Scripts\Activate.ps1
+```
+
+If activation fails with an execution-policy error:
+
+```powershell
+Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
+.\.venv\Scripts\Activate.ps1
+```
+
+Then install dependencies (venv must be active — prompt shows `(.venv)`):
+
+```powershell
+python -m pip install --upgrade pip
 pip install -r requirements.txt
 ```
 
@@ -65,7 +88,12 @@ pip install -r requirements.txt
 
 ## Checkpoint
 
-- Virtualenv is active (prompt shows `.venv`)
+```powershell
+# Prompt should show (.venv)
+pip show fastapi
+```
+
+- Virtualenv is active (prompt shows `(.venv)`)
 - `pip show fastapi` prints package info
 
 ---

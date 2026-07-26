@@ -7,9 +7,16 @@ Build both images, start the stack, and verify the fullstack flow through Docker
 ## Before you run
 
 1. Docker Desktop (or the Docker daemon) is running
-2. Ports **8000** and **3000** are free (stop local uvicorn / `npm run dev`)
+2. Ports **8000** and **3000** are free — in PowerShell, stop local servers
+   (`Ctrl+C` in their terminals), or check:
+
+```powershell
+Get-NetTCPConnection -LocalPort 8000,3000 -ErrorAction SilentlyContinue |
+  Select-Object LocalPort, State, OwningProcess
+```
+
 3. Root `.env` has real `ADDRESS_API_*` values
-4. `frontend/package-lock.json` exists
+4. `frontend/package-lock.json` exists (`npm install` from the frontend scaffold step)
 
 ## Build and start
 
@@ -41,13 +48,15 @@ docker compose up --build -d
 Direct API check:
 
 ```powershell
-curl "http://127.0.0.1:8000/nearest-grit-bin?postcode=DE55%205PB&address=HILLBROW"
+Invoke-RestMethod "http://127.0.0.1:8000/nearest-grit-bin?postcode=DE55%205PB&address=HILLBROW" |
+  ConvertTo-Json -Depth 5
 ```
 
 Through the frontend proxy:
 
 ```powershell
-curl "http://127.0.0.1:3000/api/nearest-grit-bin?postcode=DE55%205PB&address=HILLBROW"
+Invoke-RestMethod "http://127.0.0.1:3000/api/nearest-grit-bin?postcode=DE55%205PB&address=HILLBROW" |
+  ConvertTo-Json -Depth 5
 ```
 
 Both should return the same JSON shape.

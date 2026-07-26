@@ -15,26 +15,62 @@ FastAPI backend that resolves an address within a UK postcode and returns the ne
 
 ```
 src/
-  app.py                      # FastAPI app + GET /nearest-grit-bin
-  config.py                   # Env-driven Settings (pydantic-settings)
+  main.py                         # Process entry (uvicorn runner)
+  app.py                          # FastAPI factory + middleware/handlers
+  config.py                       # Re-exports Settings / get_settings
+  core/
+    settings.py                   # Env-driven Settings (pydantic-settings)
+    logging.py                    # Logging setup
+  api/
+    routers/
+      address.py                  # /health, /
+      gritbins.py                 # GET /nearest-grit-bin
+    dependencies/                 # DI: settings, httpx, services
   services/
-    address_service.py        # Address Lookup API client + Title match
-    geoserver_service.py      # WFS DWITHIN + Euclidean fallback
+    address_service.py            # Address matching / resolve (no FastAPI)
+    gritbin_service.py            # Nearest-bin orchestration (no FastAPI)
+  repositories/
+    address_repository.py         # Address Lookup API HTTP
+    gritbin_repository.py         # GeoServer WFS HTTP
+  models/
+    dto/                          # Pydantic request/response models
+    domain/                       # Point27700, ResolvedAddress, GritBinMatch
   utils/
-    coordinates.py            # EPSG:4326 ↔ EPSG:27700 + distance
-    errors.py                 # Typed domain exceptions
-tests/                        # Unit + API tests (httpx/respx mocked)
+    geospatial.py                 # CRS, distance, nearest_from_features
+    exceptions.py                 # Typed domain exceptions
+tests/                            # Unit + API tests (httpx/respx mocked)
+```
+
+**Layering**
+
+| Layer | Responsibility |
+|-------|----------------|
+| `api/routers` | HTTP only — validate params, call services, map DTOs |
+| `services` | Business rules — no FastAPI imports |
+| `repositories` | External I/O (Address API, GeoServer) |
+| `models` | DTOs at the edge; domain objects inside |
+| `utils` | Pure helpers (geospatial, exceptions) |
+| `core` | Settings + logging |
+
+```mermaid
+flowchart TB
+  R["api/routers"] --> S["services"]
+  S --> P["repositories"]
+  R --> DTO["models/dto"]
+  S --> DOM["models/domain"]
+  S --> U["utils/geospatial"]
+  P --> C["core/settings"]
 ```
 
 **Request flow**
 
-1. Validate `postcode` and `address` query params  
-2. `GET {ADDRESS_API_BASE_URL}/{postcode}` with `x-alias` / `x-auth-token`  
-3. Match the record whose `Title` contains `address` (case-insensitive)  
+1. Router validates `postcode` and `address` query params  
+2. `AddressService` → `AddressRepository` fetches postcode records  
+3. Match the record whose title/parts contain `address` (case-insensitive)  
 4. Normalise coordinates to **EPSG:27700** (BNG)  
-5. Query GeoServer **WFS** with `CQL_FILTER=DWITHIN(SP_GEOMETRY, POINT(...), 100, meters)`  
+5. `GritBinService` → `GritBinRepository` queries WFS with `DWITHIN`  
 6. If DWITHIN fails or returns empty → fetch features and pick nearest by planar Euclidean distance  
-7. Return JSON with title + distance  
+7. Return JSON DTO with title + distance  
 
 ---
 

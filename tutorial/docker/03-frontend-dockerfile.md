@@ -2,8 +2,9 @@
 
 ## What you will do
 
-Create a **multi-stage** Dockerfile for Next.js. Stage 1 installs deps, stage 2
-builds the app, stage 3 runs a tiny production server.
+Create a **multi-stage** Dockerfile for Next.js with PowerShell (`New-Item`), then
+type its contents. Stage 1 installs deps, stage 2 builds the app, stage 3 runs a
+tiny production server.
 
 ## Prerequisite
 
@@ -11,8 +12,9 @@ builds the app, stage 3 runs a tiny production server.
 `npm install`, it is already there. If not, create it once:
 
 ```powershell
-cd frontend
+Set-Location frontend
 npm install
+Set-Location ..
 ```
 
 (`npm ci` in the Dockerfile requires the lockfile.)
@@ -23,6 +25,14 @@ setting produces the `.next/standalone` folder the runner stage copies.
 ## File to create: `frontend/Dockerfile`
 
 **Path:** `frontend/Dockerfile`
+
+### Create it in PowerShell (project root)
+
+```powershell
+New-Item -ItemType File -Force -Path frontend\Dockerfile | Out-Null
+```
+
+Open `frontend/Dockerfile` in your editor and type the contents below yourself.
 
 ### Purpose
 

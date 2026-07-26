@@ -14,12 +14,14 @@ A `.py` file is a **module**. A folder of modules with `__init__.py` is a
 
 ```python
 from src.config import Settings
+from src.utils.exceptions import MissingParameterError
+from src.models.domain.geometry import Point27700
+from src.utils.geospatial import euclidean_distance_meters
 ```
 
-means: “from the package `src.config`, bring in the name `Settings`.”
-
-That is how pieces of the app talk to each other without pasting all the code
-into one giant file.
+Each line imports from a layer in the codebase (`config`, `utils/exceptions`,
+`models/domain`, `utils/geospatial`). That is how pieces of the app talk to
+each other without pasting all the code into one giant file.
 
 ---
 
@@ -98,16 +100,15 @@ Writing `__init__` just to store fields gets boring. `@dataclass` auto-builds
 that for you:
 
 ```python
-from dataclasses import dataclass
+from src.models.domain.geometry import Point27700
 
-@dataclass(frozen=True, slots=True)
-class Point27700:
-    easting: float
-    northing: float
+Point27700(easting=440000, northing=355000)
 ```
 
-- `frozen=True` — once created, fields cannot be changed (safer)
-- You use it like: `Point27700(easting=440000, northing=355000)`
+In our codebase, `Point27700` is a **domain value object** in
+`src/models/domain/geometry.py` — a `@dataclass(frozen=True, slots=True)` that
+documents British National Grid coordinates. `frozen=True` means fields cannot
+be changed after creation (safer).
 
 Still OOP — just less boilerplate.
 
@@ -163,6 +164,8 @@ use `async`/`await`.
 When something goes wrong, Python can **raise** an error:
 
 ```python
+from src.utils.exceptions import MissingParameterError
+
 raise MissingParameterError("postcode")
 ```
 
@@ -171,9 +174,9 @@ cleaner than returning random error strings from every function.
 
 ```python
 try:
-    features = await self.query_dwithin(...)
+    features = await repo.query_dwithin(...)
 except GeoServerUnreachableError:
-    features = await self.fetch_all_grit_bins()  # fallback plan
+    features = await repo.fetch_all()  # fallback plan
 ```
 
 ---
@@ -242,4 +245,4 @@ async def nearest_grit_bin(postcode: str, address: str):
 
 | Previous | Next |
 |:---------|-----:|
-| ← [Backend lab](./README.md) | [Requirements](./01-requirements.md) → |
+| ← [Backend design](./00-backend-design.md) | [Requirements](./01-requirements.md) → |

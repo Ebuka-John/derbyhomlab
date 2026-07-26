@@ -2,92 +2,98 @@
 
 ## What you will do
 
-Create the `src` package folders and the `__init__.py` marker files **by hand** in
-your editor, so imports like `from src.config import …` work.
+Create the full layered `src/` package tree with **PowerShell**, then add
+`__init__.py` markers so imports like `from src.core.settings import Settings`
+work.
 
 ## Folders to create
 
-In your editor's file explorer, right-click the **project root** and create these
-folders one at a time:
+From the **project root**, run:
 
-1. `src`
-2. `src/services` (create `services` **inside** `src`)
-3. `src/utils` (create `utils` **inside** `src`)
-
-When you are done the tree looks like this:
-
+```powershell
+New-Item -ItemType Directory -Force -Path `
+  src,
+  src\core,
+  src\api,
+  src\api\routers,
+  src\api\dependencies,
+  src\services,
+  src\repositories,
+  src\models,
+  src\models\dto,
+  src\models\domain,
+  src\utils | Out-Null
 ```
-your-project/
-├── requirements.txt
-├── .env
-└── src/
-    ├── services/
-    └── utils/
+
+Confirm:
+
+```powershell
+Get-ChildItem -Recurse src -Directory | Select-Object FullName
 ```
 
-> Hover the project root in your editor's file tree, create a new folder, type
-> the name, and confirm. Repeat for each folder.
+## `__init__.py` files
 
-## Files to create
+```powershell
+@(
+  'src\__init__.py',
+  'src\core\__init__.py',
+  'src\api\__init__.py',
+  'src\api\routers\__init__.py',
+  'src\api\dependencies\__init__.py',
+  'src\services\__init__.py',
+  'src\repositories\__init__.py',
+  'src\models\__init__.py',
+  'src\models\dto\__init__.py',
+  'src\models\domain\__init__.py',
+  'src\utils\__init__.py'
+) | ForEach-Object { New-Item -ItemType File -Force -Path $_ | Out-Null }
+```
 
-Create each file by adding a new file in the folder and typing the filename.
+### Type package markers
 
-### 1. `src/__init__.py`
-
-Create the file, then type this single line:
+Open `src/__init__.py` and type:
 
 ```python
-"""Package marker for src."""
+"""Nearest Grit Bin API package."""
 ```
 
-### 2. `src/services/__init__.py`
-
-Create the file and **leave it empty**. Nothing to type — just save it.
-
-### 3. `src/utils/__init__.py`
-
-Create the file and **leave it empty**. Save it.
-
-Your tree should now be:
-
-```
-src/
-├── __init__.py
-├── services/
-│   └── __init__.py
-└── utils/
-    └── __init__.py
-```
-
-## Why these files
-
-### Concept: packages and imports
-
-Python needs a marker to treat a folder as a **package** (a group of importable
-modules). That marker is `__init__.py`.
-
-Without it, this later line fails:
+Open `src/core/__init__.py` and type:
 
 ```python
-from src.utils.errors import AppError
+"""Core package — settings, logging, and cross-cutting infrastructure."""
 ```
 
-With the three `__init__.py` files in place, Python can walk:
+Leave the other `__init__.py` files empty (or add a one-line docstring if you prefer).
+You will fill package exports in later steps where needed.
 
-`src` → `utils` → `errors.py` and find `AppError`.
+## Why this tree
 
-> Primer: [00-python-fastapi-basics.md](./00-python-fastapi-basics.md) §1.
+```mermaid
+flowchart TB
+  SRC["src/"]
+  SRC --> CORE["core/"]
+  SRC --> API["api/"]
+  SRC --> SVC["services/"]
+  SRC --> REPO["repositories/"]
+  SRC --> MOD["models/"]
+  SRC --> UTIL["utils/"]
+```
+
+Each folder is a **package**. Without `__init__.py`, Python may not treat the
+folder as importable (depending on layout). We keep markers so
+`from src.services.address_service import AddressService` always works.
+
+> Primer: [00-python-fastapi-basics.md](./00-python-fastapi-basics.md) §1.  
+> Design: [00-backend-design.md](./00-backend-design.md).
 
 ## Checkpoint
 
-Run this from the project root:
-
 ```powershell
+.\.venv\Scripts\Activate.ps1
 python -c "import src; print('ok')"
 ```
 
-Should print `ok`. If you get `ModuleNotFoundError`, check that you are in the
-project root and that `src/__init__.py` exists.
+Should print `ok`.
 
 ---
 

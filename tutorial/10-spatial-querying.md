@@ -52,7 +52,7 @@ natural in a metre-based CRS:
 
 So the rule in this project is: **normalise everything to EPSG:27700 before any
 distance work**. The Address API may return either BNG easting/northing or
-WGS84 lat/lon; `ensure_bng` in `src/utils/coordinates.py` accepts both and
+WGS84 lat/lon; `ensure_bng` in `src/utils/geospatial.py` accepts both and
 converts lat/lon via **pyproj** (see
 [backend/06-coordinates.md](./backend/06-coordinates.md)).
 
@@ -98,7 +98,7 @@ tiles. The hostname is a red herring (see
 [`docs/issues-encountered.md`](../docs/issues-encountered.md)).
 
 The request this project sends (built in `_base_params()` in
-`src/services/geoserver_service.py`):
+`src/repositories/gritbin_repository.py`):
 
 ```text
 {GEOSERVER_BASE_URL}/DCC/ows
@@ -157,8 +157,9 @@ Details that trip people up:
   reason to reproject the address first.
 - The whole filter is URL-encoded into a query parameter.
 
-This is `query_dwithin` in `src/services/geoserver_service.py`
-(see [backend/08-geoserver-service.md](./backend/08-geoserver-service.md)).
+This is `query_dwithin` in `src/repositories/gritbin_repository.py`
+(orchestrated by `GritBinService.find_nearest` — see
+[backend/08-geoserver-service.md](./backend/08-geoserver-service.md)).
 
 ### Why it is preferred
 
@@ -291,7 +292,7 @@ Discovering the real column name (from `GetFeature` output or
 ```
 
 `coordinates` is `[easting, northing]` (x, y — in the layer CRS). The
-extraction code is `_feature_point` in `src/services/geoserver_service.py`: it
+extraction code is `feature_point` in `src/utils/geospatial.py`: it
 defensively checks that `coordinates` is a list of at least two numbers before
 building a `Point27700`, because live layers can contain malformed or empty
 geometries.
@@ -322,40 +323,28 @@ geometries.
 
 One request through the system touches all five, in order:
 
-```
-postcode + address
-   │
-   ▼
-Address API → coordinates (BNG or lat/lon)
-   │
-   ▼
-[1] Normalise to EPSG:27700  (pyproj, ensure_bng)
-   │
-   ▼
-[2] WFS GetFeature against DCC:Gritbins  (not WMS!)
-   │
-   ▼
-[3] CQL_FILTER=DWITHIN(SP_GEOMETRY, POINT(e n), 100, meters)
-   │
-   ├─ works → candidate features
-   └─ fails / empty
-         │
-         ▼
-      [4] fetch all features → planar Euclidean distance loop
-   │
-   ▼
-[5] extract geometry.coordinates from each feature → nearest GritBinMatch
+```mermaid
+flowchart TD
+  A["postcode + address"] --> B["AddressRepository → records"]
+  B --> C["AddressService → ResolvedAddress"]
+  C --> D["ensure_bng → EPSG:27700"]
+  D --> E["GritBinRepository DWITHIN"]
+  E -->|ok| F["candidate features"]
+  E -->|fail / empty| G["fetch_all + Euclidean"]
+  F --> H["nearest_from_features"]
+  G --> H
+  H --> I["NearestGritBinResponse"]
 ```
 
 Where each concept lives:
 
 | Concept | Code | Lab step |
 |---------|------|----------|
-| EPSG:27700 + conversion | `src/utils/coordinates.py` | [backend/06-coordinates.md](./backend/06-coordinates.md) |
-| WFS request params | `GeoServerService._base_params` | [backend/08-geoserver-service.md](./backend/08-geoserver-service.md) |
-| CQL DWITHIN | `GeoServerService.query_dwithin` | [backend/08-geoserver-service.md](./backend/08-geoserver-service.md) |
-| Euclidean fallback | `find_nearest` + `nearest_from_features` | [backend/08-geoserver-service.md](./backend/08-geoserver-service.md) |
-| SP_GEOMETRY extraction | `_feature_point` | [backend/08-geoserver-service.md](./backend/08-geoserver-service.md) |
+| EPSG:27700 + conversion | `utils/geospatial.py` + `models/domain/geometry.py` | [backend/06-coordinates.md](./backend/06-coordinates.md) |
+| WFS request params | `GritBinRepository._base_params` | [backend/08-geoserver-service.md](./backend/08-geoserver-service.md) |
+| CQL DWITHIN | `GritBinRepository.query_dwithin` | [backend/08-geoserver-service.md](./backend/08-geoserver-service.md) |
+| Euclidean fallback | `GritBinService.find_nearest` + `nearest_from_features` | [backend/08-geoserver-service.md](./backend/08-geoserver-service.md) |
+| SP_GEOMETRY extraction | `feature_point` in `utils/geospatial.py` | [backend/08-geoserver-service.md](./backend/08-geoserver-service.md) |
 
 ---
 

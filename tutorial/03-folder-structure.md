@@ -2,8 +2,9 @@
 
 ## What you will do
 
-Learn where each file belongs. You will create these folders step by step in the
-backend and frontend labs.
+Learn where each file belongs. You will create these folders and files with
+**PowerShell** (`New-Item`) in the backend and frontend labs, then type the
+contents yourself.
 
 ## Target tree (what you are building)
 
@@ -13,21 +14,33 @@ homelab/                          ← your project root
 ├── .env.example
 ├── requirements.txt
 ├── requirements-dev.txt
-├── Dockerfile                    ← backend image (Docker lab)
+├── Dockerfile
 ├── .dockerignore
-├── docker-compose.yml            ← runs backend + frontend together
-├── src/                          ← FastAPI backend
-│   ├── __init__.py
-│   ├── app.py                    ← endpoints live here
-│   ├── config.py
+├── docker-compose.yml
+├── src/                          ← FastAPI backend (layered)
+│   ├── main.py                   ← process entry
+│   ├── app.py                    ← create_app()
+│   ├── config.py                 ← re-exports settings
+│   ├── core/
+│   │   ├── settings.py
+│   │   └── logging.py
+│   ├── api/
+│   │   ├── routers/
+│   │   │   ├── address.py
+│   │   │   └── gritbins.py
+│   │   └── dependencies/
 │   ├── services/
-│   │   ├── __init__.py
 │   │   ├── address_service.py
-│   │   └── geoserver_service.py
+│   │   └── gritbin_service.py
+│   ├── repositories/
+│   │   ├── address_repository.py
+│   │   └── gritbin_repository.py
+│   ├── models/
+│   │   ├── dto/
+│   │   └── domain/
 │   └── utils/
-│       ├── __init__.py
-│       ├── coordinates.py
-│       └── errors.py
+│       ├── geospatial.py
+│       └── exceptions.py
 └── frontend/                     ← Next.js frontend
     ├── Dockerfile
     ├── .dockerignore
@@ -46,23 +59,46 @@ homelab/                          ← your project root
         └── types.ts
 ```
 
+## Backend layers (where code goes)
+
+```mermaid
+flowchart TB
+  subgraph src ["src/"]
+    direction TB
+    API["api/routers + dependencies"]
+    SVC["services/"]
+    REPO["repositories/"]
+    MOD["models/dto + domain"]
+    CORE["core/ + utils/"]
+  end
+  API --> SVC --> REPO
+  API --> MOD
+  SVC --> MOD
+  SVC --> CORE
+  REPO --> CORE
+```
+
 ## What each area means
 
 | Path | Purpose |
 |------|---------|
-| `src/app.py` | FastAPI app + `/nearest-grit-bin` endpoint |
-| `src/config.py` | Load and validate env vars |
-| `src/services/*` | Talk to Address API and GeoServer |
-| `src/utils/*` | Coordinates + typed errors |
+| `src/main.py` | Start uvicorn only |
+| `src/app.py` | Assemble FastAPI app, lifespan, error handler |
+| `src/core/settings.py` | Load and validate env vars |
+| `src/api/routers/*` | HTTP endpoints (no upstream I/O) |
+| `src/api/dependencies/` | Inject settings, httpx client, services |
+| `src/services/*` | Business logic (no FastAPI imports) |
+| `src/repositories/*` | Address API + GeoServer HTTP |
+| `src/models/dto/*` | Pydantic response models |
+| `src/models/domain/*` | Internal points / matches |
+| `src/utils/geospatial.py` | CRS + distance + nearest-feature helper |
+| `src/utils/exceptions.py` | Typed domain errors |
 | `frontend/app/*` | Pages, layout, API route |
 | `frontend/components/*` | Interactive UI (`SearchForm`) |
 | `frontend/lib/types.ts` | TypeScript shapes matching the API |
-| `Dockerfile` / `frontend/Dockerfile` | Image recipes for each service |
-| `docker-compose.yml` | Start both containers and wire networking |
 
-> Note: this project keeps the endpoint in `app.py` (no separate `routers/` folder).
-> Response shapes use Pydantic in `app.py` and dataclasses inside services — there
-> is no `models/gritbin.py`.
+Design rationale: [02-architecture.md](./02-architecture.md) and
+[backend/00-backend-design.md](./backend/00-backend-design.md).
 
 ---
 
