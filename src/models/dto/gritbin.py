@@ -1,4 +1,7 @@
-"""HTTP request/response DTOs for grit-bin endpoints."""
+"""HTTP request/response DTOs for grit-bin endpoints.
+
+DTOs are the API contract (OpenAPI / JSON). Domain objects stay in models/domain.
+"""
 
 from __future__ import annotations
 

@@ -19,7 +19,10 @@ logger = logging.getLogger(__name__)
 
 
 def unwrap_address_list(payload: Any) -> list[dict[str, Any]]:
-    """Accept list, or common envelope shapes: {results|addresses|data|Items: [...]}."""
+    """Normalise varied Address API envelopes into a flat list of records.
+
+    Live payloads may be a bare list, or wrapped under results/addresses/data/Items.
+    """
     if isinstance(payload, list):
         records = payload
     elif isinstance(payload, dict):
@@ -37,6 +40,7 @@ def unwrap_address_list(payload: Any) -> list[dict[str, Any]]:
                 records = payload[key]
                 break
         else:
+            # Single address object returned as the whole body
             records = [payload]
     else:
         raise UnexpectedSchemaError(
@@ -53,14 +57,18 @@ def unwrap_address_list(payload: Any) -> list[dict[str, Any]]:
 
 
 class AddressRepository:
-    """Fetches raw address records from the Derbyshire Address Lookup API."""
+    """Fetches raw address records from the Derbyshire Address Lookup API.
+
+    Matching / coordinate normalisation belongs in ``AddressService``, not here.
+    """
 
     def __init__(self, settings: Settings, client: httpx.AsyncClient) -> None:
         self._settings = settings
         self._client = client
 
     async def fetch_by_postcode(self, postcode: str) -> list[dict[str, Any]]:
-        """GET addresses for a postcode. Raises typed errors on transport/schema failure."""
+        """GET ``{base}/{postcode}`` with auth headers from settings."""
+        # quote (not quote_plus) keeps spaces as %20 — matches council API style
         encoded = quote(postcode.strip(), safe="")
         url = f"{self._settings.address_api_base_url}/{encoded}"
 

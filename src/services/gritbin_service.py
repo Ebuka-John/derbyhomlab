@@ -1,4 +1,9 @@
-"""Grit-bin proximity business logic (no FastAPI imports)."""
+"""Grit-bin proximity business logic (no FastAPI imports).
+
+Preferred path: server-side CQL DWITHIN (spatial index on GeoServer).
+Fallback: fetch the layer and pick nearest with planar Euclidean distance —
+live installs sometimes disable spatial predicates or return empty filters.
+"""
 
 from __future__ import annotations
 
@@ -73,9 +78,11 @@ class GritBinService:
 
         features: list | None = None
         try:
+            # Happy path: GeoServer filters with its spatial index
             features = await repo.query_dwithin(origin, radius_meters=radius)
             logger.info("DWITHIN returned %d feature(s)", len(features))
         except (GeoServerUnreachableError, UnexpectedSchemaError) as exc:
+            # XML ExceptionReport / disabled spatial ops → download and measure
             logger.warning(
                 "DWITHIN failed (%s); falling back to full fetch + Euclidean distance",
                 exc,
@@ -83,6 +90,7 @@ class GritBinService:
             features = await repo.fetch_all()
 
         if not features:
+            # Empty DWITHIN is not always "no bins" — CRS mismatches can zero it out
             logger.info("DWITHIN empty; attempting full-layer Euclidean fallback")
             try:
                 features = await repo.fetch_all()

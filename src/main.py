@@ -17,9 +17,10 @@ __all__ = ["app"]
 
 
 def run() -> None:
+    """Block and serve the ASGI app (no reload — use uvicorn CLI for that)."""
     uvicorn.run(
         "src.app:app",
-        host="0.0.0.0",
+        host="0.0.0.0",  # listen on all interfaces (Docker / LAN)
         port=8000,
         reload=False,
     )

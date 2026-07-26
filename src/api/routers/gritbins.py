@@ -1,4 +1,7 @@
-"""Grit-bin HTTP routes — request/response only."""
+"""Grit-bin HTTP routes — request/response only.
+
+No upstream I/O or CRS maths here: validate params → call services → map DTO.
+"""
 
 from __future__ import annotations
 
@@ -37,15 +40,18 @@ async def nearest_grit_bin(
     gritbin_service: GritBinService = Depends(provide_gritbin_service),
 ) -> NearestGritBinResponse:
     """Locate the nearest grit bin within the configured search radius."""
+    # Explicit checks so we return typed AppError (400) instead of FastAPI 422
     if not postcode or not postcode.strip():
         raise MissingParameterError("postcode")
     if not address or not address.strip():
         raise MissingParameterError("address")
 
+    # 1) postcode + hint → BNG point
     resolved = await address_service.resolve_address(
         postcode=postcode.strip(),
         address=address.strip(),
     )
+    # 2) BNG point → nearest grit bin (DWITHIN / Euclidean)
     match = await gritbin_service.find_nearest(resolved.point)
 
     return NearestGritBinResponse(

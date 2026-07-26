@@ -1,4 +1,9 @@
-"""Domain and application exception hierarchy."""
+"""Domain and application exception hierarchy.
+
+Each exception carries a machine-readable ``code`` and HTTP ``status_code`` so
+``app.py`` can map any ``AppError`` to a consistent JSON body without leaking
+stack traces to clients.
+"""
 
 from __future__ import annotations
 
@@ -15,11 +20,13 @@ class AppError(Exception):
     ) -> None:
         super().__init__(message)
         self.message = message
-        self.code = code
-        self.status_code = status_code
+        self.code = code  # stable string for clients / logs
+        self.status_code = status_code  # mapped by the global exception handler
 
 
 class MissingParameterError(AppError):
+    """400 — client omitted a required query param."""
+
     def __init__(self, parameter: str) -> None:
         super().__init__(
             f"Missing required query parameter: '{parameter}'.",
@@ -29,6 +36,8 @@ class MissingParameterError(AppError):
 
 
 class AddressApiUnreachableError(AppError):
+    """502 — transport / upstream failure talking to Address Lookup."""
+
     def __init__(self, detail: str | None = None) -> None:
         message = "Address Lookup API is unreachable."
         if detail:
@@ -41,7 +50,7 @@ class AddressApiUnreachableError(AppError):
 
 
 class AddressNotFoundError(AppError):
-    """No addresses returned for the given postcode."""
+    """404 — postcode returned no address records."""
 
     def __init__(self, postcode: str) -> None:
         super().__init__(
@@ -52,7 +61,7 @@ class AddressNotFoundError(AppError):
 
 
 class TargetAddressNotFoundError(AppError):
-    """Postcode resolved, but no record matched the address parameter."""
+    """404 — postcode OK, but no record matched the address hint."""
 
     def __init__(self, address: str, postcode: str) -> None:
         super().__init__(
@@ -63,6 +72,8 @@ class TargetAddressNotFoundError(AppError):
 
 
 class UnexpectedSchemaError(AppError):
+    """502 — upstream JSON/XML shape was not what we expected."""
+
     def __init__(self, source: str, detail: str | None = None) -> None:
         message = f"Unexpected response schema from {source}."
         if detail:
@@ -75,6 +86,8 @@ class UnexpectedSchemaError(AppError):
 
 
 class GeoServerUnreachableError(AppError):
+    """502 — WFS transport failure or HTTP error from GeoServer."""
+
     def __init__(self, detail: str | None = None) -> None:
         message = "GeoServer WFS is unreachable."
         if detail:
@@ -87,6 +100,8 @@ class GeoServerUnreachableError(AppError):
 
 
 class NoGritBinNearbyError(AppError):
+    """404 — no grit bin within the configured radius of the address."""
+
     def __init__(self, radius_meters: float) -> None:
         super().__init__(
             f"No grit bin found within {radius_meters:g} metres of the address.",
@@ -96,6 +111,8 @@ class NoGritBinNearbyError(AppError):
 
 
 class CoordinateConversionError(AppError):
+    """502 — CRS conversion failed or coords were missing/ambiguous."""
+
     def __init__(self, detail: str) -> None:
         super().__init__(
             f"Coordinate conversion failed: {detail}",

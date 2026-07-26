@@ -1,4 +1,9 @@
-"""Address resolution business logic (no FastAPI imports)."""
+"""Address resolution business logic (no FastAPI imports).
+
+Tolerant field aliases cover the live Derbyshire NLPG-style schema
+(BuildingName + SpatialFeature.Eastings/Northings) and generic Title/Easting
+payloads used in tests / other councils.
+"""
 
 from __future__ import annotations
 
@@ -12,6 +17,7 @@ from src.repositories.address_repository import AddressRepository
 from src.utils.exceptions import TargetAddressNotFoundError, UnexpectedSchemaError
 from src.utils.geospatial import ensure_bng
 
+# Explicit single-field titles (generic / alternate APIs)
 _TITLE_KEYS = (
     "Title",
     "title",
@@ -22,6 +28,7 @@ _TITLE_KEYS = (
     "AddressLine",
 )
 
+# Derbyshire NLPG-style parts — composed into a display title AND used for matching
 _MATCH_PART_KEYS = (
     "BuildingName",
     "SubBuildingName",
@@ -35,6 +42,7 @@ _MATCH_PART_KEYS = (
     "PostTown",
 )
 
+# Live schema uses Eastings/Northings (plural) under SpatialFeature
 _EASTING_KEYS = (
     "Easting",
     "Eastings",
@@ -72,6 +80,7 @@ def _as_float(value: Any) -> float | None:
 
 
 def _compose_title(record: dict[str, Any]) -> str | None:
+    """Human-readable label from Title field or joined address parts."""
     explicit = _first_present(record, _TITLE_KEYS)
     if explicit is not None:
         return str(explicit).strip()
@@ -90,6 +99,7 @@ def _compose_title(record: dict[str, Any]) -> str | None:
 
 
 def _matchable_text(record: dict[str, Any]) -> str:
+    """Uppercased haystack for substring match (e.g. query ``HILLBROW``)."""
     chunks: list[str] = []
     title = _compose_title(record)
     if title:
@@ -102,6 +112,7 @@ def _matchable_text(record: dict[str, Any]) -> str:
 
 
 def _extract_point(record: dict[str, Any]):
+    """Pull BNG or lat/lon from top-level or nested SpatialFeature / location."""
     nested = (
         record.get("SpatialFeature")
         or record.get("spatialFeature")
@@ -111,7 +122,7 @@ def _extract_point(record: dict[str, Any]):
     )
     search_space: dict[str, Any] = dict(record)
     if isinstance(nested, dict):
-        search_space.update(nested)
+        search_space.update(nested)  # nested keys win for Eastings/Northings
 
     easting = _as_float(_first_present(search_space, _EASTING_KEYS))
     northing = _as_float(_first_present(search_space, _NORTHING_KEYS))
@@ -138,7 +149,7 @@ def find_matching_address(
     address: str,
     postcode: str,
 ) -> ResolvedAddress:
-    """Find the first record whose address text contains ``address`` (case-insensitive)."""
+    """First record whose address text contains ``address`` (case-insensitive)."""
     needle = address.strip().upper()
     if not needle:
         raise TargetAddressNotFoundError(address, postcode)
@@ -156,7 +167,11 @@ def find_matching_address(
 
 
 class AddressService:
-    """Resolves a postcode + address hint to a BNG point."""
+    """Resolves a postcode + address hint to a BNG point.
+
+    Accepts either a shared httpx client (production DI) or owns a short-lived
+    client when used as an async context manager in tests.
+    """
 
     def __init__(
         self,
@@ -167,6 +182,7 @@ class AddressService:
     ) -> None:
         self._settings = settings
         self._client = client
+        # Only close the client if we created it ourselves
         self._owns_client = client is None and repository is None
         self._repository = repository
 
@@ -196,5 +212,6 @@ class AddressService:
         return await self._repo().fetch_by_postcode(postcode)
 
     async def resolve_address(self, *, postcode: str, address: str) -> ResolvedAddress:
+        """End-to-end: fetch postcode records → match hint → BNG point."""
         records = await self.lookup_postcode(postcode)
         return find_matching_address(records, address=address, postcode=postcode)

@@ -19,7 +19,7 @@ class GritBin:
 
 @dataclass(frozen=True, slots=True)
 class GritBinMatch:
-    """Nearest grit bin relative to an origin point."""
+    """Nearest grit bin relative to an origin point (includes distance)."""
 
     title: str
     distance_meters: float
