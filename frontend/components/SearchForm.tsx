@@ -142,8 +142,8 @@ export function SearchForm() {
           Look up grit bins
         </h2>
         <p className="panel__lede">
-          Resolve an address, then rank nearby grit bins by distance — or pull
-          the full Derbyshire WFS layer.
+          Resolve an address, then rank the closest grit bins by distance across
+          the layer — or list every Derbyshire WFS feature.
         </p>
       </header>
 

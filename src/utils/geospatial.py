@@ -119,12 +119,14 @@ def nearest_n_from_features(
     features: list[dict[str, Any]],
     origin: Point27700,
     *,
-    radius_meters: float,
     limit: int = 5,
+    radius_meters: float | None = None,
 ) -> list[GritBinMatch]:
-    """Sort in-radius grit bins by distance and return the closest ``limit``.
+    """Sort grit bins by distance and return the closest ``limit``.
 
-    Used after DWITHIN (to rank candidates) and as the full-layer fallback path.
+    When ``radius_meters`` is set, candidates outside that window are dropped
+    (exercise-style search). When ``None``, the full candidate set is ranked —
+    used by nearest-N so a 100 m window does not collapse the result to one bin.
     """
     if limit < 1:
         raise ValueError("limit must be >= 1")
@@ -135,7 +137,7 @@ def nearest_n_from_features(
         if point is None:
             continue
         distance = euclidean_distance_meters(origin, point)
-        if distance > radius_meters:
+        if radius_meters is not None and distance > radius_meters:
             continue
         matches.append(
             GritBinMatch(

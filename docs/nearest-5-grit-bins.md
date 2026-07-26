@@ -4,13 +4,14 @@ Implemented as `GET /nearest-grit-bins?postcode=...&address=...&limit=5`.
 
 ## Approach
 
-- Rank candidates with `nearest_n_from_features`: compute Euclidean distance in
-  EPSG:27700, keep bins inside the search radius, **sort ascending**, return the
-  first *N* (`matches[:limit]`).
-- Reuse the same DWITHIN → full-fetch fallback as the single nearest endpoint
-  (`GritBinService.find_nearest_n`).
-- If fewer than `limit` bins fall inside the radius, return whatever is available
-  (at least one). Zero in-radius candidates still yields `404 no_grit_bin_nearby`.
+- Rank with `nearest_n_from_features`: compute Euclidean distance in EPSG:27700,
+  **sort ascending**, return the first *N* (`matches[:limit]`).
+- `GritBinService.find_nearest_n` fetches the **full WFS layer** by default so
+  the result is not capped by the exercise 100 m window (that window often only
+  contains one bin near HILLBROW). Pass `radius_meters` only when you want a
+  constrained search.
+- The single-bin exercise endpoint `/nearest-grit-bin` still uses the 100 m
+  DWITHIN / Euclidean path.
 
 ## Example response
 

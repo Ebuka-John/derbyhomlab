@@ -50,11 +50,20 @@ def test_nearest_n_from_features_sorts_and_limits() -> None:
     matches = nearest_n_from_features(
         [FAR_FEATURE, MID_FEATURE, NEAR_FEATURE],
         ORIGIN,
-        radius_meters=100,
         limit=2,
     )
     assert [m.title for m in matches] == ["GB-NEAR", "GB-MID"]
     assert matches[0].distance_meters < matches[1].distance_meters
+
+
+def test_nearest_n_respects_optional_radius() -> None:
+    matches = nearest_n_from_features(
+        [FAR_FEATURE, MID_FEATURE, NEAR_FEATURE],
+        ORIGIN,
+        radius_meters=100,
+        limit=5,
+    )
+    assert [m.title for m in matches] == ["GB-NEAR", "GB-MID"]
 
 
 def test_nearest_from_features_none_in_radius() -> None:
@@ -125,7 +134,8 @@ async def test_geoserver_unreachable(settings) -> None:
 @pytest.mark.asyncio
 @respx.mock
 async def test_find_nearest_n(settings) -> None:
-    respx.get("https://wms.example.com/geoserver/DCC/ows").mock(
+    """Nearest-N ranks the full layer (not the 100 m exercise window)."""
+    route = respx.get("https://wms.example.com/geoserver/DCC/ows").mock(
         return_value=httpx.Response(
             200,
             json={
@@ -136,9 +146,10 @@ async def test_find_nearest_n(settings) -> None:
     )
 
     async with GritBinService(settings) as svc:
-        matches = await svc.find_nearest_n(ORIGIN, limit=2, radius_meters=100)
+        matches = await svc.find_nearest_n(ORIGIN, limit=3)
 
-    assert [m.title for m in matches] == ["GB-NEAR", "GB-MID"]
+    assert [m.title for m in matches] == ["GB-NEAR", "GB-MID", "GB-FAR"]
+    assert "DWITHIN" not in str(route.calls.last.request.url)
 
 
 @pytest.mark.asyncio

@@ -100,11 +100,17 @@ class GeoServerUnreachableError(AppError):
 
 
 class NoGritBinNearbyError(AppError):
-    """404 — no grit bin within the configured radius of the address."""
+    """404 — no grit bin matched the search (optionally within a radius)."""
 
-    def __init__(self, radius_meters: float) -> None:
+    def __init__(self, radius_meters: float | None = None) -> None:
+        if radius_meters is None:
+            message = "No grit bins found near the address."
+        else:
+            message = (
+                f"No grit bin found within {radius_meters:g} metres of the address."
+            )
         super().__init__(
-            f"No grit bin found within {radius_meters:g} metres of the address.",
+            message,
             code="no_grit_bin_nearby",
             status_code=404,
         )

@@ -120,17 +120,26 @@ class GritBinService:
         limit: int = 5,
         radius_meters: float | None = None,
     ) -> list[GritBinMatch]:
-        """Nearest ``limit`` grit bins within radius, sorted by distance ascending."""
+        """Nearest ``limit`` grit bins, sorted by distance ascending.
+
+        Default (``radius_meters is None``): fetch the full WFS layer and take
+        the closest N — the 100 m exercise radius often only contains one bin,
+        which is why nearest-N must not inherit that window by default.
+        Pass ``radius_meters`` to constrain the search instead.
+        """
         if limit < 1:
             raise ValueError("limit must be >= 1")
-        radius = (
-            radius_meters
-            if radius_meters is not None
-            else self._settings.nearest_search_radius_meters
-        )
-        features = await self._candidate_features(origin, radius=radius)
+
+        if radius_meters is not None:
+            features = await self._candidate_features(origin, radius=radius_meters)
+        else:
+            features = await self._repo().fetch_all()
+
         return nearest_n_from_features(
-            features, origin, radius_meters=radius, limit=limit
+            features,
+            origin,
+            limit=limit,
+            radius_meters=radius_meters,
         )
 
     async def list_all(self) -> list[GritBin]:
