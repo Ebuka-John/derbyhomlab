@@ -128,14 +128,86 @@ async def health():
 `@app.get("/health")` tells FastAPI: “when someone GETs `/health`, run this
 function.” You did not write the web-server wiring yourself — the decorator did.
 
-Other decorators you will see:
+Other decorators you will see in **this repo**:
 
-| Decorator | Rough meaning |
-|-----------|----------------|
-| `@lru_cache` | Remember the return value; don’t recompute every time |
-| `@property` | Call like `obj.thing` instead of `obj.thing()` |
-| `@classmethod` | Method that receives the **class**, not an instance (`cls`) |
-| `@dataclass` | Auto-generate `__init__` and friends |
+| Decorator | Rough meaning | Where in this project |
+|-----------|----------------|------------------------|
+| `@lru_cache` | Remember the return value; don’t recompute every time | `get_settings()` in `src/core/settings.py` |
+| `@property` | Call like `obj.thing` instead of `obj.thing()` | `Settings.address_api_headers`, `geoserver_wfs_url` |
+| `@classmethod` | Method that receives the **class**, not an instance (`cls`) | `Settings.strip_trailing_slash` (Pydantic validator) |
+| `@dataclass` | Auto-generate `__init__` and friends | `Point27700`, `ResolvedAddress`, `GritBinMatch`, … |
+
+### `@lru_cache` — load settings once
+
+```python
+# src/core/settings.py
+@lru_cache
+def get_settings() -> Settings:
+    """Cached settings singleton — load .env once per process."""
+    return Settings()
+```
+
+First call builds `Settings()` from `.env`. Later calls return the **same** object
+without re-reading the file. That is why tests call `get_settings.cache_clear()`
+when they inject different settings.
+
+### `@property` — attribute-style access
+
+```python
+# src/core/settings.py
+@property
+def address_api_headers(self) -> dict[str, str]:
+    return {
+        "x-alias": self.address_api_alias,
+        "x-auth-token": self.address_api_auth_token,
+        "Accept": "application/json",
+    }
+```
+
+Usage elsewhere:
+
+```python
+settings.address_api_headers   # dict — no ()
+# not: settings.address_api_headers()
+```
+
+Same idea for `settings.geoserver_wfs_url` — looks like a field, but is computed
+from `geoserver_base_url`.
+
+### `@classmethod` — runs on the class (here: validate env values)
+
+```python
+# src/core/settings.py
+@field_validator("address_api_base_url", "geoserver_base_url", mode="before")
+@classmethod
+def strip_trailing_slash(cls, value: str) -> str:
+    if isinstance(value, str):
+        return value.rstrip("/")
+    return value
+```
+
+Pydantic calls this while **building** `Settings`, before instances exist, so it
+is a `@classmethod` (receives `cls`, not `self`). It normalises URLs so later
+path joins do not get `//`.
+
+### `@dataclass` — less boilerplate for value objects
+
+```python
+# src/models/domain/geometry.py
+@dataclass(frozen=True, slots=True)
+class Point27700:
+    easting: float
+    northing: float
+```
+
+Without `@dataclass` you would hand-write `__init__`. With it you get:
+
+```python
+Point27700(easting=443563.0, northing=360212.0)
+```
+
+`frozen=True` makes the point immutable (good for coordinates). Same pattern on
+`ResolvedAddress`, `GritBin`, `GritBinMatch` under `src/models/domain/`.
 
 ---
 
