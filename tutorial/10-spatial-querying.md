@@ -376,9 +376,11 @@ You are ready when you can answer these without notes:
 
 (Answers are all on this page: §1, §2, §3, §4, §5 respectively.)
 
+
 ---
 
-## Next
+<!-- tutorial-nav -->
 
-- Apply it: [07-derbyshire-exercise.md](./07-derbyshire-exercise.md)
-- Full link library: [09-sources-and-references.md](./09-sources-and-references.md)
+| Previous | Next |
+|:---------|-----:|
+| ← [Common mistakes](./06-common-mistakes.md) | [Derbyshire exercise](./07-derbyshire-exercise.md) → |

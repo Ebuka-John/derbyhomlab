@@ -115,6 +115,10 @@ Browser → http://127.0.0.1:3000
 
 Confirm `docker-compose.yml` is at the project root next to `.env` and `Dockerfile`.
 
-## Next
+---
 
-→ [06-run-and-test.md](./06-run-and-test.md)
+<!-- tutorial-nav -->
+
+| Previous | Next |
+|:---------|-----:|
+| ← [Frontend dockerignore](./04-frontend-dockerignore.md) | [Docker run and test](./06-run-and-test.md) → |

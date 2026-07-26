@@ -89,6 +89,10 @@ python -c "import src; print('ok')"
 Should print `ok`. If you get `ModuleNotFoundError`, check that you are in the
 project root and that `src/__init__.py` exists.
 
-## Next
+---
 
-→ [04-config.md](./04-config.md)
+<!-- tutorial-nav -->
+
+| Previous | Next |
+|:---------|-----:|
+| ← [Backend env](./02-env.md) | [Config](./04-config.md) → |

@@ -178,6 +178,10 @@ python -c "from src.utils.errors import MissingParameterError as E; e=E('postcod
 ```
 Expected: `400 missing_parameter`
 
-## Next
+---
 
-→ [06-coordinates.md](./06-coordinates.md)
+<!-- tutorial-nav -->
+
+| Previous | Next |
+|:---------|-----:|
+| ← [Config](./04-config.md) | [Coordinates](./06-coordinates.md) → |

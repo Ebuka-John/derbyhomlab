@@ -85,6 +85,10 @@ This is the frontend twin of FastAPI’s “keep secrets on the server” idea.
 
 You will test this after the UI exists. For now ensure the folder path is exactly `app/api/nearest-grit-bin/route.ts`.
 
-## Next
+---
 
-→ [05-search-form.md](./05-search-form.md)
+<!-- tutorial-nav -->
+
+| Previous | Next |
+|:---------|-----:|
+| ← [Types](./03-types.md) | [Search form](./05-search-form.md) → |

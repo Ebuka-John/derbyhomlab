@@ -235,11 +235,11 @@ async def nearest_grit_bin(postcode: str, address: str):
 | Exception | Structured “something went wrong” |
 | Endpoint / route | A URL + HTTP method your API handles |
 
+
 ---
 
-## Your action now
+<!-- tutorial-nav -->
 
-Start typing code at **[01-requirements.md](./01-requirements.md)**.
-
-When a later step introduces a concept, it will explain it **again in place**,
-with a short reminder — you do not need to memorise this page.
+| Previous | Next |
+|:---------|-----:|
+| ← [Backend lab](./README.md) | [Requirements](./01-requirements.md) → |

@@ -38,12 +38,10 @@ Proxy-only check:
 curl "http://127.0.0.1:3000/api/nearest-grit-bin?postcode=DE55%205PB&address=HILLBROW"
 ```
 
-## Next
+---
 
-Docker optional, but recommended after a successful local run:
+<!-- tutorial-nav -->
 
-→ [../docker/README.md](../docker/README.md)
-
-Or continue:
-
-→ [../05-running-fullstack.md](../05-running-fullstack.md)
+| Previous | Next |
+|:---------|-----:|
+| ← [Page](./08-page.md) | [Running fullstack](../05-running-fullstack.md) → |

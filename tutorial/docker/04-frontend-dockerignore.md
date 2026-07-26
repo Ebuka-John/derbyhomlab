@@ -40,6 +40,10 @@ npm-debug.log*
 
 Confirm the file sits next to `frontend/Dockerfile` and `frontend/package.json`.
 
-## Next
+---
 
-→ [05-compose.md](./05-compose.md)
+<!-- tutorial-nav -->
+
+| Previous | Next |
+|:---------|-----:|
+| ← [Frontend Dockerfile](./03-frontend-dockerfile.md) | [Compose](./05-compose.md) → |

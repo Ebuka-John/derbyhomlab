@@ -46,3 +46,11 @@ and understand the request path from click → proxy → Address API / GeoServer
 JSON → UI.
 
 Keep experimenting — that is how it sticks.
+
+---
+
+<!-- tutorial-nav -->
+
+| Previous | Next |
+|:---------|-----:|
+| ← [Derbyshire exercise](./07-derbyshire-exercise.md) | *End of lab* → |

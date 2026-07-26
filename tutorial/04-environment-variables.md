@@ -32,6 +32,10 @@ Not prefixed with `NEXT_PUBLIC_`, so it stays **server-only**.
 Secrets and upstream URLs stay on the **server** (FastAPI + Next.js route handler).
 The browser only ever calls `/api/nearest-grit-bin`.
 
-## Your action now
+---
 
-Start coding: open **[backend/README.md](./backend/README.md)**.
+<!-- tutorial-nav -->
+
+| Previous | Next |
+|:---------|-----:|
+| ← [Folder structure](./03-folder-structure.md) | [Backend lab](./backend/README.md) → |

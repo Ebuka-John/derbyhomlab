@@ -387,6 +387,10 @@ Presentation only — no API logic. Class names must match `page.tsx` and `Searc
 
 Continue to the home page step.
 
-## Next
+---
 
-→ [08-page.md](./08-page.md)
+<!-- tutorial-nav -->
+
+| Previous | Next |
+|:---------|-----:|
+| ← [Layout](./06-layout.md) | [Page](./08-page.md) → |

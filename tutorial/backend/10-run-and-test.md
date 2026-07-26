@@ -41,8 +41,10 @@ Success looks like:
 - Import errors → confirm you are in the project root and venv is active
 - Upstream 502 → check Address API credentials / network
 
-## Next
+---
 
-Backend done. Go to the frontend lab:
+<!-- tutorial-nav -->
 
-→ [../frontend/README.md](../frontend/README.md)
+| Previous | Next |
+|:---------|-----:|
+| ← [FastAPI app](./09-app.md) | [Frontend lab](../frontend/README.md) → |

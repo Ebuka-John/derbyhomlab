@@ -12,6 +12,15 @@ You are not copying a finished app blindly. Each step tells you:
 
 ---
 
+## On a deadline?
+
+Follow **[00-study-plan.md](./00-study-plan.md)** — the full lab organised into
+**8 timed hours** (with a 6-hour fast track), each with a goal, time-boxed
+steps, and an exit checkpoint. Recommended even without a deadline: the pacing
+and transitions are designed for retention.
+
+---
+
 ## How to follow this lab
 
 1. Create an empty project folder (or work in a clean clone and delete `src/` /
@@ -41,6 +50,7 @@ servers, and verifying results.
 
 | Order | Path | What you learn |
 |------:|------|----------------|
+| 0 | [00-study-plan.md](./00-study-plan.md) | The 8-hour timetable (start here if time-boxed) |
 | 1 | [01-introduction.md](./01-introduction.md) | What you are building |
 | 2 | [09-sources-and-references.md](./09-sources-and-references.md) | Domain background + real docs/websites used |
 | 3 | [02-architecture.md](./02-architecture.md) | How backend + frontend talk |
@@ -74,8 +84,11 @@ servers, and verifying results.
 - Docker Desktop (or Docker Engine + Compose) if you follow the Docker lab
 - Real Address API credentials in `.env` when you want live calls
 
+
 ---
 
-## Start here
+<!-- tutorial-nav -->
 
-Open **[01-introduction.md](./01-introduction.md)** → then follow the numbered docs.
+| Previous | Next |
+|:---------|-----:|
+| ← *Start of lab* | [8-hour study plan](./00-study-plan.md) → |

@@ -289,6 +289,10 @@ python -c "from src.services.geoserver_service import nearest_from_features as n
 ```
 Expected: `GB0199 10.0`
 
-## Next
+---
 
-→ [09-app.md](./09-app.md)
+<!-- tutorial-nav -->
+
+| Previous | Next |
+|:---------|-----:|
+| ← [Address service](./07-address-service.md) | [FastAPI app](./09-app.md) → |

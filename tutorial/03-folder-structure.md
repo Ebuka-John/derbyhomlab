@@ -64,7 +64,10 @@ homelab/                          ← your project root
 > Response shapes use Pydantic in `app.py` and dataclasses inside services — there
 > is no `models/gritbin.py`.
 
-## Your action now
+---
 
-Read [04-environment-variables.md](./04-environment-variables.md), then start the
-backend lab at [backend/README.md](./backend/README.md).
+<!-- tutorial-nav -->
+
+| Previous | Next |
+|:---------|-----:|
+| ← [Architecture](./02-architecture.md) | [Environment variables](./04-environment-variables.md) → |

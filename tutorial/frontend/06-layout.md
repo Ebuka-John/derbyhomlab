@@ -70,6 +70,10 @@ Fonts are loaded once here and exposed as CSS variables used by `globals.css`.
 
 Continue to the CSS step.
 
-## Next
+---
 
-→ [07-globals-css.md](./07-globals-css.md)
+<!-- tutorial-nav -->
+
+| Previous | Next |
+|:---------|-----:|
+| ← [Search form](./05-search-form.md) | [Globals CSS](./07-globals-css.md) → |

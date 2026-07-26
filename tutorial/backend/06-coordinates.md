@@ -158,6 +158,10 @@ python -c "from src.utils.coordinates import euclidean_distance_meters as d, Poi
 ```
 Expected: `5.0`
 
-## Next
+---
 
-→ [07-address-service.md](./07-address-service.md)
+<!-- tutorial-nav -->
+
+| Previous | Next |
+|:---------|-----:|
+| ← [Errors](./05-errors.md) | [Address service](./07-address-service.md) → |

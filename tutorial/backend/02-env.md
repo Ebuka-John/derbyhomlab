@@ -74,6 +74,10 @@ __pycache__/
 - File is named `.env` (not `.env.txt`)
 - You have filled `ADDRESS_API_*` if you want live lookups
 
-## Next
+---
 
-→ [03-init-packages.md](./03-init-packages.md)
+<!-- tutorial-nav -->
+
+| Previous | Next |
+|:---------|-----:|
+| ← [Requirements](./01-requirements.md) | [Init packages](./03-init-packages.md) → |

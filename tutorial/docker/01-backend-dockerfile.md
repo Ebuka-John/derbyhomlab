@@ -76,6 +76,10 @@ Optional smoke build (can wait until the end if you prefer):
 docker build -t nearest-grit-bin-backend:latest .
 ```
 
-## Next
+---
 
-→ [02-backend-dockerignore.md](./02-backend-dockerignore.md)
+<!-- tutorial-nav -->
+
+| Previous | Next |
+|:---------|-----:|
+| ← [Docker lab](./README.md) | [Backend dockerignore](./02-backend-dockerignore.md) → |

@@ -92,6 +92,10 @@ proxy route can reach `http://backend:8000`.
 
 Confirm `frontend/Dockerfile` exists and `frontend/package-lock.json` exists.
 
-## Next
+---
 
-→ [04-frontend-dockerignore.md](./04-frontend-dockerignore.md)
+<!-- tutorial-nav -->
+
+| Previous | Next |
+|:---------|-----:|
+| ← [Backend dockerignore](./02-backend-dockerignore.md) | [Frontend dockerignore](./04-frontend-dockerignore.md) → |

@@ -35,6 +35,10 @@ Next.js loads it automatically. Because the name is **not** `NEXT_PUBLIC_…`, t
 - `frontend/.env.local` exists
 - Backend will be reachable at that URL when you start uvicorn
 
-## Next
+---
 
-→ [03-types.md](./03-types.md)
+<!-- tutorial-nav -->
+
+| Previous | Next |
+|:---------|-----:|
+| ← [Scaffold](./01-scaffold.md) | [Types](./03-types.md) → |

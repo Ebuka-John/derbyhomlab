@@ -135,6 +135,10 @@ npm install
 - `frontend/node_modules` exists
 - No install errors
 
-## Next
+---
 
-→ [02-env.md](./02-env.md)
+<!-- tutorial-nav -->
+
+| Previous | Next |
+|:---------|-----:|
+| ← [Frontend lab](./README.md) | [Frontend env](./02-env.md) → |

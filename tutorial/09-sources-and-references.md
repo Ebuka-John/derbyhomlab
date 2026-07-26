@@ -297,10 +297,11 @@ You do not need to memorise GIS theory. You need enough to answer:
 > “Where is this address in metres on the same grid as the grit bins, and which
 > bin is within 100 m?”
 
+
 ---
 
-## Next
+<!-- tutorial-nav -->
 
-Continue the lab map from wherever you left off, or start the backend:
-
-→ [backend/README.md](./backend/README.md)
+| Previous | Next |
+|:---------|-----:|
+| ← [Introduction](./01-introduction.md) | [Architecture](./02-architecture.md) → |

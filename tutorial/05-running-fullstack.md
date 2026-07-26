@@ -48,12 +48,10 @@ pip install -r requirements-dev.txt
 pytest -v
 ```
 
-## Next
+---
 
-Run the same stack in containers:
+<!-- tutorial-nav -->
 
-→ [docker/README.md](./docker/README.md)
-
-Or skip to common pitfalls:
-
-→ [06-common-mistakes.md](./06-common-mistakes.md)
+| Previous | Next |
+|:---------|-----:|
+| ← [Frontend run and test](./frontend/09-run-and-test.md) | [Docker lab](./docker/README.md) → |

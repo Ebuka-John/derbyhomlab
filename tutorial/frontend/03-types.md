@@ -53,6 +53,10 @@ success — the compiler catches that mistake.
 
 No runtime check yet — continue once the file exists with no TypeScript red squiggles when later files import it.
 
-## Next
+---
 
-→ [04-api-route.md](./04-api-route.md)
+<!-- tutorial-nav -->
+
+| Previous | Next |
+|:---------|-----:|
+| ← [Frontend env](./02-env.md) | [API route](./04-api-route.md) → |

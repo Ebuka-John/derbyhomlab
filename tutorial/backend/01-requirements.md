@@ -68,6 +68,10 @@ pip install -r requirements.txt
 - Virtualenv is active (prompt shows `.venv`)
 - `pip show fastapi` prints package info
 
-## Next
+---
 
-→ [02-env.md](./02-env.md)
+<!-- tutorial-nav -->
+
+| Previous | Next |
+|:---------|-----:|
+| ← [Python / FastAPI basics](./00-python-fastapi-basics.md) | [Backend env](./02-env.md) → |

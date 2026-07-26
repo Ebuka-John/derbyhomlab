@@ -27,3 +27,11 @@ frontend experience — follow the tables as you type.
 Finish the [backend lab](../backend/README.md) (or at least have FastAPI ready on port 8000).
 
 Then open **[01-scaffold.md](./01-scaffold.md)**.
+
+---
+
+<!-- tutorial-nav -->
+
+| Previous | Next |
+|:---------|-----:|
+| ← [Backend run and test](../backend/10-run-and-test.md) | [Scaffold](./01-scaffold.md) → |

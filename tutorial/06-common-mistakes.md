@@ -55,6 +55,10 @@ Use `%20` in URLs (`DE55%205PB`). The backend uses `quote(..., safe="")` for thi
 
 Coordinates must be EPSG:27700 before distance maths. Use `ensure_bng` — do not mix lat/lon degrees with BNG metres.
 
-## Next
+---
 
-→ [07-derbyshire-exercise.md](./07-derbyshire-exercise.md)
+<!-- tutorial-nav -->
+
+| Previous | Next |
+|:---------|-----:|
+| ← [Docker run and test](./docker/06-run-and-test.md) | [Spatial querying](./10-spatial-querying.md) → |

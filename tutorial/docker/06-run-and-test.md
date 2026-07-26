@@ -91,12 +91,10 @@ docker build -t nearest-grit-bin-backend .
 docker run --rm -p 8000:8000 --env-file .env nearest-grit-bin-backend
 ```
 
-## Next
+---
 
-Docker lab complete. Return to the wrap-up docs:
+<!-- tutorial-nav -->
 
-→ [../06-common-mistakes.md](../06-common-mistakes.md) (includes the Compose URL pitfall)
-
-→ [../07-derbyshire-exercise.md](../07-derbyshire-exercise.md)
-
-→ [../08-next-steps.md](../08-next-steps.md)
+| Previous | Next |
+|:---------|-----:|
+| ← [Compose](./05-compose.md) | [Common mistakes](../06-common-mistakes.md) → |

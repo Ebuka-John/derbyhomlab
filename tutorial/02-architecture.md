@@ -47,6 +47,10 @@ JSON back through Next.js → browser shows result
 2. **No CORS pain** — the browser only talks to Next.js on the same origin
 3. **Clean separation** — UI talks to `/api/…`; FastAPI talks to Derbyshire systems
 
-## Your action now
+---
 
-Continue to [03-folder-structure.md](./03-folder-structure.md).
+<!-- tutorial-nav -->
+
+| Previous | Next |
+|:---------|-----:|
+| ← [Sources and references](./09-sources-and-references.md) | [Folder structure](./03-folder-structure.md) → |

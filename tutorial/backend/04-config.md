@@ -128,6 +128,10 @@ python -c "from src.config import get_settings; print(get_settings().geoserver_w
 ```
 You should see your GeoServer base URL with `/DCC/ows` appended.
 
-## Next
+---
 
-→ [05-errors.md](./05-errors.md)
+<!-- tutorial-nav -->
+
+| Previous | Next |
+|:---------|-----:|
+| ← [Init packages](./03-init-packages.md) | [Errors](./05-errors.md) → |

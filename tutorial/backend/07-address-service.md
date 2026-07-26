@@ -342,6 +342,10 @@ python -c "from src.services.address_service import find_matching_address as f; 
 ```
 Should print a title containing HILLBROW and a Point27700.
 
-## Next
+---
 
-→ [08-geoserver-service.md](./08-geoserver-service.md)
+<!-- tutorial-nav -->
+
+| Previous | Next |
+|:---------|-----:|
+| ← [Coordinates](./06-coordinates.md) | [GeoServer service](./08-geoserver-service.md) → |

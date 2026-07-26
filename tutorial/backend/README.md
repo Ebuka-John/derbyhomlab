@@ -42,3 +42,11 @@ actions like installing packages and starting the server.
 
 Then open **[00-python-fastapi-basics.md](./00-python-fastapi-basics.md)** (or skip
 straight to [01-requirements.md](./01-requirements.md) if you already know Python OOP).
+
+---
+
+<!-- tutorial-nav -->
+
+| Previous | Next |
+|:---------|-----:|
+| ← [Environment variables](../04-environment-variables.md) | [Python / FastAPI basics](./00-python-fastapi-basics.md) → |

@@ -65,6 +65,10 @@ The page stays thin on purpose: branding and structure here, behaviour in `Searc
 
 Once the app runs, open http://127.0.0.1:3000 and confirm the form appears.
 
-## Next
+---
 
-→ [09-run-and-test.md](./09-run-and-test.md)
+<!-- tutorial-nav -->
+
+| Previous | Next |
+|:---------|-----:|
+| ← [Globals CSS](./07-globals-css.md) | [Frontend run and test](./09-run-and-test.md) → |

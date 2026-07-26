@@ -214,6 +214,10 @@ Defaults (`HILLBROW` / `DE55 5PB`) are prefilled so you can test with one click.
 
 File should exist under `frontend/components/SearchForm.tsx`.
 
-## Next
+---
 
-→ [06-layout.md](./06-layout.md)
+<!-- tutorial-nav -->
+
+| Previous | Next |
+|:---------|-----:|
+| ← [API route](./04-api-route.md) | [Layout](./06-layout.md) → |

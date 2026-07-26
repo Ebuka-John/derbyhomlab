@@ -53,6 +53,10 @@ docs
 
 Confirm `.dockerignore` sits next to `Dockerfile` at the project root.
 
-## Next
+---
 
-→ [03-frontend-dockerfile.md](./03-frontend-dockerfile.md)
+<!-- tutorial-nav -->
+
+| Previous | Next |
+|:---------|-----:|
+| ← [Backend Dockerfile](./01-backend-dockerfile.md) | [Frontend Dockerfile](./03-frontend-dockerfile.md) → |

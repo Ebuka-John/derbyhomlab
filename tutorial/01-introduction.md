@@ -53,8 +53,10 @@ docs, and investigation trail used to build this project:
 
 → [09-sources-and-references.md](./09-sources-and-references.md)
 
-## Your action now
+---
 
-1. Skim [02-architecture.md](./02-architecture.md) next (or the sources guide above).
-2. Do **not** create files until you reach `backend/01-requirements.md`
-   (or read the primer first if you prefer).
+<!-- tutorial-nav -->
+
+| Previous | Next |
+|:---------|-----:|
+| ← [8-hour study plan](./00-study-plan.md) | [Sources and references](./09-sources-and-references.md) → |

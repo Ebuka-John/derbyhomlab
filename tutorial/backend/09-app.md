@@ -209,6 +209,10 @@ python -c "from src.app import app; print(app.title)"
 ```
 Expected: `Nearest Grit Bin API`
 
-## Next
+---
 
-→ [10-run-and-test.md](./10-run-and-test.md)
+<!-- tutorial-nav -->
+
+| Previous | Next |
+|:---------|-----:|
+| ← [GeoServer service](./08-geoserver-service.md) | [Backend run and test](./10-run-and-test.md) → |

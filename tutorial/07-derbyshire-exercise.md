@@ -31,6 +31,10 @@ fallback, and `SP_GEOMETRY` extraction — is what the interviewers really probe
 Each concept is explained (with interview-ready answers and further-reading
 links) in [10-spatial-querying.md](./10-spatial-querying.md).
 
-## Next
+---
 
-→ [08-next-steps.md](./08-next-steps.md)
+<!-- tutorial-nav -->
+
+| Previous | Next |
+|:---------|-----:|
+| ← [Spatial querying](./10-spatial-querying.md) | [Next steps](./08-next-steps.md) → |
