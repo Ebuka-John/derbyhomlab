@@ -13,20 +13,25 @@ import httpx
 
 from src.core.settings import Settings
 from src.models.domain.geometry import Point27700
-from src.models.domain.gritbin import GritBinMatch
+from src.models.domain.gritbin import GritBin, GritBinMatch
 from src.repositories.gritbin_repository import GritBinRepository
 from src.utils.exceptions import (
     GeoServerUnreachableError,
     NoGritBinNearbyError,
     UnexpectedSchemaError,
 )
-from src.utils.geospatial import nearest_from_features
+from src.utils.geospatial import (
+    feature_point,
+    feature_title,
+    nearest_from_features,
+    nearest_n_from_features,
+)
 
 logger = logging.getLogger(__name__)
 
 
 class GritBinService:
-    """Finds the nearest grit bin within a radius (DWITHIN + Euclidean fallback)."""
+    """Finds nearest grit bin(s) within a radius (DWITHIN + Euclidean fallback)."""
 
     def __init__(
         self,
@@ -62,20 +67,14 @@ class GritBinService:
             self._repository = GritBinRepository(self._settings, self._client)
         return self._repository
 
-    async def find_nearest(
+    async def _candidate_features(
         self,
         origin: Point27700,
         *,
-        radius_meters: float | None = None,
-    ) -> GritBinMatch:
-        """Nearest grit bin within radius; DWITHIN first, Euclidean fallback."""
-        radius = (
-            radius_meters
-            if radius_meters is not None
-            else self._settings.nearest_search_radius_meters
-        )
+        radius: float,
+    ) -> list:
+        """DWITHIN first; on failure or empty result, full-layer fetch."""
         repo = self._repo()
-
         features: list | None = None
         try:
             # Happy path: GeoServer filters with its spatial index
@@ -97,4 +96,56 @@ class GritBinService:
             except (GeoServerUnreachableError, UnexpectedSchemaError):
                 raise NoGritBinNearbyError(radius) from None
 
+        return features
+
+    async def find_nearest(
+        self,
+        origin: Point27700,
+        *,
+        radius_meters: float | None = None,
+    ) -> GritBinMatch:
+        """Nearest grit bin within radius; DWITHIN first, Euclidean fallback."""
+        radius = (
+            radius_meters
+            if radius_meters is not None
+            else self._settings.nearest_search_radius_meters
+        )
+        features = await self._candidate_features(origin, radius=radius)
         return nearest_from_features(features, origin, radius_meters=radius)
+
+    async def find_nearest_n(
+        self,
+        origin: Point27700,
+        *,
+        limit: int = 5,
+        radius_meters: float | None = None,
+    ) -> list[GritBinMatch]:
+        """Nearest ``limit`` grit bins within radius, sorted by distance ascending."""
+        if limit < 1:
+            raise ValueError("limit must be >= 1")
+        radius = (
+            radius_meters
+            if radius_meters is not None
+            else self._settings.nearest_search_radius_meters
+        )
+        features = await self._candidate_features(origin, radius=radius)
+        return nearest_n_from_features(
+            features, origin, radius_meters=radius, limit=limit
+        )
+
+    async def list_all(self) -> list[GritBin]:
+        """Return every grit bin from the WFS layer (unfiltered GetFeature)."""
+        features = await self._repo().fetch_all()
+        bins: list[GritBin] = []
+        for feature in features:
+            point = feature_point(feature)
+            if point is None:
+                continue
+            bins.append(
+                GritBin(
+                    title=feature_title(feature),
+                    point=point,
+                    properties=dict(feature.get("properties") or {}),
+                )
+            )
+        return bins

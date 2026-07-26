@@ -115,18 +115,21 @@ def feature_point(feature: dict[str, Any]) -> Point27700 | None:
     return None  # skip malformed / empty geometries
 
 
-def nearest_from_features(
+def nearest_n_from_features(
     features: list[dict[str, Any]],
     origin: Point27700,
     *,
     radius_meters: float,
-) -> GritBinMatch:
-    """Pick the closest grit bin within radius using planar Euclidean distance.
+    limit: int = 5,
+) -> list[GritBinMatch]:
+    """Sort in-radius grit bins by distance and return the closest ``limit``.
 
     Used after DWITHIN (to rank candidates) and as the full-layer fallback path.
     """
-    best: GritBinMatch | None = None
+    if limit < 1:
+        raise ValueError("limit must be >= 1")
 
+    matches: list[GritBinMatch] = []
     for feature in features:
         point = feature_point(feature)
         if point is None:
@@ -134,14 +137,29 @@ def nearest_from_features(
         distance = euclidean_distance_meters(origin, point)
         if distance > radius_meters:
             continue
-        if best is None or distance < best.distance_meters:
-            best = GritBinMatch(
+        matches.append(
+            GritBinMatch(
                 title=feature_title(feature),
                 distance_meters=distance,
                 point=point,
                 properties=dict(feature.get("properties") or {}),
             )
+        )
 
-    if best is None:
+    matches.sort(key=lambda m: m.distance_meters)
+    selected = matches[:limit]
+    if not selected:
         raise NoGritBinNearbyError(radius_meters)
-    return best
+    return selected
+
+
+def nearest_from_features(
+    features: list[dict[str, Any]],
+    origin: Point27700,
+    *,
+    radius_meters: float,
+) -> GritBinMatch:
+    """Pick the closest grit bin within radius (``nearest_n_from_features`` with limit=1)."""
+    return nearest_n_from_features(
+        features, origin, radius_meters=radius_meters, limit=1
+    )[0]

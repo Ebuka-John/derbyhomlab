@@ -1,18 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
 
 import { backendBaseUrl } from "@/lib/backend";
-import type { ApiErrorBody, NearestGritBinSuccess } from "@/lib/types";
+import type { ApiErrorBody, NearestGritBinsSuccess } from "@/lib/types";
 
 /**
- * Server-side proxy to FastAPI.
- *
- * The browser never calls Derbyshire upstreams (CORS constraint) and never
- * talks to FastAPI cross-origin either — this Route Handler keeps BACKEND_URL
- * on the server and forwards the typed JSON contract.
+ * Proxy for nearest-N grit bins (`GET /nearest-grit-bins` on FastAPI).
  */
 export async function GET(request: NextRequest) {
   const postcode = request.nextUrl.searchParams.get("postcode")?.trim() ?? "";
   const address = request.nextUrl.searchParams.get("address")?.trim() ?? "";
+  const limitRaw = request.nextUrl.searchParams.get("limit")?.trim() ?? "5";
+  const limit = Number.parseInt(limitRaw, 10);
 
   if (!postcode || !address) {
     const body: ApiErrorBody = {
@@ -24,9 +22,20 @@ export async function GET(request: NextRequest) {
     return NextResponse.json(body, { status: 400 });
   }
 
-  const url = new URL("/nearest-grit-bin", backendBaseUrl());
+  if (!Number.isFinite(limit) || limit < 1 || limit > 50) {
+    const body: ApiErrorBody = {
+      error: {
+        code: "invalid_parameter",
+        message: "limit must be an integer between 1 and 50.",
+      },
+    };
+    return NextResponse.json(body, { status: 400 });
+  }
+
+  const url = new URL("/nearest-grit-bins", backendBaseUrl());
   url.searchParams.set("postcode", postcode);
   url.searchParams.set("address", address);
+  url.searchParams.set("limit", String(limit));
 
   try {
     const upstream = await fetch(url, {
@@ -35,7 +44,7 @@ export async function GET(request: NextRequest) {
       cache: "no-store",
     });
 
-    const payload = (await upstream.json()) as NearestGritBinSuccess | ApiErrorBody;
+    const payload = (await upstream.json()) as NearestGritBinsSuccess | ApiErrorBody;
     return NextResponse.json(payload, { status: upstream.status });
   } catch {
     const body: ApiErrorBody = {

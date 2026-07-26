@@ -16,9 +16,9 @@ const sans = Figtree({
 });
 
 export const metadata: Metadata = {
-  title: "Gritfinder — nearest grit bin",
+  title: "Gritfinder — nearby grit bins",
   description:
-    "Test console for the nearest grit bin API. Enter a postcode and address to locate the closest Derbyshire grit bin within 100 metres.",
+    "Test console for the Derbyshire grit-bin API. Rank the nearest N bins for an address, or list the full WFS layer.",
 };
 
 export default function RootLayout({

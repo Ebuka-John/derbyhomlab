@@ -2,70 +2,135 @@
 
 import { FormEvent, useId, useState, useTransition } from "react";
 
-import type { LookupResult, NearestGritBinSuccess } from "@/lib/types";
+import type {
+  ApiErrorBody,
+  GritBinsSuccess,
+  LookupResult,
+  NearestGritBinsSuccess,
+} from "@/lib/types";
 
 const DEFAULT_POSTCODE = "DE55 5PB";
 const DEFAULT_ADDRESS = "HILLBROW";
+const DEFAULT_LIMIT = 5;
 
-async function lookupNearest(postcode: string, address: string): Promise<LookupResult> {
-  const params = new URLSearchParams({ postcode, address });
-  const response = await fetch(`/api/nearest-grit-bin?${params.toString()}`, {
-    method: "GET",
-    headers: { Accept: "application/json" },
-  });
-
+async function parseLookup<T>(response: Response): Promise<LookupResult<T>> {
   const payload = await response.json();
 
   if (!response.ok) {
     return {
       ok: false,
       status: response.status,
-      error: payload?.error ?? {
+      error: (payload as ApiErrorBody)?.error ?? {
         code: "unknown_error",
         message: "Unexpected response from the API.",
       },
     };
   }
 
-  return { ok: true, data: payload as NearestGritBinSuccess };
+  return { ok: true, data: payload as T };
+}
+
+async function lookupNearestN(
+  postcode: string,
+  address: string,
+  limit: number,
+): Promise<LookupResult<NearestGritBinsSuccess>> {
+  const params = new URLSearchParams({
+    postcode,
+    address,
+    limit: String(limit),
+  });
+  const response = await fetch(`/api/nearest-grit-bins?${params.toString()}`, {
+    method: "GET",
+    headers: { Accept: "application/json" },
+  });
+  return parseLookup<NearestGritBinsSuccess>(response);
+}
+
+async function lookupAllBins(): Promise<LookupResult<GritBinsSuccess>> {
+  const response = await fetch("/api/grit-bins", {
+    method: "GET",
+    headers: { Accept: "application/json" },
+  });
+  return parseLookup<GritBinsSuccess>(response);
 }
 
 export function SearchForm() {
   const formId = useId();
   const postcodeId = `${formId}-postcode`;
   const addressId = `${formId}-address`;
+  const limitId = `${formId}-limit`;
   const statusId = `${formId}-status`;
 
   const [postcode, setPostcode] = useState(DEFAULT_POSTCODE);
   const [address, setAddress] = useState(DEFAULT_ADDRESS);
-  const [result, setResult] = useState<NearestGritBinSuccess | null>(null);
+  const [limit, setLimit] = useState(DEFAULT_LIMIT);
+  const [nearest, setNearest] = useState<NearestGritBinsSuccess | null>(null);
+  const [allBins, setAllBins] = useState<GritBinsSuccess | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
+  const [pendingAction, setPendingAction] = useState<"nearest" | "all" | null>(
+    null,
+  );
+
+  function clearResults() {
+    setError(null);
+    setNearest(null);
+    setAllBins(null);
+  }
 
   function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const trimmedPostcode = postcode.trim();
     const trimmedAddress = address.trim();
+    const safeLimit = Math.min(50, Math.max(1, Math.trunc(limit) || 1));
 
     if (!trimmedPostcode || !trimmedAddress) {
       setError("Enter both a postcode and an address.");
-      setResult(null);
+      setNearest(null);
+      setAllBins(null);
       return;
     }
 
+    setPendingAction("nearest");
     startTransition(async () => {
-      setError(null);
-      setResult(null);
+      clearResults();
 
       try {
-        const outcome = await lookupNearest(trimmedPostcode, trimmedAddress);
+        const outcome = await lookupNearestN(
+          trimmedPostcode,
+          trimmedAddress,
+          safeLimit,
+        );
         if (outcome.ok) {
-          setResult(outcome.data);
+          setNearest(outcome.data);
         } else {
           setError(outcome.error.message);
         }
       } catch {
         setError("Something went wrong while contacting the API.");
+      } finally {
+        setPendingAction(null);
+      }
+    });
+  }
+
+  function onListAll() {
+    setPendingAction("all");
+    startTransition(async () => {
+      clearResults();
+
+      try {
+        const outcome = await lookupAllBins();
+        if (outcome.ok) {
+          setAllBins(outcome.data);
+        } else {
+          setError(outcome.error.message);
+        }
+      } catch {
+        setError("Something went wrong while contacting the API.");
+      } finally {
+        setPendingAction(null);
       }
     });
   }
@@ -74,11 +139,11 @@ export function SearchForm() {
     <section className="panel" aria-labelledby={`${formId}-heading`}>
       <header className="panel__intro">
         <h2 id={`${formId}-heading`} className="panel__heading">
-          Look up an address
+          Look up grit bins
         </h2>
         <p className="panel__lede">
-          Resolves the property via the Address API, then finds the nearest grit
-          bin within 100 metres on GeoServer WFS.
+          Resolve an address, then rank nearby grit bins by distance — or pull
+          the full Derbyshire WFS layer.
         </p>
       </header>
 
@@ -116,9 +181,34 @@ export function SearchForm() {
           />
         </div>
 
+        <div className="field field--narrow">
+          <label htmlFor={limitId}>How many nearest</label>
+          <input
+            id={limitId}
+            name="limit"
+            type="number"
+            min={1}
+            max={50}
+            step={1}
+            value={limit}
+            onChange={(event) => setLimit(Number(event.target.value))}
+            disabled={isPending}
+          />
+        </div>
+
         <div className="form__actions">
           <button type="submit" className="button" disabled={isPending}>
-            {isPending ? "Searching…" : "Find nearest grit bin"}
+            {pendingAction === "nearest"
+              ? "Searching…"
+              : "Find nearest grit bins"}
+          </button>
+          <button
+            type="button"
+            className="button button--secondary"
+            disabled={isPending}
+            onClick={onListAll}
+          >
+            {pendingAction === "all" ? "Loading…" : "List all grit bins"}
           </button>
         </div>
       </form>
@@ -139,24 +229,50 @@ export function SearchForm() {
           </div>
         ) : null}
 
-        {result ? (
+        {nearest ? (
           <div className="result result--ok">
-            <p className="result__label">Nearest grit bin</p>
-            <p className="result__title">{result.nearest_grit_bin_title}</p>
-            <dl className="result__meta">
-              <div>
-                <dt>Distance</dt>
-                <dd>{result.distance_meters.toFixed(2)} m</dd>
-              </div>
-              <div>
-                <dt>Address</dt>
-                <dd>{result.address}</dd>
-              </div>
-              <div>
-                <dt>Postcode</dt>
-                <dd>{result.postcode}</dd>
-              </div>
-            </dl>
+            <p className="result__label">Nearest grit bins</p>
+            <p className="result__context">
+              {nearest.address}, {nearest.postcode}
+            </p>
+            <ol className="rank-list">
+              {nearest.nearest_grit_bins.map((bin, index) => (
+                <li key={`${bin.title}-${index}`} className="rank-list__item">
+                  <span className="rank-list__index">{index + 1}</span>
+                  <span className="rank-list__title">{bin.title}</span>
+                  <span className="rank-list__distance">
+                    {bin.distance_meters.toFixed(2)} m
+                  </span>
+                </li>
+              ))}
+            </ol>
+          </div>
+        ) : null}
+
+        {allBins ? (
+          <div className="result result--ok">
+            <p className="result__label">All grit bins</p>
+            <p className="result__context">{allBins.count} features from WFS</p>
+            <div className="bin-scroll" tabIndex={0}>
+              <table className="bin-table">
+                <thead>
+                  <tr>
+                    <th scope="col">Title</th>
+                    <th scope="col">Easting</th>
+                    <th scope="col">Northing</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {allBins.grit_bins.map((bin, index) => (
+                    <tr key={`${bin.title}-${bin.easting}-${index}`}>
+                      <td>{bin.title}</td>
+                      <td>{bin.easting.toFixed(1)}</td>
+                      <td>{bin.northing.toFixed(1)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
         ) : null}
       </div>

@@ -19,9 +19,15 @@ async def health() -> HealthResponse:
 
 @router.get("/")
 async def root() -> dict[str, Any]:
-    """Tiny discovery payload pointing at docs and the main endpoint."""
+    """Tiny discovery payload pointing at docs and the main endpoints."""
     return {
         "service": "nearest-grit-bin",
         "docs": "/docs",
-        "endpoint": "/nearest-grit-bin?postcode=DE55%205PB&address=HILLBROW",
+        "endpoints": {
+            "nearest": "/nearest-grit-bin?postcode=DE55%205PB&address=HILLBROW",
+            "nearest_n": (
+                "/nearest-grit-bins?postcode=DE55%205PB&address=HILLBROW&limit=5"
+            ),
+            "all": "/grit-bins",
+        },
     }
