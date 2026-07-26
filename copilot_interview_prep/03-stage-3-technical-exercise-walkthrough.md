@@ -14,6 +14,14 @@ My repo implements this using a clean, domain‑driven FastAPI architecture.”
 
 This shows structured thinking — exactly what they want.
 
+```mermaid
+flowchart LR
+  P["Problem"] --> A["1. Address Lookup<br/>HILLBROW coords"]
+  P --> S["2. Spatial Query<br/>nearest grit bin ~100m"]
+  A --> R["domain-driven FastAPI"]
+  S --> R
+```
+
 🧩 2. Address Lookup Flow (Based on Your Updated Repo)
 Your updated repo uses a three‑layer approach:
 
@@ -37,6 +45,21 @@ Model Layer → src/models/address.py
 Validates structure
 
 Ensures consistent schema
+
+```mermaid
+sequenceDiagram
+  participant S as address_service
+  participant C as api/address.py
+  participant U as Address API
+  participant M as models/address
+  S->>C: postcode request
+  C->>U: HTTP + headers from .env
+  U-->>C: raw JSON
+  C-->>S: records
+  S->>M: validate schema
+  S->>S: filter Title contains HILLBROW
+  S->>S: extract coordinates
+```
 
 How to explain this in the interview:
 “I separated raw HTTP concerns from business logic.
@@ -71,6 +94,19 @@ Defines grit bin geometry
 
 Defines grit bin metadata
 
+```mermaid
+flowchart TD
+  WFS["api/geoserver.py<br/>WFS GetFeature"] --> SVC["geoserver_service"]
+  SVC --> PARSE["utils/parser.py<br/>SP_GEOMETRY"]
+  SVC --> DIST["utils/coordinates.py<br/>EPSG:27700 Euclidean"]
+  SVC --> MODEL["models/gritbin.py"]
+  DIST --> PICK["Select nearest<br/>Title + distance"]
+  subgraph fallback["Investigation path"]
+    DW["Try CQL DWITHIN"] --> EU["Fallback: manual distance"]
+  end
+  SVC -.-> DW
+```
+
 How to explain this:
 “I used GeoServer WFS because WFS returns geometry, which is required for spatial calculations.
 
@@ -89,6 +125,12 @@ Geometry extraction
 
 Coordinate parsing
 
+```mermaid
+flowchart LR
+  LonLat["Lon/lat degrees<br/>EPSG:4326"] -.->|"if needed"| BNG["Easting/Northing metres<br/>EPSG:27700"]
+  BNG --> EUC["Euclidean<br/>hypot Δe, Δn → metres"]
+```
+
 How to explain this:
 “Because the grit bin layer uses EPSG:27700, I used Euclidean distance, which is appropriate for planar coordinate systems.
 
@@ -102,6 +144,13 @@ core/exceptions.py → custom exceptions
 Defensive checks in services
 
 Clean error propagation to FastAPI
+
+```mermaid
+flowchart LR
+  S["services/"] -->|raise| E["core/exceptions.py"]
+  E --> H["FastAPI handler"]
+  H --> R["Structured response"]
+```
 
 How to explain this:
 “I implemented predictable exceptions for all failure scenarios — missing address, missing grit bin, API failure, and schema mismatch.
@@ -138,6 +187,20 @@ Calls FastAPI backend
 Displays grit bin Title + distance
 
 Handles loading + errors
+
+```mermaid
+sequenceDiagram
+  participant UI as Next.js UI
+  participant BE as FastAPI
+  participant ADDR as Address API
+  participant GEO as GeoServer WFS
+  UI->>BE: postcode + address
+  BE->>ADDR: lookup
+  ADDR-->>BE: records
+  BE->>GEO: WFS features
+  GEO-->>BE: geometry
+  BE-->>UI: Title + distance_meters
+```
 
 How to explain this:
 “The frontend is intentionally simple — it demonstrates how a user would interact with the backend service.

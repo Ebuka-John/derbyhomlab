@@ -19,6 +19,19 @@ Core layer → configuration + exceptions
 
 FastAPI entrypoint → clean routing
 
+```mermaid
+flowchart TB
+  FE["Next.js frontend"] --> MAIN["main.py FastAPI"]
+  MAIN --> SVC["services/"]
+  SVC --> API["api/ HTTP clients"]
+  SVC --> MOD["models/"]
+  SVC --> UTIL["utils/"]
+  MAIN --> CORE["core/ config + exceptions"]
+  API --> ADDR["Derbyshire Address API"]
+  API --> WFS["GeoServer WFS"]
+  UTIL --> BNG["EPSG:27700 Euclidean"]
+```
+
 This structure is clean, maintainable, testable, and reusable — perfect for Derbyshire’s integration team.
 
 🗂️ Updated Repo Structure (Explained Like a Senior Developer)
@@ -149,6 +162,40 @@ Converts geometry into usable numeric values
 
 This is essential for spatial querying.
 
+```mermaid
+flowchart LR
+  subgraph core_layer["core/"]
+    CFG["config.py"]
+    EX["exceptions.py"]
+  end
+  subgraph api_layer["api/"]
+    AA["address.py"]
+    GS["geoserver.py"]
+  end
+  subgraph services_layer["services/"]
+    AS["address_service.py"]
+    GSS["geoserver_service.py"]
+  end
+  subgraph models_layer["models/"]
+    MA["address.py"]
+    MG["gritbin.py"]
+  end
+  subgraph utils_layer["utils/"]
+    CO["coordinates.py"]
+    PA["parser.py"]
+  end
+  AS --> AA
+  AS --> MA
+  GSS --> GS
+  GSS --> PA
+  GSS --> CO
+  GSS --> MG
+  AA --> CFG
+  GS --> CFG
+  AS --> EX
+  GSS --> EX
+```
+
 🧠 How to Explain This Architecture in the Interview
 Use this exact script:
 
@@ -195,7 +242,3 @@ This is the architecture of someone who can design and maintain council‑wide i
 Walk me through my technical exercise using my repo
 
 Mock interview using my repo
-
-Reply next and I’ll deliver:
-
-⭐ Stage 3 — Updated Technical Exercise Walkthrough Using Your Repo

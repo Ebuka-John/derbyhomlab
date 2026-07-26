@@ -68,6 +68,14 @@ Use `%20` in URLs (`DE55%205PB`). The backend uses `quote(..., safe="")` for thi
 
 Coordinates must be EPSG:27700 before distance maths. Use `ensure_bng` — do not mix lat/lon degrees with BNG metres.
 
+Quick reminder:
+
+- **CRS** = what the numbers mean (EPSG:27700 metres vs EPSG:4326 degrees).
+- **DWITHIN** = GeoServer filters “within N metres”.
+- **Euclidean** = your app’s `sqrt(Δe² + Δn²)` on BNG points.
+
+See [10-spatial-querying.md](./10-spatial-querying.md#beginner-faq--crs-bng-and-this-codebase).
+
 ---
 
 <!-- tutorial-nav -->

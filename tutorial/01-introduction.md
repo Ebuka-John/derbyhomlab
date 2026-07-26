@@ -53,6 +53,10 @@ docs, and investigation trail used to build this project:
 
 → [09-sources-and-references.md](./09-sources-and-references.md)
 
+For a plain-language CRS / BNG / DWITHIN / Euclidean FAQ tied to this codebase:
+
+→ [10-spatial-querying.md — Beginner FAQ](./10-spatial-querying.md#beginner-faq--crs-bng-and-this-codebase)
+
 ---
 
 <!-- tutorial-nav -->

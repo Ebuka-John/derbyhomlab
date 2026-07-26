@@ -86,8 +86,8 @@ matching address from the Address API.
 
 | Time | Do this |
 |------|---------|
-| 0:00–0:20 | [backend/06-coordinates.md](./backend/06-coordinates.md) — domain points + `utils/geospatial.py`. **Type slowly here** |
-| 0:20–0:25 | Pause and read [10-spatial-querying.md](./10-spatial-querying.md) **§1 only** (EPSG:27700) |
+| 0:00–0:20 | [backend/06-coordinates.md](./backend/06-coordinates.md) — domain points + `utils/geospatial.py`. **Type slowly here**; read the “new to maps” primer at the top |
+| 0:20–0:25 | Pause and read [10-spatial-querying.md](./10-spatial-querying.md) **Beginner FAQ + §1** (CRS / EPSG:27700) |
 | 0:25–0:55 | [backend/07-address-service.md](./backend/07-address-service.md) — address **repository** + **service** |
 | 0:55–1:00 | Run both checkpoints; take a 5-minute break if ahead |
 

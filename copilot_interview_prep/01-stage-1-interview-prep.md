@@ -21,6 +21,28 @@ src/
   │     ├── coordinates.py
   │     └── parser.py
   └── main.py
+
+```mermaid
+flowchart TB
+  subgraph entry["Entrypoint"]
+    main["main.py — FastAPI"]
+  end
+  subgraph layers["Domain-driven layers"]
+    api["api/ — HTTP clients<br/>Address API + GeoServer WFS"]
+    services["services/ — business logic<br/>lookup, spatial, nearest bin"]
+    models["models/ — typed schemas"]
+    utils["utils/ — EPSG:27700 + parsing"]
+    core["core/ — config + exceptions"]
+  end
+  main --> api
+  main --> services
+  services --> api
+  services --> models
+  services --> utils
+  api --> core
+  services --> core
+```
+
 This is far more senior than the earlier version — it shows:
 
 Domain‑driven design
@@ -72,6 +94,20 @@ Extracts coordinates cleanly
 
 Handles missing address gracefully
 
+```mermaid
+sequenceDiagram
+  participant S as address_service
+  participant A as api/address.py
+  participant API as Derbyshire Address API
+  participant M as models/address.py
+  S->>A: fetch by postcode
+  A->>API: HTTP + secure headers
+  API-->>A: raw JSON
+  A-->>S: records
+  S->>M: validate / shape
+  S->>S: filter HILLBROW + extract coords
+```
+
 How to explain it:
 “I separated raw API calls from business logic.
 
@@ -90,6 +126,15 @@ Uses utils/coordinates.py for EPSG:27700 math
 
 Uses models/gritbin.py for typed grit bin objects
 
+```mermaid
+flowchart LR
+  GS["api/geoserver.py<br/>WFS GetFeature"] --> SVC["geoserver_service"]
+  SVC --> P["utils/parser.py<br/>SP_GEOMETRY"]
+  SVC --> C["utils/coordinates.py<br/>EPSG:27700 Euclidean"]
+  SVC --> M["models/gritbin.py"]
+  C --> N["Nearest grit bin<br/>Title + distance"]
+```
+
 How to explain it:
 “I used WFS because it returns geometry.
 
@@ -106,6 +151,13 @@ Defensive checks in services
 
 Clean error propagation to FastAPI
 
+```mermaid
+flowchart LR
+  SVC["services/"] -->|raise| EX["core/exceptions.py"]
+  EX --> FA["FastAPI handler"]
+  FA --> JSON["Structured JSON error"]
+```
+
 How to explain it:
 “I implemented predictable exceptions in the core layer, allowing services to raise meaningful errors and the API layer to return structured responses.”
 
@@ -117,6 +169,14 @@ Loads secrets from .env via core/config.py
 Never exposes API keys to the frontend
 
 Uses backend‑only integration to avoid CORS issues
+
+```mermaid
+flowchart LR
+  Browser["Browser / Next.js"] -->|no secrets| BE["FastAPI backend"]
+  ENV[".env via core/config.py"] --> BE
+  BE -->|x-alias / x-auth-token| Addr["Address API"]
+  BE -->|WFS| Geo["GeoServer"]
+```
 
 How to explain it:
 “All secrets are stored in environment variables, and all external API calls are made server‑side to avoid exposing credentials.”
@@ -150,7 +210,3 @@ Explain my repo architecture
 Walk me through my technical exercise using my repo
 
 Mock interview using my repo
-
-Reply next and I’ll deliver:
-
-⭐ Stage 2 — Updated Repo Architecture Explanation (deep dive)

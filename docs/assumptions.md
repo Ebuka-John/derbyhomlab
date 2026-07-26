@@ -10,10 +10,13 @@
   HILLBROW record for `DE55 5PB`.
 - The GeoServer layer `DCC:Gritbins` publishes geometry in **EPSG:27700** under the
   attribute `SP_GEOMETRY` (confirmed against the live WFS endpoint). The grit bin
-  display name is the feature property `Title` (e.g. `GB0199`).
-- The **100 m** radius is authoritative: a bin outside the radius is not returned even
-  if it is the globally nearest one. The radius is configurable via
-  `NEAREST_SEARCH_RADIUS_METERS`.
+  display name is the feature property `Title` (e.g. `GB0199`). Domain types
+  `Point27700` / `Point4326` name those CRS codes explicitly.
+- For the exercise endpoint `/nearest-grit-bin`, the **100 m** radius is authoritative:
+  a bin outside the radius is not returned even if it is the globally nearest one.
+  The radius is configurable via `NEAREST_SEARCH_RADIUS_METERS`.
+  `/nearest-grit-bins` ranks the **full layer** by Euclidean distance (top N) so
+  the panel “nearest five” answer is demonstrable when only one bin sits inside 100 m.
 - The first matching address record is the intended property (the interview example is
   unambiguous). Multiple-match disambiguation is out of scope.
 - Missing / unmatched address and “no bin within 100 m” are **client-visible errors**

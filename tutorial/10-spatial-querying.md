@@ -20,6 +20,93 @@ The five concepts:
 | 4 | [Euclidean fallback](#4-manual-euclidean-distance-fallback) | Compute distance yourself when DWITHIN misbehaves |
 | 5 | [SP_GEOMETRY extraction](#5-geometry-extraction-from-sp_geometry) | Pull easting/northing out of each GeoJSON feature |
 
+If CRS / BNG / Euclidean are new to you, skim
+[Beginner FAQ](#beginner-faq--crs-bng-and-this-codebase) first, then come back
+to the five concepts.
+
+---
+
+## Beginner FAQ — CRS, BNG, and this codebase
+
+These are the questions that usually come up when reading
+`src/utils/geospatial.py` for the first time.
+
+### What is a CRS?
+
+**CRS** = **Coordinate Reference System** — the shared rule that says what a
+pair of numbers *means* on Earth.
+
+Without a CRS, `(443563, 360212)` is just two floats. With a CRS you know
+whether they are metres on the British grid, degrees of lon/lat, or something
+else.
+
+### What is `CrsCode` in the Python file?
+
+```python
+CrsCode = Literal["EPSG:27700", "EPSG:4326"]
+```
+
+That is a **type alias**: “in this project, a CRS label may only be one of
+these two strings.” It documents intent and helps editors/type checkers. Python
+does not enforce it at runtime by itself. `detect_crs_from_values` returns a
+`CrsCode`.
+
+### Why are the classes named `Point27700` and `Point4326`?
+
+**EPSG codes are the industry standard** (GeoServer, QGIS, pyproj all use them).
+The class names are a **project convention** that embeds those codes:
+
+| Class | Means |
+|-------|--------|
+| `Point27700` | British National Grid point — `easting`, `northing` in **metres** |
+| `Point4326` | WGS84 point — `longitude`, `latitude` in **degrees** |
+
+Other teams might name them `BNGPoint` / `Wgs84Point`. What must stay standard
+is the **EPSG number** when talking to libraries and servers.
+
+### Why do `_to_bng` and `_to_wgs84` start with an underscore?
+
+In Python, a leading `_` means **internal / private by convention** — not for
+import by other modules. Callers use public functions (`lonlat_to_bng`,
+`bng_to_lonlat`). The underscore is a signal to humans; it is not a hard lock.
+
+### What do these two distance approaches mean?
+
+Once points are in EPSG:27700 metres, this project measures distance in two ways:
+
+**1. GeoServer `DWITHIN` (server filters for you)**
+
+```text
+DWITHIN(SP_GEOMETRY, POINT(443563 360212), 100, meters)
+```
+
+Read as: “return grit bins whose geometry is within **100 metres** of this BNG
+point.” GeoServer uses its spatial index; you do not download the whole county.
+
+**2. Euclidean distance in Python (you measure yourself)**
+
+\[
+d = \sqrt{(e_1 - e_2)^2 + (n_1 - n_2)^2}
+\]
+
+In code: `math.hypot(Δeasting, Δnorthing)`. Example: origin `(443563, 360212)`
+and bin `(443600, 360250)` → about **53 m**.
+
+| Approach | Who measures? | Typical use |
+|----------|---------------|-------------|
+| `DWITHIN` | GeoServer | Prefer for “within 100 m” candidate fetch |
+| Euclidean | Your app | Rank nearest / top N / fallback if DWITHIN fails |
+
+Mixing lon/lat **degrees** with BNG **metres** gives nonsense distances — that
+is why everything is normalised to EPSG:27700 first.
+
+```mermaid
+flowchart LR
+  LonLat["EPSG:4326<br/>lon/lat degrees"] -->|"lonlat_to_bng"| BNG["EPSG:27700<br/>easting/northing metres"]
+  BNG --> DW["DWITHIN on GeoServer"]
+  BNG --> EU["Euclidean in Python"]
+```
+
 ---
 
 ## 1. EPSG:27700 — British National Grid
@@ -362,8 +449,11 @@ You are ready when you can answer these without notes:
    plausible causes and what your code should do next.
 5. In the GeoJSON response, where do you find a grit bin's coordinates, and in
    what axis order?
+6. Why are domain points named `Point27700` / `Point4326`, and what does
+   `CrsCode = Literal[...]` buy you?
+7. What does a leading `_` on `_to_bng` mean in Python?
 
-(Answers are all on this page: §1, §2, §3, §4, §5 respectively.)
+(Answers: §1–§5 for 1–5; [Beginner FAQ](#beginner-faq--crs-bng-and-this-codebase) for 6–7.)
 
 
 ---

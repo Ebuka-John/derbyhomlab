@@ -60,12 +60,25 @@ Royal Mail / Ordnance Survey style background (optional reading):
 
 ### British National Grid (why not just lat/lon?)
 
+**CRS** (Coordinate Reference System) = the rule for what coordinate numbers mean.
+
 UK local-authority GIS layers often use **British National Grid (BNG)**,
 coordinate reference system **EPSG:27700**. Coordinates are **easting** and
 **northing** in **metres**. That makes “within 100 metres” a natural question.
 
 WGS84 lat/lon is **EPSG:4326** (degrees). Mixing degrees with metre-based map
 layers without converting gives nonsense distances.
+
+In this repo:
+
+- Domain types: `Point27700` / `Point4326` (named after EPSG codes — convention,
+  not a library requirement).
+- Helpers: `src/utils/geospatial.py` (`ensure_bng`, Euclidean distance, etc.).
+- Server filter example:
+  `DWITHIN(SP_GEOMETRY, POINT(443563 360212), 100, meters)`.
+
+Beginner FAQ (CRS, `CrsCode`, underscores, DWITHIN vs Euclidean):
+[10-spatial-querying.md](./10-spatial-querying.md#beginner-faq--crs-bng-and-this-codebase).
 
 Registry entry:
 

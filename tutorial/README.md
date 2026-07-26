@@ -81,7 +81,7 @@ Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
 | 8 | [05-running-fullstack.md](./05-running-fullstack.md) | Run both sides together locally |
 | 9 | [docker/](./docker/README.md) | Containerise with Docker Compose |
 | 10 | [06-common-mistakes.md](./06-common-mistakes.md) | Fix typical errors |
-| 11 | [10-spatial-querying.md](./10-spatial-querying.md) | Geospatial deep dive: EPSG:27700, WFS vs WMS, DWITHIN, fallback, SP_GEOMETRY |
+| 11 | [10-spatial-querying.md](./10-spatial-querying.md) | Geospatial deep dive: beginner CRS FAQ, EPSG:27700, WFS vs WMS, DWITHIN, Euclidean fallback, SP_GEOMETRY |
 | 12 | [07-derbyshire-exercise.md](./07-derbyshire-exercise.md) | Apply skills to the interview exercise |
 | 13 | [08-next-steps.md](./08-next-steps.md) | Auth, scale, further ideas |
 

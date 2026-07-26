@@ -10,6 +10,45 @@
 logic works with. **Geospatial helpers** (`utils/geospatial.py`) operate on those
 points (CRS conversion, distance, nearest-feature selection).
 
+### Read this first (new to maps / UK GIS?)
+
+**CRS** (Coordinate Reference System) = the rule for what coordinate numbers mean.
+
+| CRS code | Everyday name | Units | Fields in this project |
+|----------|---------------|-------|------------------------|
+| **EPSG:27700** | British National Grid (BNG) | metres | `Point27700.easting`, `.northing` |
+| **EPSG:4326** | WGS84 (GPS / web maps) | degrees | `Point4326.longitude`, `.latitude` |
+
+UK council layers (including Derbyshire grit bins) usually publish in
+**EPSG:27700**. Always convert to BNG before “how many metres apart?” maths.
+
+**Naming:** `Point27700` / `Point4326` embed the standard EPSG codes so you
+cannot confuse metres with degrees. EPSG codes are industry standard; these
+class names are our convention.
+
+**`CrsCode = Literal["EPSG:27700", "EPSG:4326"]`** — a typed alias for “only
+these two CRS labels are allowed in this module.”
+
+**`_to_bng` / `_to_wgs84`** — leading `_` means “private helper; use
+`lonlat_to_bng` / `bng_to_lonlat` instead.”
+
+**Two ways to measure metres after you are in BNG:**
+
+```text
+DWITHIN(SP_GEOMETRY, POINT(443563 360212), 100, meters)
+```
+
+= GeoServer keeps bins within 100 m of that point.
+
+```text
+distance = sqrt( (e1 - e2)² + (n1 - n2)² )   # math.hypot in code
+```
+
+= your app ranks / picks nearest (and falls back when DWITHIN fails).
+
+Full walkthrough: [10-spatial-querying.md](../10-spatial-querying.md)
+(especially the Beginner FAQ).
+
 ```mermaid
 flowchart LR
   GEO["domain/geometry.py<br/>Point27700, Point4326"]
@@ -46,7 +85,11 @@ from dataclasses import dataclass
 
 @dataclass(frozen=True, slots=True)
 class Point27700:
-    """A point in British National Grid metres (easting, northing)."""
+    """A point on the British National Grid (EPSG:27700), in metres.
+
+    easting  — metres east of the BNG origin
+    northing — metres north of the BNG origin
+    """
 
     easting: float
     northing: float
@@ -54,7 +97,10 @@ class Point27700:
 
 @dataclass(frozen=True, slots=True)
 class Point4326:
-    """A point in WGS84 degrees (longitude, latitude) — always_xy order."""
+    """A GPS-style WGS84 point (EPSG:4326), in degrees (lon, lat — always_xy).
+
+    Convert to Point27700 before measuring metres.
+    """
 
     longitude: float
     latitude: float
@@ -191,6 +237,18 @@ Open `src/utils/geospatial.py` in your editor and type the contents below yourse
 
 Converts between WGS84 (lat/lon) and British National Grid (EPSG:27700), computes planar distance in metres, and picks the nearest grit-bin feature from a GeoJSON list.
 
+While typing, notice:
+
+- Module docstring / comments explain **why** BNG comes first.
+- `CrsCode` limits CRS strings to the two we support.
+- `_to_bng` / `_to_wgs84` are private pyproj transformers (leading `_`).
+- Public API: `lonlat_to_bng`, `bng_to_lonlat`, `ensure_bng`,
+  `euclidean_distance_meters`, `nearest_from_features` / `nearest_n_from_features`.
+
+> Tip: after you finish the type-along, open the real
+> `src/utils/geospatial.py` in the repo — it has longer beginner comments than
+> the minimal block below. Match behaviour; use the fuller comments as study notes.
+
 ### Type this exactly
 
 ```python
@@ -207,8 +265,9 @@ from src.models.domain.geometry import Point27700, Point4326
 from src.models.domain.gritbin import GritBinMatch
 from src.utils.exceptions import CoordinateConversionError, NoGritBinNearbyError
 
-CrsCode = Literal["EPSG:27700", "EPSG:4326"]
+CrsCode = Literal["EPSG:27700", "EPSG:4326"]  # typed CRS labels we support
 
+# Leading _ = module-private helpers; call lonlat_to_bng / bng_to_lonlat instead.
 _to_bng = Transformer.from_crs("EPSG:4326", "EPSG:27700", always_xy=True)
 _to_wgs84 = Transformer.from_crs("EPSG:27700", "EPSG:4326", always_xy=True)
 
@@ -324,10 +383,13 @@ def nearest_from_features(
 1. Derbyshire GeoServer grit bins use **British National Grid** (EPSG:27700) — metres on the ground.
 2. Some Address APIs return **lat/lon** degrees (EPSG:4326) instead.
 3. `ensure_bng` normalises either flavour into a `Point27700`.
-4. Distance is then simple Pythagoras (`math.hypot`) because BNG is already in metres.
-5. `nearest_from_features` ranks raw GeoJSON features — reused by the grit-bin service fallback path.
+4. Distance is then simple Pythagoras (`math.hypot`) because BNG is already in metres — that is **Euclidean** distance. Prefer this over Haversine once both points are in BNG.
+5. **DWITHIN** (in the grit-bin repository) asks GeoServer for candidates within N metres; if that fails or is empty, services fall back to fetch-all + `nearest_from_features` / `nearest_n_from_features`.
+6. Class names `Point27700` / `Point4326` make the CRS obvious; `CrsCode` documents the allowed EPSG strings; `_to_*` transformers stay private.
 
 > Why domain models? A bare `(440000, 355000)` is easy to misuse. A `Point27700` object documents what the numbers mean. Primer: [00-python-fastapi-basics.md](./00-python-fastapi-basics.md) §4.
+>
+> Deeper spatial FAQ: [10-spatial-querying.md](../10-spatial-querying.md).
 
 ## Checkpoint
 

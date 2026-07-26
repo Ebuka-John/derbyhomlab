@@ -231,9 +231,11 @@ Open [http://127.0.0.1:3000](http://127.0.0.1:3000). Defaults are prefilled with
 1. **Config via pydantic-settings** — required env keys fail fast at startup; headers are built once from Settings, never scattered as literals.
 2. **Shared `httpx.AsyncClient`** — connection pooling across Address + GeoServer calls in a single request.
 3. **Flexible address schema parsing** — field aliases (`Title`/`FullAddress`, `Easting`/`X_COORDINATE`, nested `location`) tolerate council API variance without hard-coding one DTO.
-4. **Always normalise to EPSG:27700** — grit-bin geometries are BNG; DWITHIN metres and Euclidean metres are then meaningful.
-5. **DWITHIN first, Euclidean fallback** — preferred spatial filter when GeoServer supports it; resilient when CQL spatial predicates fail or return empty.
+4. **Always normalise to EPSG:27700** — grit-bin geometries are BNG; DWITHIN metres and Euclidean metres are then meaningful. (`Point27700` / `Point4326` name the CRS in the type; see `utils/geospatial.py`.)
+5. **DWITHIN first, Euclidean fallback** — e.g. `DWITHIN(SP_GEOMETRY, POINT(e n), 100, meters)` on GeoServer; if that fails/empties, fetch features and rank with `math.hypot` on BNG metres.
 6. **Typed `AppError` hierarchy** — one exception handler maps domain failures to stable JSON error codes for clients and interview demos.
+
+Spatial beginner FAQ: [tutorial/10-spatial-querying.md](tutorial/10-spatial-querying.md#beginner-faq--crs-bng-and-this-codebase).
 
 ---
 
