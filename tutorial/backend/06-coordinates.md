@@ -2,7 +2,7 @@
 
 ## What you will do
 
-1. Create five files with PowerShell (`New-Item`).
+1. Create the listed files in your editor.
 2. Open each file and type the code carefully (or section by section).
 3. Activate the venv and run the checkpoint before continuing.
 
@@ -65,13 +65,9 @@ flowchart LR
 
 **Path:** `src/models/domain/geometry.py`
 
-### Create it in PowerShell (project root)
+### Create this file in the editor
 
-```powershell
-New-Item -ItemType File -Force -Path src\models\domain\geometry.py | Out-Null
-```
-
-Open `src/models/domain/geometry.py` in your editor and type the contents below yourself.
+Create `src/models/domain/geometry.py` in your editor (from the project root), then type the contents below yourself.
 
 ### Type this exactly
 
@@ -112,13 +108,9 @@ class Point4326:
 
 **Path:** `src/models/domain/address.py`
 
-### Create it in PowerShell (project root)
+### Create this file in the editor
 
-```powershell
-New-Item -ItemType File -Force -Path src\models\domain\address.py | Out-Null
-```
-
-Open `src/models/domain/address.py` in your editor and type the contents below yourself.
+Create `src/models/domain/address.py` in your editor (from the project root), then type the contents below yourself.
 
 ### Type this exactly
 
@@ -147,13 +139,9 @@ class ResolvedAddress:
 
 **Path:** `src/models/domain/gritbin.py`
 
-### Create it in PowerShell (project root)
+### Create this file in the editor
 
-```powershell
-New-Item -ItemType File -Force -Path src\models\domain\gritbin.py | Out-Null
-```
-
-Open `src/models/domain/gritbin.py` in your editor and type the contents below yourself.
+Create `src/models/domain/gritbin.py` in your editor (from the project root), then type the contents below yourself.
 
 ### Type this exactly
 
@@ -193,13 +181,9 @@ class GritBinMatch:
 
 **Path:** `src/models/domain/__init__.py`
 
-### Create it in PowerShell (project root)
+### Create this file in the editor
 
-```powershell
-New-Item -ItemType File -Force -Path src\models\domain\__init__.py | Out-Null
-```
-
-Open `src/models/domain/__init__.py` in your editor and type the contents below yourself.
+Create `src/models/domain/__init__.py` in your editor (from the project root), then type the contents below yourself.
 
 ### Type this exactly
 
@@ -225,13 +209,9 @@ __all__ = [
 
 **Path:** `src/utils/geospatial.py`
 
-### Create it in PowerShell (project root)
+### Create this file in the editor
 
-```powershell
-New-Item -ItemType File -Force -Path src\utils\geospatial.py | Out-Null
-```
-
-Open `src/utils/geospatial.py` in your editor and type the contents below yourself.
+Create `src/utils/geospatial.py` in your editor (from the project root), then type the contents below yourself.
 
 ### Purpose
 

@@ -2,19 +2,15 @@
 
 ## What you will do
 
-1. Create the empty file with PowerShell (`New-Item`) from the project root.
+1. Create the empty file in your editor (from the project root).
 2. Open it and type the code carefully.
 3. Run the checkpoint before continuing.
 
 ## File to create: `lib/types.ts`
 
-### Create it in PowerShell (project root)
+### Create this file in the editor
 
-```powershell
-New-Item -ItemType File -Force -Path frontend\lib\types.ts | Out-Null
-```
-
-Open `frontend/lib/types.ts` in your editor and type the contents below yourself.
+Create `frontend/lib/types.ts` in your editor (from the project root), then type the contents below yourself.
 
 **Path:** `lib/types.ts` (relative to `frontend/`)
 

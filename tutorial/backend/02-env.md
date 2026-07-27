@@ -2,7 +2,7 @@
 
 ## What you will do
 
-1. Create a safe template `.env.example` (PowerShell + type contents).
+1. Create a safe template `.env.example` in your editor (type the contents).
 2. Copy it to `.env` and fill real values.
 3. Make sure `.env` is gitignored.
 
@@ -10,13 +10,9 @@
 
 **Path:** `.env.example` (project root)
 
-### Create it in PowerShell (project root)
+### Create this file in the editor
 
-```powershell
-New-Item -ItemType File -Force -Path .env.example | Out-Null
-```
-
-Open `.env.example` in your editor and **type this exactly:**
+Create `.env.example` in your editor (from the project root), then type the contents below yourself.
 
 ```text
 # Address Lookup API
@@ -43,13 +39,9 @@ Documents which variables exist without committing real secrets.
 
 **Path:** `.env` (project root)
 
-### Create it in PowerShell (project root)
+### Create this file in the editor
 
-```powershell
-Copy-Item .env.example .env
-```
-
-Open `.env` in your editor and replace the Address API values with your real
+Create `.env` in your editor (from the project root) by copying `.env.example` to `.env` (or duplicate it in the editor), then edit as needed.
 credentials:
 
 - `ADDRESS_API_BASE_URL` — the real base URL you were given
@@ -77,13 +69,9 @@ start correctly.
 
 ## Also do this — `.gitignore`
 
-### Create it in PowerShell (project root)
+### Create this file in the editor
 
-```powershell
-New-Item -ItemType File -Force -Path .gitignore | Out-Null
-```
-
-Open `.gitignore` and type at least:
+Create `.gitignore` in your editor (from the project root), then type the contents below yourself.
 
 ```text
 .env

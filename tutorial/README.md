@@ -38,24 +38,19 @@ Work **one step at a time**. Do not skip ahead until the checkpoint passes.
 
 ### Type-along + PowerShell (how every step works)
 
-This is a **type-along** lab on **Windows PowerShell**. You run every command
-yourself. The pattern never changes:
+This is a **type-along** lab on **Windows**. You create each file **in your
+editor**, type the contents yourself, and run installs / servers / checkpoints
+in **PowerShell**.
 
-1. **PowerShell creates** the empty file or folder (`New-Item …`).
-2. **You open the file** in your editor and **type** the contents yourself.
+1. **Create the file in the editor** at the exact path given (from the project root).
+2. **Type** the contents yourself — do not paste a finished source tree from elsewhere.
 3. **PowerShell runs** installs, servers, and checkpoints.
 
-Do not paste a finished source tree from elsewhere — typing the code builds the
-mental model. Every command is in a `powershell` block: copy it into your
-terminal and run it.
+Every command is in a `powershell` block: copy it into your terminal and run it.
 
 #### PowerShell conventions used throughout
 
 ```powershell
-# Create folders / empty files (from the project root)
-New-Item -ItemType Directory -Force -Path src\utils | Out-Null
-New-Item -ItemType File -Force -Path src\utils\geospatial.py | Out-Null
-
 # Activate the Python virtual environment (every new terminal)
 .\.venv\Scripts\Activate.ps1
 

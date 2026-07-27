@@ -48,7 +48,7 @@ Stop any local servers so ports **8000** and **3000** are free (`Ctrl+C` in thei
 PowerShell windows).
 
 Then open **[01-backend-dockerfile.md](./01-backend-dockerfile.md)** — create each
-file with PowerShell `New-Item`, then type the contents yourself.
+file in your editor, then type the contents yourself.
 
 ---
 

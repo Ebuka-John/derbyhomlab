@@ -2,7 +2,7 @@
 
 ## What you will do
 
-1. Create six files with PowerShell (`New-Item`).
+1. Create the listed files in your editor.
 2. Open each file and type the code carefully (or section by section).
 3. Activate the venv and run the checkpoint before continuing.
 
@@ -31,13 +31,9 @@ flowchart TD
 
 **Path:** `src/repositories/gritbin_repository.py`
 
-### Create it in PowerShell (project root)
+### Create this file in the editor
 
-```powershell
-New-Item -ItemType File -Force -Path src\repositories\gritbin_repository.py | Out-Null
-```
-
-Open `src/repositories/gritbin_repository.py` in your editor and type the contents below yourself.
+Create `src/repositories/gritbin_repository.py` in your editor (from the project root), then type the contents below yourself.
 
 ### Purpose
 
@@ -157,13 +153,9 @@ class GritBinRepository:
 
 **Path:** `src/services/gritbin_service.py`
 
-### Create it in PowerShell (project root)
+### Create this file in the editor
 
-```powershell
-New-Item -ItemType File -Force -Path src\services\gritbin_service.py | Out-Null
-```
-
-Open `src/services/gritbin_service.py` in your editor and type the contents below yourself.
+Create `src/services/gritbin_service.py` in your editor (from the project root), then type the contents below yourself.
 
 ### Purpose
 
@@ -272,13 +264,9 @@ class GritBinService:
 
 **Path:** `src/models/dto/gritbin.py`
 
-### Create it in PowerShell (project root)
+### Create this file in the editor
 
-```powershell
-New-Item -ItemType File -Force -Path src\models\dto\gritbin.py | Out-Null
-```
-
-Open `src/models/dto/gritbin.py` in your editor and type the contents below yourself.
+Create `src/models/dto/gritbin.py` in your editor (from the project root), then type the contents below yourself.
 
 ### Type this exactly
 
@@ -308,13 +296,9 @@ class NearestGritBinResponse(BaseModel):
 
 **Path:** `src/models/dto/address.py`
 
-### Create it in PowerShell (project root)
+### Create this file in the editor
 
-```powershell
-New-Item -ItemType File -Force -Path src\models\dto\address.py | Out-Null
-```
-
-Open `src/models/dto/address.py` in your editor and type the contents below yourself.
+Create `src/models/dto/address.py` in your editor (from the project root), then type the contents below yourself.
 
 ### Type this exactly
 
@@ -345,13 +329,9 @@ class RootResponse(BaseModel):
 
 **Path:** `src/models/dto/__init__.py`
 
-### Create it in PowerShell (project root)
+### Create this file in the editor
 
-```powershell
-New-Item -ItemType File -Force -Path src\models\dto\__init__.py | Out-Null
-```
-
-Open `src/models/dto/__init__.py` in your editor and type the contents below yourself.
+Create `src/models/dto/__init__.py` in your editor (from the project root), then type the contents below yourself.
 
 ### Type this exactly
 

@@ -2,9 +2,8 @@
 
 ## What you will do
 
-Learn where each file belongs. You will create these folders and files with
-**PowerShell** (`New-Item`) in the backend and frontend labs, then type the
-contents yourself.
+Learn where each file belongs. You will create these folders and files **in your
+editor** in the backend and frontend labs, then type the contents yourself.
 
 ## Target tree (what you are building)
 

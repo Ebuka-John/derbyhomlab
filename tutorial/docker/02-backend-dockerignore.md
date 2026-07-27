@@ -2,7 +2,7 @@
 
 ## What you will do
 
-Create `.dockerignore` with PowerShell (`New-Item`), then type its contents so
+Create `.dockerignore` in your editor, then type its contents so
 the backend image build does not send secrets, virtualenvs, or the frontend tree
 into the Docker build context.
 
@@ -10,13 +10,9 @@ into the Docker build context.
 
 **Path:** `.dockerignore` (project root)
 
-### Create it in PowerShell (project root)
+### Create this file in the editor
 
-```powershell
-New-Item -ItemType File -Force -Path .dockerignore | Out-Null
-```
-
-Open `.dockerignore` in your editor and type the contents below yourself.
+Create `.dockerignore` in your editor (from the project root), then type the contents below yourself.
 
 ### Purpose
 

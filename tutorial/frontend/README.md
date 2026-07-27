@@ -26,8 +26,8 @@ frontend experience — follow the tables as you type.
 
 Finish the [backend lab](../backend/README.md) (or at least have FastAPI ready on port 8000).
 
-Keep **PowerShell** at the project root. Every file step uses `New-Item` to create
-an empty file, then you open it and **type** the contents.
+Keep **PowerShell** at the project root for installs and run commands. Every file
+step: create the file **in your editor**, then **type** the contents.
 
 Then open **[01-scaffold.md](./01-scaffold.md)**.
 

@@ -2,7 +2,7 @@
 
 ## What you will do
 
-1. Create two files with PowerShell (`New-Item`).
+1. Create the listed files in your editor.
 2. Open each file and type the code carefully (or section by section).
 3. Activate the venv and run the checkpoint before continuing.
 
@@ -28,13 +28,9 @@ flowchart LR
 
 **Path:** `src/repositories/address_repository.py`
 
-### Create it in PowerShell (project root)
+### Create this file in the editor
 
-```powershell
-New-Item -ItemType File -Force -Path src\repositories\address_repository.py | Out-Null
-```
-
-Open `src/repositories/address_repository.py` in your editor and type the contents below yourself.
+Create `src/repositories/address_repository.py` in your editor (from the project root), then type the contents below yourself.
 
 ### Purpose
 
@@ -146,13 +142,9 @@ class AddressRepository:
 
 **Path:** `src/services/address_service.py`
 
-### Create it in PowerShell (project root)
+### Create this file in the editor
 
-```powershell
-New-Item -ItemType File -Force -Path src\services\address_service.py | Out-Null
-```
-
-Open `src/services/address_service.py` in your editor and type the contents below yourself.
+Create `src/services/address_service.py` in your editor (from the project root), then type the contents below yourself.
 
 ### Purpose
 

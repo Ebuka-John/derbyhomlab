@@ -2,7 +2,7 @@
 
 ## What you will do
 
-1. Create two dependency files at the project root (PowerShell + type contents).
+1. Create two dependency files at the project root in your editor (type the contents).
 2. Create a Python virtual environment.
 3. Activate it and install packages.
 
@@ -10,13 +10,9 @@
 
 **Path:** `requirements.txt` (project root)
 
-### Create it in PowerShell (project root)
+### Create this file in the editor
 
-```powershell
-New-Item -ItemType File -Force -Path requirements.txt | Out-Null
-```
-
-Open `requirements.txt` in your editor and **type this exactly:**
+Create `requirements.txt` in your editor (from the project root), then type the contents below yourself.
 
 ```text
 fastapi>=0.115.0
@@ -39,13 +35,9 @@ server, HTTP client, env loading, coordinate conversion, and settings validation
 
 **Path:** `requirements-dev.txt` (project root)
 
-### Create it in PowerShell (project root)
+### Create this file in the editor
 
-```powershell
-New-Item -ItemType File -Force -Path requirements-dev.txt | Out-Null
-```
-
-Open `requirements-dev.txt` in your editor and **type this exactly:**
+Create `requirements-dev.txt` in your editor (from the project root), then type the contents below yourself.
 
 ```text
 -r requirements.txt

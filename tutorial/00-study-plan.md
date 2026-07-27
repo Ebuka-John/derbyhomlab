@@ -44,7 +44,7 @@ machine can build it.
 | 0:10–0:25 | [09-sources-and-references.md](./09-sources-and-references.md) **§1–2 only** — grit bins, postcodes, British National Grid. Skim the rest; you'll return in hour 8 |
 | 0:25–0:35 | [02-architecture.md](./02-architecture.md) + [03-folder-structure.md](./03-folder-structure.md) — how backend and frontend talk, where files live |
 | 0:35–0:40 | [04-environment-variables.md](./04-environment-variables.md) — secrets strategy |
-| 0:40–0:55 | Environment setup in **PowerShell**: `python --version` (3.11+), `node --version` (20+), create the project folder with `New-Item`, then follow [backend/01-requirements.md](./backend/01-requirements.md) for `python -m venv .venv` and `.\.venv\Scripts\Activate.ps1` |
+| 0:40–0:55 | Environment setup in **PowerShell**: `python --version` (3.11+), `node --version` (20+), create the project folder in your editor or File Explorer, then follow [backend/01-requirements.md](./backend/01-requirements.md) for `python -m venv .venv` and `.\.venv\Scripts\Activate.ps1` |
 | 0:55–1:00 | Skim [backend/00-python-fastapi-basics.md](./backend/00-python-fastapi-basics.md) — bookmark it; you will consult it *as needed*, not read it linearly |
 
 **Exit checkpoint:** you can sketch the request path from memory —

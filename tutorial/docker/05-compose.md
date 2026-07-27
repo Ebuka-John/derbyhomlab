@@ -2,7 +2,7 @@
 
 ## What you will do
 
-Create `docker-compose.yml` with PowerShell (`New-Item`), then type the Compose
+Create `docker-compose.yml` in your editor, then type the Compose
 file that builds both images, starts them together, shares a private network, and
 injects configuration.
 
@@ -10,13 +10,9 @@ injects configuration.
 
 **Path:** `docker-compose.yml` (project root)
 
-### Create it in PowerShell (project root)
+### Create this file in the editor
 
-```powershell
-New-Item -ItemType File -Force -Path docker-compose.yml | Out-Null
-```
-
-Open `docker-compose.yml` in your editor and type the contents below yourself.
+Create `docker-compose.yml` in your editor (from the project root), then type the contents below yourself.
 
 ### Purpose
 

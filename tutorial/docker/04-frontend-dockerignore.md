@@ -2,7 +2,7 @@
 
 ## What you will do
 
-Create `frontend/.dockerignore` with PowerShell (`New-Item`), then type its
+Create `frontend/.dockerignore` in your editor, then type its
 contents so local `node_modules` and build output are not sent into the frontend
 image build context.
 
@@ -10,13 +10,9 @@ image build context.
 
 **Path:** `frontend/.dockerignore`
 
-### Create it in PowerShell (project root)
+### Create this file in the editor
 
-```powershell
-New-Item -ItemType File -Force -Path frontend\.dockerignore | Out-Null
-```
-
-Open `frontend/.dockerignore` in your editor and type the contents below yourself.
+Create `frontend/.dockerignore` in your editor (from the project root), then type the contents below yourself.
 
 ### Purpose
 

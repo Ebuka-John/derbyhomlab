@@ -2,7 +2,7 @@
 
 ## What you will do
 
-1. Create three files with PowerShell (`New-Item`).
+1. Create the listed files in your editor.
 2. Open each file and type the code carefully (or section by section).
 3. Activate the venv and run the checkpoint before continuing.
 
@@ -22,13 +22,9 @@ flowchart LR
 
 **Path:** `src/core/settings.py`
 
-### Create it in PowerShell (project root)
+### Create this file in the editor
 
-```powershell
-New-Item -ItemType File -Force -Path src\core\settings.py | Out-Null
-```
-
-Open `src/core/settings.py` in your editor and type the contents below yourself.
+Create `src/core/settings.py` in your editor (from the project root), then type the contents below yourself.
 
 ### Purpose
 
@@ -109,13 +105,9 @@ def get_settings() -> Settings:
 
 **Path:** `src/core/logging.py`
 
-### Create it in PowerShell (project root)
+### Create this file in the editor
 
-```powershell
-New-Item -ItemType File -Force -Path src\core\logging.py | Out-Null
-```
-
-Open `src/core/logging.py` in your editor and type the contents below yourself.
+Create `src/core/logging.py` in your editor (from the project root), then type the contents below yourself.
 
 ### Purpose
 
@@ -146,13 +138,9 @@ def configure_logging(level: int = logging.INFO) -> None:
 
 **Path:** `src/config.py`
 
-### Create it in PowerShell (project root)
+### Create this file in the editor
 
-```powershell
-New-Item -ItemType File -Force -Path src\config.py | Out-Null
-```
-
-Open `src/config.py` in your editor and type the contents below yourself.
+Create `src/config.py` in your editor (from the project root), then type the contents below yourself.
 
 ### Purpose
 

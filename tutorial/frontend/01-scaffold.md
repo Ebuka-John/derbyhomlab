@@ -2,26 +2,25 @@
 
 ## What you will do
 
-1. Create the `frontend/` folder tree with PowerShell.
-2. Create empty config files with PowerShell, then type their contents.
+1. Create the `frontend/` folder tree in your editor.
+2. Create config files in your editor, then type their contents.
 3. Install Node dependencies.
 
 ## Folders to create
 
-From the **project root**, run:
+From the **project root**, create these folders in your editor (or File Explorer):
 
-```powershell
-New-Item -ItemType Directory -Force -Path `
-  frontend,
-  frontend\app,
-  frontend\app\api,
-  frontend\app\api\nearest-grit-bin,
-  frontend\components,
-  frontend\lib,
-  frontend\public | Out-Null
+```
+frontend/
+  app/
+    api/
+      nearest-grit-bin/
+  components/
+  lib/
+  public/
 ```
 
-Confirm:
+Confirm in PowerShell if you like:
 
 ```powershell
 Get-ChildItem -Recurse frontend -Directory | Select-Object FullName
@@ -48,13 +47,9 @@ your-project/
 
 ## File to create: `frontend/package.json`
 
-### Create it in PowerShell (project root)
+### Create this file in the editor
 
-```powershell
-New-Item -ItemType File -Force -Path frontend\package.json | Out-Null
-```
-
-Open `frontend/package.json` in your editor and **type this exactly:**
+Create `frontend/package.json` in your editor (from the project root), then type the contents below yourself.
 
 ```json
 {
@@ -85,13 +80,9 @@ Open `frontend/package.json` in your editor and **type this exactly:**
 
 ## File to create: `frontend/tsconfig.json`
 
-### Create it in PowerShell (project root)
+### Create this file in the editor
 
-```powershell
-New-Item -ItemType File -Force -Path frontend\tsconfig.json | Out-Null
-```
-
-Open `frontend/tsconfig.json` and **type this exactly:**
+Create `frontend/tsconfig.json` in your editor (from the project root), then type the contents below yourself.
 
 ```json
 {
@@ -127,13 +118,9 @@ Lets you write `import … from "@/lib/types"` instead of long relative paths.
 
 ## File to create: `frontend/next.config.ts`
 
-### Create it in PowerShell (project root)
+### Create this file in the editor
 
-```powershell
-New-Item -ItemType File -Force -Path frontend\next.config.ts | Out-Null
-```
-
-Open `frontend/next.config.ts` and **type this exactly:**
+Create `frontend/next.config.ts` in your editor (from the project root), then type the contents below yourself.
 
 ```typescript
 import type { NextConfig } from "next";

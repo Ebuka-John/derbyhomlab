@@ -42,19 +42,20 @@ flowchart LR
 
 ## Before you start
 
-Run these in **PowerShell** yourself:
+In **PowerShell**, create a project folder (or open an empty folder you already
+have) and go into it:
 
 ```powershell
 Set-Location $HOME\Cursor_AI_projects   # or any folder you prefer
-New-Item -ItemType Directory -Force -Path grit-bin-lab | Out-Null
+# Create grit-bin-lab in your editor or File Explorer, then:
 Set-Location grit-bin-lab
 ```
 
 Open that folder in your editor, and keep PowerShell at the **project root** for
 every later command.
 
-**Workflow:** PowerShell `New-Item` creates an empty file → you open it and
-**type** the code → PowerShell runs the checkpoint.
+**Workflow:** create each file in the editor → **type** the code → PowerShell runs
+the checkpoint.
 
 Then open **[00-backend-design.md](./00-backend-design.md)**.
 

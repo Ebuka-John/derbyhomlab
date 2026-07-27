@@ -2,7 +2,7 @@
 
 ## What you will do
 
-1. Create six files with PowerShell (`New-Item`).
+1. Create the listed files in your editor.
 2. Open each file and type the code carefully (or section by section).
 3. Activate the venv and run the checkpoint before continuing.
 
@@ -24,13 +24,9 @@ flowchart LR
 
 **Path:** `src/api/dependencies/__init__.py`
 
-### Create it in PowerShell (project root)
+### Create this file in the editor
 
-```powershell
-New-Item -ItemType File -Force -Path src\api\dependencies\__init__.py | Out-Null
-```
-
-Open `src/api/dependencies/__init__.py` in your editor and type the contents below yourself.
+Create `src/api/dependencies/__init__.py` in your editor (from the project root), then type the contents below yourself.
 
 ### Purpose
 
@@ -81,13 +77,9 @@ def provide_gritbin_service(
 
 **Path:** `src/api/routers/address.py`
 
-### Create it in PowerShell (project root)
+### Create this file in the editor
 
-```powershell
-New-Item -ItemType File -Force -Path src\api\routers\address.py | Out-Null
-```
-
-Open `src/api/routers/address.py` in your editor and type the contents below yourself.
+Create `src/api/routers/address.py` in your editor (from the project root), then type the contents below yourself.
 
 ### Purpose
 
@@ -129,13 +121,9 @@ async def root() -> dict[str, Any]:
 
 **Path:** `src/api/routers/gritbins.py`
 
-### Create it in PowerShell (project root)
+### Create this file in the editor
 
-```powershell
-New-Item -ItemType File -Force -Path src\api\routers\gritbins.py | Out-Null
-```
-
-Open `src/api/routers/gritbins.py` in your editor and type the contents below yourself.
+Create `src/api/routers/gritbins.py` in your editor (from the project root), then type the contents below yourself.
 
 ### Purpose
 
@@ -208,13 +196,9 @@ async def nearest_grit_bin(
 
 **Path:** `src/app.py`
 
-### Create it in PowerShell (project root)
+### Create this file in the editor
 
-```powershell
-New-Item -ItemType File -Force -Path src\app.py | Out-Null
-```
-
-Open `src/app.py` in your editor and type the contents below yourself.
+Create `src/app.py` in your editor (from the project root), then type the contents below yourself.
 
 ### Purpose
 
@@ -292,13 +276,9 @@ app = create_app()
 
 **Path:** `src/main.py`
 
-### Create it in PowerShell (project root)
+### Create this file in the editor
 
-```powershell
-New-Item -ItemType File -Force -Path src\main.py | Out-Null
-```
-
-Open `src/main.py` in your editor and type the contents below yourself.
+Create `src/main.py` in your editor (from the project root), then type the contents below yourself.
 
 ### Purpose
 

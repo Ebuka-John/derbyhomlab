@@ -2,18 +2,14 @@
 
 ## What you will do
 
-Create the frontend env files with PowerShell so the **server-side proxy** knows
+Create the frontend env files in your editor so the **server-side proxy** knows
 where FastAPI lives, then type the values yourself.
 
 ## File to create: `frontend/.env.example`
 
-### Create it in PowerShell (project root)
+### Create this file in the editor
 
-```powershell
-New-Item -ItemType File -Force -Path frontend\.env.example | Out-Null
-```
-
-Open `frontend/.env.example` and **type this exactly:**
+Create `frontend/.env.example` in your editor (from the project root), then type the contents below yourself.
 
 ```text
 # URL of the FastAPI backend (server-side only — used by the Next.js proxy route)
@@ -22,13 +18,9 @@ BACKEND_URL=http://127.0.0.1:8000
 
 ## File to create: `frontend/.env.local`
 
-### Create it in PowerShell (project root)
+### Create this file in the editor
 
-```powershell
-Copy-Item frontend\.env.example frontend\.env.local
-```
-
-Open `frontend/.env.local` and confirm it contains:
+Create `frontend/.env.local` in your editor (from the project root) by copying `frontend/.env.example` to `frontend/.env.local` (or duplicate it in the editor), then edit as needed.
 
 ```text
 BACKEND_URL=http://127.0.0.1:8000

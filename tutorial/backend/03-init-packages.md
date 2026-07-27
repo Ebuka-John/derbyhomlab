@@ -2,30 +2,29 @@
 
 ## What you will do
 
-Create the full layered `src/` package tree with **PowerShell**, then add
+Create the full layered `src/` package tree **in your editor**, then add
 `__init__.py` markers so imports like `from src.core.settings import Settings`
 work.
 
 ## Folders to create
 
-From the **project root**, run:
+From the **project root**, create these folders in your editor (or File Explorer):
 
-```powershell
-New-Item -ItemType Directory -Force -Path `
-  src,
-  src\core,
-  src\api,
-  src\api\routers,
-  src\api\dependencies,
-  src\services,
-  src\repositories,
-  src\models,
-  src\models\dto,
-  src\models\domain,
-  src\utils | Out-Null
+```
+src/
+  core/
+  api/
+    routers/
+    dependencies/
+  services/
+  repositories/
+  models/
+    dto/
+    domain/
+  utils/
 ```
 
-Confirm:
+Confirm in PowerShell if you like:
 
 ```powershell
 Get-ChildItem -Recurse src -Directory | Select-Object FullName
@@ -33,20 +32,20 @@ Get-ChildItem -Recurse src -Directory | Select-Object FullName
 
 ## `__init__.py` files
 
-```powershell
-@(
-  'src\__init__.py',
-  'src\core\__init__.py',
-  'src\api\__init__.py',
-  'src\api\routers\__init__.py',
-  'src\api\dependencies\__init__.py',
-  'src\services\__init__.py',
-  'src\repositories\__init__.py',
-  'src\models\__init__.py',
-  'src\models\dto\__init__.py',
-  'src\models\domain\__init__.py',
-  'src\utils\__init__.py'
-) | ForEach-Object { New-Item -ItemType File -Force -Path $_ | Out-Null }
+Create these empty package marker files in your editor:
+
+```
+src/__init__.py
+src/core/__init__.py
+src/api/__init__.py
+src/api/routers/__init__.py
+src/api/dependencies/__init__.py
+src/services/__init__.py
+src/repositories/__init__.py
+src/models/__init__.py
+src/models/dto/__init__.py
+src/models/domain/__init__.py
+src/utils/__init__.py
 ```
 
 ### Type package markers
