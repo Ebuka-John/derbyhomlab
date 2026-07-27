@@ -53,10 +53,7 @@ def _raise_for_address_api_error(postcode: str, error_message: str) -> None:
 
 
 def unwrap_address_list(payload: Any) -> list[dict[str, Any]]:
-    """Normalise varied Address API envelopes into a flat list of records.
-
-    Live payloads may be a bare list, or wrapped under results/addresses/data/Items.
-    """
+    """Normalise Address API envelopes into a flat list of records."""
     if isinstance(payload, list):
         records = payload
     elif isinstance(payload, dict):
@@ -74,7 +71,6 @@ def unwrap_address_list(payload: Any) -> list[dict[str, Any]]:
                 records = payload[key]
                 break
         else:
-            # Single address object returned as the whole body
             records = [payload]
     else:
         raise UnexpectedSchemaError(
@@ -91,11 +87,7 @@ def unwrap_address_list(payload: Any) -> list[dict[str, Any]]:
 
 
 def _top_level_error_if_stub(record: dict[str, Any]) -> str | None:
-    """Return top-level ResponseError only when the row has no address identity.
-
-    Live success rows also carry ``ResponseError: \"\"`` and nested Councillor
-    objects may say ``\"No results\"`` — those must not be treated as failures.
-    """
+    """Return top-level ResponseError only when the row has no address identity."""
     error = record.get("ResponseError") or record.get("responseError")
     if error is None or not str(error).strip():
         return None
@@ -126,10 +118,7 @@ def _records_look_like_error_envelope(records: list[dict[str, Any]]) -> str | No
 
 
 class AddressRepository:
-    """Fetches raw address records from the Derbyshire Address Lookup API.
-
-    Matching / coordinate normalisation belongs in ``AddressService``, not here.
-    """
+    """Fetches raw address records from the Derbyshire Address Lookup API."""
 
     def __init__(self, settings: Settings, client: httpx.AsyncClient) -> None:
         self._settings = settings
@@ -164,8 +153,7 @@ class AddressRepository:
             raise AddressNotFoundError(postcode)
 
         if response.status_code >= 400:
-            # Prefer XML ResponseError on 4xx; do not scan JSON bodies globally —
-            # success payloads embed nested ResponseError strings (e.g. Councillors).
+            # Prefer XML ResponseError on 4xx; success JSON embeds nested ResponseError.
             if looks_like_xml:
                 api_error = _extract_xml_response_error(body)
                 if api_error:
@@ -174,8 +162,7 @@ class AddressRepository:
                 f"HTTP {response.status_code}: {body[:200]}"
             )
 
-        # Live API often returns HTTP 200 + XML ``ResponseError`` for bad postcodes
-        # even when the client asked for ``Accept: application/json``.
+        # Live API often returns HTTP 200 + XML ResponseError for bad postcodes.
         if looks_like_xml:
             api_error = _extract_xml_response_error(body)
             if api_error:

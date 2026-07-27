@@ -3,9 +3,7 @@ import { NextResponse } from "next/server";
 import { backendBaseUrl } from "@/lib/backend";
 import type { ApiErrorBody, GritBinsSuccess } from "@/lib/types";
 
-/**
- * Proxy for the full grit-bin layer (`GET /grit-bins` on FastAPI).
- */
+/** Server-side proxy to FastAPI (browser never calls upstream APIs). */
 export async function GET() {
   const url = new URL("/grit-bins", backendBaseUrl());
 

@@ -1,8 +1,4 @@
-"""FastAPI dependency providers (settings, HTTP client, services).
-
-Routers depend on these providers so they never construct httpx clients or
-read ``app.state`` directly — keeps HTTP handlers thin and testable.
-"""
+"""FastAPI dependency providers (settings, HTTP client, services)."""
 
 from __future__ import annotations
 
@@ -19,7 +15,6 @@ def provide_settings() -> Settings:
 
 
 def provide_http_client(request: Request) -> httpx.AsyncClient:
-    # Shared client created in app lifespan (connection pooling)
     return request.app.state.http_client
 
 

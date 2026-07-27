@@ -43,7 +43,7 @@ build/
 htmlcov/
 coverage/
 
-# Local one-shot exports (not part of the exercise)
+# Local artifacts
 data/
 *.xlsx
 

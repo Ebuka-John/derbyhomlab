@@ -3,9 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { backendBaseUrl } from "@/lib/backend";
 import type { ApiErrorBody, NearestGritBinsSuccess } from "@/lib/types";
 
-/**
- * Proxy for nearest-N grit bins (`GET /nearest-grit-bins` on FastAPI).
- */
+/** Server-side proxy to FastAPI (browser never calls upstream APIs). */
 export async function GET(request: NextRequest) {
   const postcode = request.nextUrl.searchParams.get("postcode")?.trim() ?? "";
   const address = request.nextUrl.searchParams.get("address")?.trim() ?? "";

@@ -13,4 +13,4 @@ class ResolvedAddress:
 
     title: str
     postcode: str
-    point: Point27700  # ready for DWITHIN / Euclidean distance
+    point: Point27700

@@ -3,13 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { backendBaseUrl } from "@/lib/backend";
 import type { ApiErrorBody, NearestGritBinSuccess } from "@/lib/types";
 
-/**
- * Server-side proxy to FastAPI.
- *
- * The browser never calls Derbyshire upstreams (CORS constraint) and never
- * talks to FastAPI cross-origin either — this Route Handler keeps BACKEND_URL
- * on the server and forwards the typed JSON contract.
- */
+/** Server-side proxy to FastAPI (browser never calls upstream APIs). */
 export async function GET(request: NextRequest) {
   const postcode = request.nextUrl.searchParams.get("postcode")?.trim() ?? "";
   const address = request.nextUrl.searchParams.get("address")?.trim() ?? "";

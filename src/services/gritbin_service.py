@@ -1,9 +1,4 @@
-"""Grit-bin proximity business logic (no FastAPI imports).
-
-Preferred path: server-side CQL DWITHIN (spatial index on GeoServer).
-Fallback: fetch the layer and pick nearest with planar Euclidean distance —
-live installs sometimes disable spatial predicates or return empty filters.
-"""
+"""Grit-bin proximity business logic (no FastAPI imports)."""
 
 from __future__ import annotations
 
@@ -77,11 +72,9 @@ class GritBinService:
         repo = self._repo()
         features: list | None = None
         try:
-            # Happy path: GeoServer filters with its spatial index
             features = await repo.query_dwithin(origin, radius_meters=radius)
             logger.info("DWITHIN returned %d feature(s)", len(features))
         except (GeoServerUnreachableError, UnexpectedSchemaError) as exc:
-            # XML ExceptionReport / disabled spatial ops → download and measure
             logger.warning(
                 "DWITHIN failed (%s); falling back to full fetch + Euclidean distance",
                 exc,
@@ -120,13 +113,7 @@ class GritBinService:
         limit: int = 5,
         radius_meters: float | None = None,
     ) -> list[GritBinMatch]:
-        """Nearest ``limit`` grit bins, sorted by distance ascending.
-
-        Default (``radius_meters is None``): fetch the full WFS layer and take
-        the closest N — the 100 m exercise radius often only contains one bin,
-        which is why nearest-N must not inherit that window by default.
-        Pass ``radius_meters`` to constrain the search instead.
-        """
+        """Nearest ``limit`` grit bins, sorted by distance ascending."""
         if limit < 1:
             raise ValueError("limit must be >= 1")
 
@@ -143,7 +130,7 @@ class GritBinService:
         )
 
     async def list_all(self) -> list[GritBin]:
-        """Return every grit bin from the WFS layer (unfiltered GetFeature)."""
+        """Return every grit bin from the WFS layer."""
         features = await self._repo().fetch_all()
         bins: list[GritBin] = []
         for feature in features:

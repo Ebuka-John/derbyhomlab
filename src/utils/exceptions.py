@@ -1,9 +1,4 @@
-"""Domain and application exception hierarchy.
-
-Each exception carries a machine-readable ``code`` and HTTP ``status_code`` so
-``app.py`` can map any ``AppError`` to a consistent JSON body without leaking
-stack traces to clients.
-"""
+"""Domain and application exception hierarchy."""
 
 from __future__ import annotations
 
@@ -20,12 +15,12 @@ class AppError(Exception):
     ) -> None:
         super().__init__(message)
         self.message = message
-        self.code = code  # stable string for clients / logs
-        self.status_code = status_code  # mapped by the global exception handler
+        self.code = code
+        self.status_code = status_code
 
 
 class MissingParameterError(AppError):
-    """400 — client omitted a required query param."""
+    """400 — missing required query parameter."""
 
     def __init__(self, parameter: str) -> None:
         super().__init__(
@@ -36,7 +31,7 @@ class MissingParameterError(AppError):
 
 
 class AddressApiUnreachableError(AppError):
-    """502 — transport / upstream failure talking to Address Lookup."""
+    """502 — Address Lookup API unreachable."""
 
     def __init__(self, detail: str | None = None) -> None:
         message = "Address Lookup API is unreachable."
@@ -50,7 +45,7 @@ class AddressApiUnreachableError(AppError):
 
 
 class InvalidPostcodeError(AppError):
-    """400 — postcode fails UK format checks or upstream rejects it as invalid."""
+    """400 — invalid postcode format or upstream rejection."""
 
     def __init__(self, postcode: str, detail: str | None = None) -> None:
         message = f"Invalid postcode '{postcode}'."
@@ -64,7 +59,7 @@ class InvalidPostcodeError(AppError):
 
 
 class AddressNotFoundError(AppError):
-    """404 — postcode returned no address records."""
+    """404 — no address records for postcode."""
 
     def __init__(self, postcode: str) -> None:
         super().__init__(
@@ -75,7 +70,7 @@ class AddressNotFoundError(AppError):
 
 
 class TargetAddressNotFoundError(AppError):
-    """404 — postcode OK, but no record matched the address hint."""
+    """404 — postcode OK, but address hint did not match."""
 
     def __init__(self, address: str, postcode: str) -> None:
         super().__init__(
@@ -86,7 +81,7 @@ class TargetAddressNotFoundError(AppError):
 
 
 class UnexpectedSchemaError(AppError):
-    """502 — upstream JSON/XML shape was not what we expected."""
+    """502 — unexpected upstream JSON/XML shape."""
 
     def __init__(self, source: str, detail: str | None = None) -> None:
         message = f"Unexpected response schema from {source}."
@@ -100,7 +95,7 @@ class UnexpectedSchemaError(AppError):
 
 
 class GeoServerUnreachableError(AppError):
-    """502 — WFS transport failure or HTTP error from GeoServer."""
+    """502 — GeoServer WFS unreachable."""
 
     def __init__(self, detail: str | None = None) -> None:
         message = "GeoServer WFS is unreachable."
@@ -114,7 +109,7 @@ class GeoServerUnreachableError(AppError):
 
 
 class NoGritBinNearbyError(AppError):
-    """404 — no grit bin matched the search (optionally within a radius)."""
+    """404 — no grit bin matched the search."""
 
     def __init__(self, radius_meters: float | None = None) -> None:
         if radius_meters is None:
@@ -131,23 +126,11 @@ class NoGritBinNearbyError(AppError):
 
 
 class CoordinateConversionError(AppError):
-    """502 — CRS conversion failed or coords were missing/ambiguous."""
+    """502 — CRS conversion failed or coords missing/ambiguous."""
 
     def __init__(self, detail: str) -> None:
         super().__init__(
             f"Coordinate conversion failed: {detail}",
             code="coordinate_conversion_error",
             status_code=502,
-        )
-
-
-class ExportAlreadyExistsError(AppError):
-    """409 — one-shot Excel export already wrote this file (not assessment)."""
-
-    def __init__(self, path: str) -> None:
-        super().__init__(
-            f"Excel export already exists at '{path}'. "
-            "Pass force=true to overwrite, or delete the file first.",
-            code="export_already_exists",
-            status_code=409,
         )

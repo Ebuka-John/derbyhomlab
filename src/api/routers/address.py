@@ -1,4 +1,4 @@
-"""Meta / health routes (system endpoints; address router reserved for growth)."""
+"""Meta / health routes."""
 
 from __future__ import annotations
 

@@ -13,7 +13,6 @@ from src.utils.exceptions import GeoServerUnreachableError, UnexpectedSchemaErro
 
 logger = logging.getLogger(__name__)
 
-# Geometry column name on DCC:Gritbins (discovered via GetFeature / DescribeFeatureType).
 # Do NOT use GeoServer's common default ``the_geom`` — this layer uses SP_GEOMETRY.
 GEOMETRY_FIELD = "SP_GEOMETRY"
 
@@ -25,7 +24,6 @@ def parse_feature_collection(payload: Any) -> list[dict[str, Any]]:
             "GeoServer",
             detail=f"Expected GeoJSON object, got {type(payload).__name__}.",
         )
-    # Some servers return exception-like JSON instead of features
     if "ExceptionReport" in payload or payload.get("type") == "Exception":
         raise UnexpectedSchemaError("GeoServer", detail="Received OGC exception.")
 
@@ -40,23 +38,19 @@ def parse_feature_collection(payload: Any) -> list[dict[str, Any]]:
 
 
 class GritBinRepository:
-    """Fetches grit-bin GeoJSON features from Derbyshire GeoServer WFS.
-
-    Builds the GetFeature URL:
-      {GEOSERVER_BASE_URL}/DCC/ows?service=WFS&version=1.0.0&request=GetFeature&...
-    """
+    """Fetches grit-bin GeoJSON features from Derbyshire GeoServer WFS."""
 
     def __init__(self, settings: Settings, client: httpx.AsyncClient) -> None:
         self._settings = settings
         self._client = client
 
     def _base_params(self) -> dict[str, str]:
-        """Standard WFS GetFeature query string (no spatial filter yet)."""
+        """Standard WFS GetFeature query parameters."""
         return {
-            "service": "WFS",  # features, not WMS map images
+            "service": "WFS",
             "version": "1.0.0",
             "request": "GetFeature",
-            "typeName": self._settings.geoserver_layer,  # e.g. DCC:Gritbins
+            "typeName": self._settings.geoserver_layer,
             "outputFormat": "application/json",
         }
 
@@ -99,10 +93,7 @@ class GritBinRepository:
         *,
         radius_meters: float,
     ) -> list[dict[str, Any]]:
-        """Server-side spatial filter: features within radius metres of origin.
-
-        WKT POINT uses ``x y`` = easting northing in the layer CRS (EPSG:27700).
-        """
+        """Server-side spatial filter: features within radius metres of origin."""
         cql = (
             f"DWITHIN({GEOMETRY_FIELD}, "
             f"POINT({origin.easting} {origin.northing}), "
@@ -112,5 +103,5 @@ class GritBinRepository:
         return await self._get_features(params)
 
     async def fetch_all(self) -> list[dict[str, Any]]:
-        """Unfiltered GetFeature — used only when DWITHIN fails or returns empty."""
+        """Unfiltered GetFeature — used when DWITHIN fails or returns empty."""
         return await self._get_features(self._base_params())

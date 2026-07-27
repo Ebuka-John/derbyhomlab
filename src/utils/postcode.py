@@ -6,7 +6,6 @@ import re
 
 from src.utils.exceptions import InvalidPostcodeError
 
-# Outward + optional space + inward (unit). Covers common UK shapes including GIR 0AA.
 _UK_POSTCODE_RE = re.compile(
     r"^(GIR\s*0AA|[A-Z]{1,2}\d[A-Z\d]?\s*\d[A-Z]{2})$",
     re.IGNORECASE,

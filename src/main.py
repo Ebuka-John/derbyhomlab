@@ -1,11 +1,4 @@
-"""Process entrypoint — starts uvicorn with the FastAPI app.
-
-Prefer:
-  uvicorn src.app:app --reload --host 0.0.0.0 --port 8000
-
-Or:
-  python -m src.main
-"""
+"""Process entrypoint — starts uvicorn with the FastAPI app."""
 
 from __future__ import annotations
 
@@ -17,10 +10,10 @@ __all__ = ["app"]
 
 
 def run() -> None:
-    """Block and serve the ASGI app (no reload — use uvicorn CLI for that)."""
+    """Block and serve the ASGI app."""
     uvicorn.run(
         "src.app:app",
-        host="0.0.0.0",  # listen on all interfaces (Docker / LAN)
+        host="0.0.0.0",
         port=8000,
         reload=False,
     )

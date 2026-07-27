@@ -1,8 +1,4 @@
-"""Public configuration entrypoint.
-
-Re-exports settings from ``core.settings`` so callers can use
-``from src.config import Settings, get_settings``.
-"""
+"""Public configuration entrypoint (re-exports from ``core.settings``)."""
 
 from src.core.settings import Settings, get_settings
 

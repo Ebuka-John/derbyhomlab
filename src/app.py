@@ -1,8 +1,4 @@
-"""FastAPI application factory and ASGI app instance.
-
-``create_app()`` is the testable entry; module-level ``app`` is what uvicorn loads
-(``uvicorn src.app:app``). ``main.py`` only starts the process.
-"""
+"""FastAPI application factory and ASGI app instance."""
 
 from __future__ import annotations
 
@@ -31,13 +27,13 @@ async def lifespan(app: FastAPI):
         app.state.settings = settings
         app.state.http_client = client
         logger.info("Application started — config loaded from environment")
-        yield  # app runs while we hold the client open
+        yield
     logger.info("Application shutdown")
 
 
 def create_app() -> FastAPI:
-    """Build and return the FastAPI application (testable factory)."""
-    load_dotenv()  # ensure .env is present even if cwd differs
+    """Build and return the FastAPI application."""
+    load_dotenv()
     configure_logging()
 
     application = FastAPI(
@@ -52,16 +48,14 @@ def create_app() -> FastAPI:
 
     @application.exception_handler(AppError)
     async def app_error_handler(_request: Request, exc: AppError) -> JSONResponse:
-        # One handler for the whole AppError hierarchy → stable JSON errors
         return JSONResponse(
             status_code=exc.status_code,
             content={"error": {"code": exc.code, "message": exc.message}},
         )
 
-    application.include_router(address_router.router)  # /health, /
-    application.include_router(gritbins_router.router)  # /nearest-grit-bin
+    application.include_router(address_router.router)
+    application.include_router(gritbins_router.router)
     return application
 
 
-# ASGI callable imported by uvicorn / TestClient
 app = create_app()

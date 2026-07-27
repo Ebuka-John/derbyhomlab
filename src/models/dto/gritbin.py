@@ -1,7 +1,4 @@
-"""HTTP request/response DTOs for grit-bin endpoints.
-
-DTOs are the API contract (OpenAPI / JSON). Domain objects stay in models/domain.
-"""
+"""HTTP request/response DTOs for grit-bin endpoints."""
 
 from __future__ import annotations
 
@@ -9,7 +6,7 @@ from pydantic import BaseModel, Field
 
 
 class NearestGritBinResponse(BaseModel):
-    """Contractual response shape for the technical exercise."""
+    """Nearest grit-bin response for the technical exercise."""
 
     address: str
     postcode: str
@@ -31,7 +28,7 @@ class GritBinDistanceItem(BaseModel):
 
 
 class NearestGritBinsResponse(BaseModel):
-    """Nearest-N grit bins within the search radius, sorted by distance."""
+    """Nearest-N grit bins, sorted by distance."""
 
     address: str
     postcode: str
@@ -39,7 +36,7 @@ class NearestGritBinsResponse(BaseModel):
 
 
 class GritBinItem(BaseModel):
-    """A grit bin from the full WFS layer (no distance ranking)."""
+    """A grit bin from the full WFS layer."""
 
     title: str
     easting: float
