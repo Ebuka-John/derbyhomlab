@@ -3,8 +3,10 @@
 from __future__ import annotations
 
 import pytest
+from fastapi.testclient import TestClient
 
-from src.config import Settings
+from src.app import app
+from src.config import Settings, get_settings
 
 
 @pytest.fixture
@@ -21,7 +23,14 @@ def settings(monkeypatch: pytest.MonkeyPatch) -> Settings:
     monkeypatch.setenv("NEAREST_SEARCH_RADIUS_METERS", "100")
     monkeypatch.setenv("HTTP_TIMEOUT_SECONDS", "5")
 
-    from src.config import get_settings
-
     get_settings.cache_clear()
     return Settings()
+
+
+@pytest.fixture
+def client(settings):
+    get_settings.cache_clear()
+    with TestClient(app) as test_client:
+        test_client.app.state.settings = settings
+        yield test_client
+    get_settings.cache_clear()

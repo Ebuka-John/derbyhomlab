@@ -125,3 +125,15 @@ class CoordinateConversionError(AppError):
             code="coordinate_conversion_error",
             status_code=502,
         )
+
+
+class ExportAlreadyExistsError(AppError):
+    """409 — one-shot Excel export already wrote this file (not assessment)."""
+
+    def __init__(self, path: str) -> None:
+        super().__init__(
+            f"Excel export already exists at '{path}'. "
+            "Pass force=true to overwrite, or delete the file first.",
+            code="export_already_exists",
+            status_code=409,
+        )

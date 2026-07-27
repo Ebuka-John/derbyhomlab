@@ -5,21 +5,8 @@ from __future__ import annotations
 import httpx
 import pytest
 import respx
-from fastapi.testclient import TestClient
 
-from src.app import app
 from src.config import get_settings
-
-
-@pytest.fixture
-def client(settings):
-    get_settings.cache_clear()
-    with TestClient(app) as test_client:
-        # Inject test settings into app state (lifespan also loads real settings;
-        # override after startup for isolation).
-        test_client.app.state.settings = settings
-        yield test_client
-    get_settings.cache_clear()
 
 
 def test_missing_postcode(client) -> None:

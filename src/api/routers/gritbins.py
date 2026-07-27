@@ -5,7 +5,10 @@ No upstream I/O or CRS maths here: validate params → call services → map DTO
 
 from __future__ import annotations
 
+from pathlib import Path
+
 from fastapi import APIRouter, Depends, Query
+from fastapi.responses import FileResponse
 
 from src.api.dependencies import provide_address_service, provide_gritbin_service
 from src.models.dto.gritbin import (
@@ -17,7 +20,8 @@ from src.models.dto.gritbin import (
 )
 from src.services.address_service import AddressService
 from src.services.gritbin_service import GritBinService
-from src.utils.exceptions import MissingParameterError
+from src.utils.excel_export import DEFAULT_EXPORT_PATH, write_grit_bins_excel
+from src.utils.exceptions import ExportAlreadyExistsError, MissingParameterError
 
 router = APIRouter(tags=["gritbins"])
 
@@ -147,3 +151,43 @@ async def list_grit_bins(
         for b in bins
     ]
     return GritBinsResponse(count=len(items), grit_bins=items)
+
+
+@router.post(
+    "/grit-bins/export-excel",
+    responses={
+        200: {"description": "Excel file written and returned as download"},
+        409: {"description": "Export already exists (one-shot guard)"},
+        502: {"description": "Upstream GeoServer failure"},
+    },
+    tags=["utility"],
+    summary="One-shot: save all grit bins to Excel (not part of assessment)",
+)
+async def export_grit_bins_excel(
+    force: bool = Query(
+        default=False,
+        description="Overwrite the temp gritbins.xlsx if it already exists.",
+    ),
+    gritbin_service: GritBinService = Depends(provide_gritbin_service),
+) -> FileResponse:
+    """Fetch the full WFS layer once and write a temp ``gritbins.xlsx``.
+
+    Local helper only — not used by the Next.js UI or the Derbyshire exercise
+    contract. File is written under the process temp dir (works in Docker).
+    By default refuses to run again if the file already exists
+    (pass ``force=true`` to overwrite). The response body is the Excel download.
+    """
+    path = Path(DEFAULT_EXPORT_PATH)
+    if path.exists() and not force:
+        raise ExportAlreadyExistsError(str(path.resolve()))
+
+    bins = await gritbin_service.list_all()
+    saved = write_grit_bins_excel(bins, path)
+    return FileResponse(
+        path=saved,
+        media_type=(
+            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        ),
+        filename="gritbins.xlsx",
+        headers={"X-Export-Count": str(len(bins)), "X-Export-Path": str(saved)},
+    )
