@@ -16,6 +16,7 @@ from src.models.domain.address import ResolvedAddress
 from src.repositories.address_repository import AddressRepository
 from src.utils.exceptions import TargetAddressNotFoundError, UnexpectedSchemaError
 from src.utils.geospatial import ensure_bng
+from src.utils.postcode import require_valid_uk_postcode
 
 # Explicit single-field titles (generic / alternate APIs)
 _TITLE_KEYS = (
@@ -209,9 +210,11 @@ class AddressService:
         return self._repository
 
     async def lookup_postcode(self, postcode: str) -> list[dict[str, Any]]:
-        return await self._repo().fetch_by_postcode(postcode)
+        cleaned = require_valid_uk_postcode(postcode)
+        return await self._repo().fetch_by_postcode(cleaned)
 
     async def resolve_address(self, *, postcode: str, address: str) -> ResolvedAddress:
         """End-to-end: fetch postcode records → match hint → BNG point."""
-        records = await self.lookup_postcode(postcode)
-        return find_matching_address(records, address=address, postcode=postcode)
+        cleaned = require_valid_uk_postcode(postcode)
+        records = await self.lookup_postcode(cleaned)
+        return find_matching_address(records, address=address, postcode=cleaned)

@@ -20,6 +20,16 @@ def test_missing_address(client) -> None:
     assert response.status_code == 400
 
 
+def test_invalid_postcode_format(client) -> None:
+    response = client.get(
+        "/nearest-grit-bin",
+        params={"postcode": "DE55 5PB4", "address": "Example Building"},
+    )
+    assert response.status_code == 400
+    body = response.json()
+    assert body["error"]["code"] == "invalid_postcode"
+
+
 @respx.mock
 def test_nearest_grit_bin_happy_path(client, settings) -> None:
     client.app.state.settings = settings

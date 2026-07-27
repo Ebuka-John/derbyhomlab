@@ -49,6 +49,20 @@ class AddressApiUnreachableError(AppError):
         )
 
 
+class InvalidPostcodeError(AppError):
+    """400 — postcode fails UK format checks or upstream rejects it as invalid."""
+
+    def __init__(self, postcode: str, detail: str | None = None) -> None:
+        message = f"Invalid postcode '{postcode}'."
+        if detail:
+            message = f"{message} {detail}"
+        super().__init__(
+            message,
+            code="invalid_postcode",
+            status_code=400,
+        )
+
+
 class AddressNotFoundError(AppError):
     """404 — postcode returned no address records."""
 

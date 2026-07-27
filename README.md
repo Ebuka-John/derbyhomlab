@@ -151,6 +151,7 @@ curl "http://127.0.0.1:8000/nearest-grit-bin?postcode=AB12%203CD&address=Example
 | HTTP | `error.code` | When |
 |---|---|---|
 | 400 | `missing_parameter` | Missing `postcode` or `address` |
+| 400 | `invalid_postcode` | Postcode fails UK format checks, or Address API rejects it as invalid |
 | 404 | `address_not_found` | Postcode returned no addresses |
 | 404 | `target_address_not_found` | Title did not match |
 | 404 | `no_grit_bin_nearby` | Nothing within the radius |

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import logging
+import re
 from typing import Any
 from urllib.parse import quote
 
@@ -12,10 +13,43 @@ from src.core.settings import Settings
 from src.utils.exceptions import (
     AddressApiUnreachableError,
     AddressNotFoundError,
+    InvalidPostcodeError,
     UnexpectedSchemaError,
 )
 
 logger = logging.getLogger(__name__)
+
+_RESPONSE_ERROR_XML = re.compile(
+    r"<ResponseError(?:\s[^>]*)?>([^<]*)</ResponseError>",
+    re.IGNORECASE,
+)
+
+# Fields that mark a real address row (vs an error-only stub).
+_IDENTITY_KEYS = (
+    "UPRN",
+    "BuildingName",
+    "Title",
+    "ThoroughFareName",
+    "PostCode",
+    "SpatialFeature",
+)
+
+
+def _extract_xml_response_error(body: str) -> str | None:
+    """Pull Derbyshire ``ResponseError`` text from an XML error envelope."""
+    match = _RESPONSE_ERROR_XML.search(body)
+    if match is None:
+        return None
+    message = match.group(1).strip()
+    return message or None
+
+
+def _raise_for_address_api_error(postcode: str, error_message: str) -> None:
+    """Map upstream ResponseError strings onto typed AppErrors."""
+    lowered = error_message.lower()
+    if "invalid postcode" in lowered:
+        raise InvalidPostcodeError(postcode, detail=error_message)
+    raise AddressNotFoundError(postcode)
 
 
 def unwrap_address_list(payload: Any) -> list[dict[str, Any]]:
@@ -56,6 +90,41 @@ def unwrap_address_list(payload: Any) -> list[dict[str, Any]]:
     return records  # type: ignore[return-value]
 
 
+def _top_level_error_if_stub(record: dict[str, Any]) -> str | None:
+    """Return top-level ResponseError only when the row has no address identity.
+
+    Live success rows also carry ``ResponseError: \"\"`` and nested Councillor
+    objects may say ``\"No results\"`` — those must not be treated as failures.
+    """
+    error = record.get("ResponseError") or record.get("responseError")
+    if error is None or not str(error).strip():
+        return None
+
+    has_identity = False
+    for key in _IDENTITY_KEYS:
+        value = record.get(key)
+        if value is None or value == "":
+            continue
+        if isinstance(value, dict) and not value:
+            continue
+        has_identity = True
+        break
+
+    if has_identity:
+        return None
+    return str(error).strip()
+
+
+def _records_look_like_error_envelope(records: list[dict[str, Any]]) -> str | None:
+    """Detect a JSON list that is only error stubs (no real addresses)."""
+    if not records:
+        return None
+    stub_errors = [_top_level_error_if_stub(record) for record in records]
+    if stub_errors and all(stub_errors):
+        return stub_errors[0]
+    return None
+
+
 class AddressRepository:
     """Fetches raw address records from the Derbyshire Address Lookup API.
 
@@ -83,11 +152,37 @@ class AddressRepository:
 
         if response.status_code >= 500:
             raise AddressApiUnreachableError(f"HTTP {response.status_code}")
+
+        body = response.text
+        content_type = response.headers.get("content-type", "")
+        body_preview = body.lstrip()[:200]
+        looks_like_xml = body_preview.startswith("<") or (
+            "xml" in content_type.lower() and "json" not in content_type.lower()
+        )
+
         if response.status_code == 404:
             raise AddressNotFoundError(postcode)
+
         if response.status_code >= 400:
+            # Prefer XML ResponseError on 4xx; do not scan JSON bodies globally —
+            # success payloads embed nested ResponseError strings (e.g. Councillors).
+            if looks_like_xml:
+                api_error = _extract_xml_response_error(body)
+                if api_error:
+                    _raise_for_address_api_error(postcode, api_error)
             raise AddressApiUnreachableError(
-                f"HTTP {response.status_code}: {response.text[:200]}"
+                f"HTTP {response.status_code}: {body[:200]}"
+            )
+
+        # Live API often returns HTTP 200 + XML ``ResponseError`` for bad postcodes
+        # even when the client asked for ``Accept: application/json``.
+        if looks_like_xml:
+            api_error = _extract_xml_response_error(body)
+            if api_error:
+                _raise_for_address_api_error(postcode, api_error)
+            raise UnexpectedSchemaError(
+                "Address API",
+                detail=f"Expected JSON address list, got XML: {body_preview[:160]}",
             )
 
         try:
@@ -98,6 +193,9 @@ class AddressRepository:
             ) from exc
 
         records = unwrap_address_list(payload)
+        envelope_error = _records_look_like_error_envelope(records)
+        if envelope_error:
+            _raise_for_address_api_error(postcode, envelope_error)
         if not records:
             raise AddressNotFoundError(postcode)
         return records

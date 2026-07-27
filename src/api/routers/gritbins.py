@@ -73,7 +73,7 @@ async def nearest_grit_bin(
 
     return NearestGritBinResponse(
         address=address_clean,
-        postcode=postcode_clean.upper(),
+        postcode=resolved.postcode,
         nearest_grit_bin_title=match.title,
         distance_meters=round(match.distance_meters, 2),
     )
@@ -119,7 +119,7 @@ async def nearest_grit_bins(
 
     return NearestGritBinsResponse(
         address=address_clean,
-        postcode=postcode_clean.upper(),
+        postcode=resolved.postcode,
         nearest_grit_bins=[
             GritBinDistanceItem(
                 title=m.title,

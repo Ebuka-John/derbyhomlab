@@ -11,7 +11,7 @@ Maps each brief requirement to where it is implemented and documented.
 | Use that record’s coordinates for GeoServer | `SpatialFeature.Eastings/Northings` → BNG point | [approach.md](approach.md), [investigation-notes.md](investigation-notes.md) |
 | Nearest grit bin within ~100 m | WFS `DWITHIN` + Euclidean fallback; radius env default 100 | [approach.md](approach.md), README request flow |
 | Return grit bin Title | `nearest_grit_bin_title` (live: **GB0199**) | README example + [investigation-notes.md](investigation-notes.md) |
-| Address not found | `address_not_found` / `target_address_not_found` (404) | README error table, [assumptions.md](assumptions.md) |
+| Address not found | `address_not_found` / `target_address_not_found` (404); `invalid_postcode` (400) | README error table, [assumptions.md](assumptions.md) |
 | No grit bin nearby | `no_grit_bin_nearby` (404) | README error table, [assumptions.md](assumptions.md) |
 | Clear error handling & assumptions | `utils/exceptions.py` + typed JSON errors | [assumptions.md](assumptions.md), README, [issues-encountered.md](issues-encountered.md) |
 
