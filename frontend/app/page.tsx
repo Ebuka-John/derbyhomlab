@@ -20,8 +20,8 @@ export default function HomePage() {
 
         <footer className="foot">
           <p>
-            Example: <span>HILLBROW</span>, <span>DE55 5PB</span> → nearest
-            bins within 100&nbsp;m, or the full layer via List all.
+            Example: <span>Example Building</span>, <span>AB12 3CD</span> →
+            nearest bins within 100&nbsp;m, or the full layer via List all.
           </p>
         </footer>
       </div>

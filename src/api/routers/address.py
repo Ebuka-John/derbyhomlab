@@ -24,9 +24,9 @@ async def root() -> dict[str, Any]:
         "service": "nearest-grit-bin",
         "docs": "/docs",
         "endpoints": {
-            "nearest": "/nearest-grit-bin?postcode=DE55%205PB&address=HILLBROW",
+            "nearest": "/nearest-grit-bin?postcode=AB12%203CD&address=Example%20Building",
             "nearest_n": (
-                "/nearest-grit-bins?postcode=DE55%205PB&address=HILLBROW&limit=5"
+                "/nearest-grit-bins?postcode=AB12%203CD&address=Example%20Building&limit=5"
             ),
             "all": "/grit-bins",
         },

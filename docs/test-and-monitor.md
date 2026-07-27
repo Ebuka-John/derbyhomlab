@@ -10,7 +10,7 @@ How to harden testing and monitoring if this became a production integration ser
 | **Unit** | Coordinate conversion, Title matching, nearest-bin selection, error mapping (`tests/`) |
 | **Contract** | Recorded Address API / WFS fixtures (VCR) so upstream schema drift is caught in CI |
 | **Integration** | Staging calls against real Address + GeoServer with non-prod credentials |
-| **API / e2e** | Hit `/nearest-grit-bin` for known fixtures (e.g. HILLBROW / DE55 5PB) and assert Title + distance bounds |
+| **API / e2e** | Hit `/nearest-grit-bin` for known fixtures (e.g. Example Building / AB12 3CD) and assert Title + distance bounds |
 | **Load** | Concurrent requests and batch jobs; protect upstreams with timeouts, semaphores, and rate limits |
 | **Chaos / negative** | Simulate Address 5xx, GeoServer XML exceptions, empty DWITHIN — confirm typed errors and fallback |
 

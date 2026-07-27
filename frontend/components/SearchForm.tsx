@@ -9,8 +9,8 @@ import type {
   NearestGritBinsSuccess,
 } from "@/lib/types";
 
-const DEFAULT_POSTCODE = "DE55 5PB";
-const DEFAULT_ADDRESS = "HILLBROW";
+const DEFAULT_POSTCODE = "";
+const DEFAULT_ADDRESS = "";
 const DEFAULT_LIMIT = 5;
 
 async function parseLookup<T>(response: Response): Promise<LookupResult<T>> {
@@ -159,7 +159,7 @@ export function SearchForm() {
             spellCheck={false}
             value={postcode}
             onChange={(event) => setPostcode(event.target.value)}
-            placeholder="DE55 5PB"
+            placeholder="AB12 3CD"
             disabled={isPending}
             required
           />
@@ -175,7 +175,7 @@ export function SearchForm() {
             spellCheck={false}
             value={address}
             onChange={(event) => setAddress(event.target.value)}
-            placeholder="HILLBROW"
+            placeholder="Example Building"
             disabled={isPending}
             required
           />

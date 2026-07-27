@@ -42,20 +42,20 @@ docker compose up --build -d
 | Backend health | Open http://127.0.0.1:8000/health → `{"status":"ok"}` |
 | API docs | Open http://127.0.0.1:8000/docs |
 | Frontend UI | Open http://127.0.0.1:3000 |
-| Full lookup | Submit `HILLBROW` / `DE55 5PB` in the UI |
+| Full lookup | Submit a real Derbyshire postcode + address hint in the UI |
 | Proxy path | Browser Network tab shows `/api/nearest-grit-bin` (not a call to `:8000`) |
 
 Direct API check:
 
 ```powershell
-Invoke-RestMethod "http://127.0.0.1:8000/nearest-grit-bin?postcode=DE55%205PB&address=HILLBROW" |
+Invoke-RestMethod "http://127.0.0.1:8000/nearest-grit-bin?postcode=AB12%203CD&address=Example%20Building" |
   ConvertTo-Json -Depth 5
 ```
 
 Through the frontend proxy:
 
 ```powershell
-Invoke-RestMethod "http://127.0.0.1:3000/api/nearest-grit-bin?postcode=DE55%205PB&address=HILLBROW" |
+Invoke-RestMethod "http://127.0.0.1:3000/api/nearest-grit-bin?postcode=AB12%203CD&address=Example%20Building" |
   ConvertTo-Json -Depth 5
 ```
 

@@ -10,7 +10,7 @@
 ```json
 {
   "results": [
-    { "input": {"postcode": "DE55 5PB", "address": "HILLBROW"},
+    { "input": {"postcode": "AB12 3CD", "address": "Example Building"},
       "status": "ok", "nearest_grit_bin_title": "GBAV-424", "distance_meters": 12.3 },
     { "input": {"postcode": "XX0 0XX", "address": "NOWHERE"},
       "status": "error", "code": "address_not_found" }

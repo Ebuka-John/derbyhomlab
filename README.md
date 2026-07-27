@@ -7,7 +7,8 @@ FastAPI backend that resolves an address within a UK postcode and returns the ne
 **Sources & domain background** (postcodes, grit bins, GeoServer, docs used):  
 [`tutorial/09-sources-and-references.md`](tutorial/09-sources-and-references.md).
 
-**Interview example:** `address=HILLBROW`, `postcode=DE55 5PB` — any postcode/address pair is accepted dynamically.
+**Example request shape:** `address=Example%20Building`, `postcode=AB12 3CD` — any
+real postcode/address pair is accepted dynamically.
 
 ---
 
@@ -122,17 +123,17 @@ Open interactive docs: [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs)
 ### Example request
 
 ```bash
-curl "http://127.0.0.1:8000/nearest-grit-bin?postcode=DE55%205PB&address=HILLBROW"
+curl "http://127.0.0.1:8000/nearest-grit-bin?postcode=AB12%203CD&address=Example%20Building"
 ```
 
 ### Example success response
 
 ```json
 {
-  "address": "HILLBROW",
-  "postcode": "DE55 5PB",
-  "nearest_grit_bin_title": "GB0199",
-  "distance_meters": 48.99
+  "address": "Example Building",
+  "postcode": "AB12 3CD",
+  "nearest_grit_bin_title": "GB0001",
+  "distance_meters": 42.5
 }
 ```
 
@@ -142,7 +143,7 @@ curl "http://127.0.0.1:8000/nearest-grit-bin?postcode=DE55%205PB&address=HILLBRO
 {
   "error": {
     "code": "target_address_not_found",
-    "message": "Address 'HILLBROW' was not found within postcode 'DE55 5PB'."
+    "message": "Address 'Example Building' was not found within postcode 'AB12 3CD'."
   }
 }
 ```
@@ -221,8 +222,9 @@ npm install
 npm run dev
 ```
 
-Open [http://127.0.0.1:3000](http://127.0.0.1:3000). Defaults are prefilled with
-`HILLBROW` / `DE55 5PB`.
+Open [http://127.0.0.1:3000](http://127.0.0.1:3000). Placeholders show the
+example shape (`Example Building` / `AB12 3CD`); enter a real Derbyshire
+postcode and address hint to query live data.
 
 ---
 

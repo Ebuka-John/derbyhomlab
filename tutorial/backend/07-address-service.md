@@ -372,7 +372,7 @@ AddressService
 #### What the code is doing
 
 1. **Repository** builds URL `{ADDRESS_API_BASE_URL}/{postcode}` and returns raw JSON records.
-2. **Service** finds the first record whose text contains your address hint (e.g. `HILLBROW`).
+2. **Service** finds the first record whose text contains your address hint (e.g. `Example Building`).
 3. Coordinates are extracted (even nested under `SpatialFeature`) and normalised to BNG via `ensure_bng`.
 4. Returns a `ResolvedAddress` ready for the grit-bin step.
 
@@ -389,10 +389,10 @@ AddressService
 
 ```powershell
 .\.venv\Scripts\Activate.ps1
-python -c "from src.services.address_service import find_matching_address as f; r=f([{'BuildingName':'HILLBROW','Eastings':'440000','Northings':'355000'}], address='hillbrow', postcode='DE55 5PB'); print(r.title, r.point)"
+python -c "from src.services.address_service import find_matching_address as f; r=f([{'BuildingName':'Example Building','Eastings':'440000','Northings':'355000'}], address='hillbrow', postcode='AB12 3CD'); print(r.title, r.point)"
 ```
 
-Should print a title containing HILLBROW and a `Point27700`.
+Should print a title containing Example Building and a `Point27700`.
 
 ---
 

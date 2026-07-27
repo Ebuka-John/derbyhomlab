@@ -27,8 +27,8 @@ import { FormEvent, useId, useState, useTransition } from "react";
 
 import type { LookupResult, NearestGritBinSuccess } from "@/lib/types";
 
-const DEFAULT_POSTCODE = "DE55 5PB";
-const DEFAULT_ADDRESS = "HILLBROW";
+const DEFAULT_POSTCODE = "";
+const DEFAULT_ADDRESS = "";
 
 async function lookupNearest(postcode: string, address: string): Promise<LookupResult> {
   const params = new URLSearchParams({ postcode, address });
@@ -117,7 +117,7 @@ export function SearchForm() {
             spellCheck={false}
             value={postcode}
             onChange={(event) => setPostcode(event.target.value)}
-            placeholder="DE55 5PB"
+            placeholder="AB12 3CD"
             disabled={isPending}
             required
           />
@@ -133,7 +133,7 @@ export function SearchForm() {
             spellCheck={false}
             value={address}
             onChange={(event) => setAddress(event.target.value)}
-            placeholder="HILLBROW"
+            placeholder="Example Building"
             disabled={isPending}
             required
           />
@@ -212,7 +212,8 @@ User clicks button
    → if not: setError(message) → error card appears
 ```
 
-Defaults (`HILLBROW` / `DE55 5PB`) are prefilled so you can test with one click.
+Placeholders (`Example Building` / `AB12 3CD`) show the expected shape; enter a
+real Derbyshire postcode and address hint for live lookups.
 
 ## Checkpoint
 

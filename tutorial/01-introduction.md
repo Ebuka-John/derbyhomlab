@@ -6,8 +6,8 @@ Read this page. Do not write code yet.
 
 ## What this project does
 
-You enter a UK **postcode** (e.g. `DE55 5PB`) and an **address** hint
-(e.g. `HILLBROW`). The app:
+You enter a UK **postcode** (e.g. `AB12 3CD`) and an **address** hint
+(e.g. `Example Building`). The app:
 
 1. Looks up addresses for that postcode (Derbyshire Address Lookup API)
 2. Finds the matching property and its map coordinates

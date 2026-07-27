@@ -23,10 +23,11 @@ Leave that window running.
 
 1. Open http://127.0.0.1:8000/health → `{"status":"ok"}`
 2. Open http://127.0.0.1:8000/docs → Swagger UI appears
-3. In a **second** PowerShell window, try the interview example:
+3. In a **second** PowerShell window, try an example-shaped request (swap in a
+   real Derbyshire postcode + address hint for a live hit):
 
 ```powershell
-Invoke-RestMethod "http://127.0.0.1:8000/nearest-grit-bin?postcode=DE55%205PB&address=HILLBROW" |
+Invoke-RestMethod "http://127.0.0.1:8000/nearest-grit-bin?postcode=AB12%203CD&address=Example%20Building" |
   ConvertTo-Json -Depth 5
 ```
 
@@ -34,14 +35,15 @@ Success looks like:
 
 ```json
 {
-  "address": "HILLBROW",
-  "postcode": "DE55 5PB",
-  "nearest_grit_bin_title": "GB0199",
-  "distance_meters": 48.99
+  "address": "Example Building",
+  "postcode": "AB12 3CD",
+  "nearest_grit_bin_title": "GB0001",
+  "distance_meters": 42.5
 }
 ```
 
-(Exact title/distance depend on live data.)
+(Exact title/distance depend on live data; the placeholder postcode above will
+not resolve against the real Address API.)
 
 ## If something fails
 

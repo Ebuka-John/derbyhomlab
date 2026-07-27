@@ -32,16 +32,16 @@ Full Docker walkthrough (Dockerfiles, Compose, troubleshooting):
 ### Fullstack test plan (Docker)
 
 1. Open the UI at http://127.0.0.1:3000
-2. Submit `HILLBROW` + `DE55 5PB`
+2. Enter a real Derbyshire postcode + address hint (placeholders show `Example Building` / `AB12 3CD`)
 3. Confirm the browser network call is to `/api/nearest-grit-bin` (not `:8000`)
 4. Confirm Compose logs show upstream Address / GeoServer work
 5. Compare in another PowerShell window:
 
 ```powershell
-Invoke-RestMethod "http://127.0.0.1:8000/nearest-grit-bin?postcode=DE55%205PB&address=HILLBROW" |
+Invoke-RestMethod "http://127.0.0.1:8000/nearest-grit-bin?postcode=AB12%203CD&address=Example%20Building" |
   ConvertTo-Json -Depth 5
 
-Invoke-RestMethod "http://127.0.0.1:3000/api/nearest-grit-bin?postcode=DE55%205PB&address=HILLBROW" |
+Invoke-RestMethod "http://127.0.0.1:3000/api/nearest-grit-bin?postcode=AB12%203CD&address=Example%20Building" |
   ConvertTo-Json -Depth 5
 ```
 

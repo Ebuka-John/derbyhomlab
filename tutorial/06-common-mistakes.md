@@ -60,7 +60,7 @@ Folder for the route must be `frontend/app/api/nearest-grit-bin/route.ts`.
 
 ## Postcode spaces
 
-Use `%20` in URLs (`DE55%205PB`). The backend uses `quote(..., safe="")` for this.
+Use `%20` in URLs (`AB12%203CD`). The backend uses `quote(..., safe="")` for this.
 
 ---
 

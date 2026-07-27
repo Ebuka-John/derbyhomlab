@@ -29,14 +29,14 @@ npm run dev
 ## Checkpoints
 
 1. Open http://127.0.0.1:3000 — you see **Gritfinder** and the form
-2. Defaults should be `HILLBROW` / `DE55 5PB`
-3. Click **Find nearest grit bin**
+2. Placeholders should be `Example Building` / `AB12 3CD` (fields start empty)
+3. Enter a real Derbyshire postcode + address hint, then click **Find nearest grit bin**
 4. You see a result card with title + distance, or a clear error message
 
 Proxy-only check (third PowerShell window, or stop nothing — just run):
 
 ```powershell
-Invoke-RestMethod "http://127.0.0.1:3000/api/nearest-grit-bin?postcode=DE55%205PB&address=HILLBROW" |
+Invoke-RestMethod "http://127.0.0.1:3000/api/nearest-grit-bin?postcode=AB12%203CD&address=Example%20Building" |
   ConvertTo-Json -Depth 5
 ```
 

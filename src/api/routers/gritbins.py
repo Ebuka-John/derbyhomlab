@@ -49,13 +49,13 @@ def _require_postcode_address(
 async def nearest_grit_bin(
     postcode: str | None = Query(
         default=None,
-        description="UK postcode, e.g. DE55 5PB",
-        examples=["DE55 5PB"],
+        description="UK postcode, e.g. AB12 3CD",
+        examples=["AB12 3CD"],
     ),
     address: str | None = Query(
         default=None,
-        description="Substring matched against address Title, e.g. HILLBROW",
-        examples=["HILLBROW"],
+        description="Substring matched against address Title, e.g. Example Building",
+        examples=["Example Building"],
     ),
     address_service: AddressService = Depends(provide_address_service),
     gritbin_service: GritBinService = Depends(provide_gritbin_service),
@@ -91,13 +91,13 @@ async def nearest_grit_bin(
 async def nearest_grit_bins(
     postcode: str | None = Query(
         default=None,
-        description="UK postcode, e.g. DE55 5PB",
-        examples=["DE55 5PB"],
+        description="UK postcode, e.g. AB12 3CD",
+        examples=["AB12 3CD"],
     ),
     address: str | None = Query(
         default=None,
-        description="Substring matched against address Title, e.g. HILLBROW",
-        examples=["HILLBROW"],
+        description="Substring matched against address Title, e.g. Example Building",
+        examples=["Example Building"],
     ),
     limit: int = Query(
         default=5,

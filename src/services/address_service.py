@@ -99,7 +99,7 @@ def _compose_title(record: dict[str, Any]) -> str | None:
 
 
 def _matchable_text(record: dict[str, Any]) -> str:
-    """Uppercased haystack for substring match (e.g. query ``HILLBROW``)."""
+    """Uppercased haystack for substring match (e.g. query ``Example Building``)."""
     chunks: list[str] = []
     title = _compose_title(record)
     if title:

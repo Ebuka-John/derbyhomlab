@@ -111,9 +111,8 @@ ask GeoServer what's *near* that point.
 | 0:35–0:50 | [backend/09-app.md](./backend/09-app.md) — dependencies, routers, `app.py`, `main.py` |
 | 0:50–1:00 | [backend/10-run-and-test.md](./backend/10-run-and-test.md) — `uvicorn` up, `/docs` open, tests green |
 
-**Exit checkpoint:** the interview example works — `HILLBROW` + `DE55 5PB`
-returns grit bin `GB0199` at roughly 49 m (or the mocked tests pass if you
-have no live credentials).
+**Exit checkpoint:** mocked tests pass; with live credentials, a real Derbyshire
+postcode + address hint returns a grit bin (or a clear 404 if none are nearby).
 
 **Transition:** the backend is done and proven. Everything from here on is
 about *reaching* it — first from a browser via a proxy, then from containers.

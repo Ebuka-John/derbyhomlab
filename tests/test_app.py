@@ -10,13 +10,13 @@ from src.config import get_settings
 
 
 def test_missing_postcode(client) -> None:
-    response = client.get("/nearest-grit-bin", params={"address": "HILLBROW"})
+    response = client.get("/nearest-grit-bin", params={"address": "Example Building"})
     assert response.status_code == 400
     assert response.json()["error"]["code"] == "missing_parameter"
 
 
 def test_missing_address(client) -> None:
-    response = client.get("/nearest-grit-bin", params={"postcode": "DE55 5PB"})
+    response = client.get("/nearest-grit-bin", params={"postcode": "AB12 3CD"})
     assert response.status_code == 400
 
 
@@ -25,13 +25,13 @@ def test_nearest_grit_bin_happy_path(client, settings) -> None:
     client.app.state.settings = settings
 
     respx.get(
-        "https://example.com/DerbyshireApplicationsWebService/api/Address/DE55%205PB"
+        "https://example.com/DerbyshireApplicationsWebService/api/Address/AB12%203CD"
     ).mock(
         return_value=httpx.Response(
             200,
             json=[
                 {
-                    "Title": "HILLBROW, ALFRETON, DE55 5PB",
+                    "Title": "Example Building, ALFRETON, AB12 3CD",
                     "Easting": 443609,
                     "Northing": 351791,
                 }
@@ -60,12 +60,12 @@ def test_nearest_grit_bin_happy_path(client, settings) -> None:
 
     response = client.get(
         "/nearest-grit-bin",
-        params={"postcode": "DE55 5PB", "address": "HILLBROW"},
+        params={"postcode": "AB12 3CD", "address": "Example Building"},
     )
     assert response.status_code == 200
     body = response.json()
-    assert body["address"] == "HILLBROW"
-    assert body["postcode"] == "DE55 5PB"
+    assert body["address"] == "Example Building"
+    assert body["postcode"] == "AB12 3CD"
     assert body["nearest_grit_bin_title"] == "GB-TEST-001"
     assert "distance_meters" in body
 
@@ -75,13 +75,13 @@ def test_nearest_grit_bins_limit(client, settings) -> None:
     client.app.state.settings = settings
 
     respx.get(
-        "https://example.com/DerbyshireApplicationsWebService/api/Address/DE55%205PB"
+        "https://example.com/DerbyshireApplicationsWebService/api/Address/AB12%203CD"
     ).mock(
         return_value=httpx.Response(
             200,
             json=[
                 {
-                    "Title": "HILLBROW, ALFRETON, DE55 5PB",
+                    "Title": "Example Building, ALFRETON, AB12 3CD",
                     "Easting": 443609,
                     "Northing": 351791,
                 }
@@ -128,11 +128,11 @@ def test_nearest_grit_bins_limit(client, settings) -> None:
 
     response = client.get(
         "/nearest-grit-bins",
-        params={"postcode": "DE55 5PB", "address": "HILLBROW", "limit": 2},
+        params={"postcode": "AB12 3CD", "address": "Example Building", "limit": 2},
     )
     assert response.status_code == 200
     body = response.json()
-    assert body["address"] == "HILLBROW"
+    assert body["address"] == "Example Building"
     assert [b["title"] for b in body["nearest_grit_bins"]] == ["GB-NEAR", "GB-MID"]
 
 

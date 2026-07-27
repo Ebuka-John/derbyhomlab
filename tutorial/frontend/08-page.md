@@ -43,7 +43,7 @@ export default function HomePage() {
 
         <footer className="foot">
           <p>
-            Example: <span>HILLBROW</span>, <span>DE55 5PB</span> → expected grit
+            Example: <span>Example Building</span>, <span>AB12 3CD</span> → expected grit
             bin nearby within 100&nbsp;m.
           </p>
         </footer>

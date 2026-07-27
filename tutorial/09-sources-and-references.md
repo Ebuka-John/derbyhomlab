@@ -36,22 +36,22 @@ ops / public-info problem.
 You do not need a council job to understand the software: address → coordinates →
 nearby mapped asset.
 
-### UK postcodes (why `DE55 5PB`?)
+### UK postcodes (why `AB12 3CD`?)
 
 UK addresses are commonly looked up by **postcode**. A full postcode looks like
-`DE55 5PB`:
+`AB12 3CD`:
 
 | Part | Example | Role |
 |------|---------|------|
-| Outward code | `DE55` | Area + district (rough geography) |
-| Inward code | `5PB` | Sector + unit (narrows to a small set of addresses) |
+| Outward code | `AB12` | Area + district (rough geography) |
+| Inward code | `3CD` | Sector + unit (narrows to a small set of addresses) |
 
 Rules of thumb for this project:
 
-- Spaces matter in human form (`DE55 5PB`); in URLs the space becomes `%20`
+- Spaces matter in human form (`AB12 3CD`); in URLs the space becomes `%20`
 - Matching is usually case-insensitive
 - One postcode can return **many** address records — that is why the exercise also
-  asks for an address hint like `HILLBROW`
+  asks for an address hint like `Example Building`
 
 Royal Mail / Ordnance Survey style background (optional reading):
 
@@ -99,7 +99,7 @@ you cannot call the Address API.
 
 | Source | What it gives you |
 |--------|-------------------|
-| **Technical exercise brief** | Problem statement, example `HILLBROW` / `DE55 5PB`, ~100 m rule, CORS constraint (no browser-direct calls to upstream APIs) |
+| **Technical exercise brief** | Problem statement, a concrete Derbyshire address to resolve, ~100 m rule, CORS constraint (no browser-direct calls to upstream APIs) |
 | **Credentials / header file** | `ADDRESS_API_BASE_URL`, `x-alias`, `x-auth-token` (or equivalent) |
 | **Live trial calls** | Actual JSON shape for addresses (this project found `BuildingName` + `SpatialFeature.Eastings/Northings`, not a single `Title` field) |
 
@@ -255,7 +255,7 @@ practical order someone building this would follow:
 1. **Read the brief** — postcode + address → nearest grit bin within ~100 m; no
    browser CORS to upstream APIs.
 2. **Load credentials into `.env`** — never hard-code tokens.
-3. **Call the Address API** with `DE55 5PB` — inspect JSON; discover real field
+3. **Call the Address API** with `AB12 3CD` — inspect JSON; discover real field
    names (`BuildingName`, `SpatialFeature`, …).
 4. **Open Derbyshire GeoServer** — confirm `DCC:Gritbins` via WFS, not WMS tiles.
 5. **Sample GetFeature JSON** — learn `SP_GEOMETRY`, `Title`, EPSG:27700.
