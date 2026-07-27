@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
-import { Fraunces, Figtree } from "next/font/google";
+import type { ReactNode } from "react";
+import { Figtree, Fraunces } from "next/font/google";
 
 import "./globals.css";
 
@@ -18,13 +19,13 @@ const sans = Figtree({
 export const metadata: Metadata = {
   title: "Gritfinder — nearby grit bins",
   description:
-    "Test console for the Derbyshire grit-bin API. Rank the nearest N bins for an address, or list the full WFS layer.",
+    "Test console for the Derbyshire grit-bin API. Find the nearest grit bins for an address.",
 };
 
 export default function RootLayout({
   children,
 }: Readonly<{
-  children: React.ReactNode;
+  children: ReactNode;
 }>) {
   return (
     <html lang="en" className={`${display.variable} ${sans.variable}`}>

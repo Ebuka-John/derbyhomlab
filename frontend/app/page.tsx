@@ -8,12 +8,6 @@ export default function HomePage() {
       <div className="frame">
         <header className="hero">
           <p className="hero__brand">Gritfinder</p>
-          <h1 className="hero__title">Find nearby grit bins</h1>
-          <p className="hero__support">
-            Integration test UI for the Derbyshire grit-bin service. Rank the
-            nearest N bins for an address, or list the full WFS layer — always
-            through a Next.js proxy, never the upstream APIs from the browser.
-          </p>
         </header>
 
         <SearchForm />
@@ -21,7 +15,7 @@ export default function HomePage() {
         <footer className="foot">
           <p>
             Example: <span>Example Building</span>, <span>AB12 3CD</span> →
-            nearest bins within 100&nbsp;m, or the full layer via List all.
+            nearest grit bin within 100&nbsp;m.
           </p>
         </footer>
       </div>

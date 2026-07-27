@@ -4,7 +4,6 @@ import { FormEvent, useId, useState, useTransition } from "react";
 
 import type {
   ApiErrorBody,
-  GritBinsSuccess,
   LookupResult,
   NearestGritBinsSuccess,
 } from "@/lib/types";
@@ -12,6 +11,7 @@ import type {
 const DEFAULT_POSTCODE = "";
 const DEFAULT_ADDRESS = "";
 const DEFAULT_LIMIT = 5;
+const SINGLE_NEAREST = 1;
 
 async function parseLookup<T>(response: Response): Promise<LookupResult<T>> {
   const payload = await response.json();
@@ -47,52 +47,41 @@ async function lookupNearestN(
   return parseLookup<NearestGritBinsSuccess>(response);
 }
 
-async function lookupAllBins(): Promise<LookupResult<GritBinsSuccess>> {
-  const response = await fetch("/api/grit-bins", {
-    method: "GET",
-    headers: { Accept: "application/json" },
-  });
-  return parseLookup<GritBinsSuccess>(response);
-}
-
 export function SearchForm() {
   const formId = useId();
   const postcodeId = `${formId}-postcode`;
   const addressId = `${formId}-address`;
+  const customLimitId = `${formId}-custom-limit`;
   const limitId = `${formId}-limit`;
   const statusId = `${formId}-status`;
 
   const [postcode, setPostcode] = useState(DEFAULT_POSTCODE);
   const [address, setAddress] = useState(DEFAULT_ADDRESS);
+  const [customLimit, setCustomLimit] = useState(false);
   const [limit, setLimit] = useState(DEFAULT_LIMIT);
   const [nearest, setNearest] = useState<NearestGritBinsSuccess | null>(null);
-  const [allBins, setAllBins] = useState<GritBinsSuccess | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
-  const [pendingAction, setPendingAction] = useState<"nearest" | "all" | null>(
-    null,
-  );
 
   function clearResults() {
     setError(null);
     setNearest(null);
-    setAllBins(null);
   }
 
   function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const trimmedPostcode = postcode.trim();
     const trimmedAddress = address.trim();
-    const safeLimit = Math.min(50, Math.max(1, Math.trunc(limit) || 1));
+    const safeLimit = customLimit
+      ? Math.min(50, Math.max(1, Math.trunc(limit) || 1))
+      : SINGLE_NEAREST;
 
     if (!trimmedPostcode || !trimmedAddress) {
       setError("Enter both a postcode and an address.");
       setNearest(null);
-      setAllBins(null);
       return;
     }
 
-    setPendingAction("nearest");
     startTransition(async () => {
       clearResults();
 
@@ -109,28 +98,6 @@ export function SearchForm() {
         }
       } catch {
         setError("Something went wrong while contacting the API.");
-      } finally {
-        setPendingAction(null);
-      }
-    });
-  }
-
-  function onListAll() {
-    setPendingAction("all");
-    startTransition(async () => {
-      clearResults();
-
-      try {
-        const outcome = await lookupAllBins();
-        if (outcome.ok) {
-          setAllBins(outcome.data);
-        } else {
-          setError(outcome.error.message);
-        }
-      } catch {
-        setError("Something went wrong while contacting the API.");
-      } finally {
-        setPendingAction(null);
       }
     });
   }
@@ -142,8 +109,8 @@ export function SearchForm() {
           Look up grit bins
         </h2>
         <p className="panel__lede">
-          Resolve an address, then rank the closest grit bins by distance across
-          the layer — or list every Derbyshire WFS feature.
+          Resolve an address, then find the closest grit bin or choose how
+          many nearest results to return.
         </p>
       </header>
 
@@ -181,34 +148,40 @@ export function SearchForm() {
           />
         </div>
 
-        <div className="field field--narrow">
-          <label htmlFor={limitId}>How many nearest</label>
-          <input
-            id={limitId}
-            name="limit"
-            type="number"
-            min={1}
-            max={50}
-            step={1}
-            value={limit}
-            onChange={(event) => setLimit(Number(event.target.value))}
-            disabled={isPending}
-          />
+        <div className="field field--check">
+          <label htmlFor={customLimitId} className="check">
+            <input
+              id={customLimitId}
+              name="customLimit"
+              type="checkbox"
+              checked={customLimit}
+              onChange={(event) => setCustomLimit(event.target.checked)}
+              disabled={isPending}
+            />
+            <span>Choose how many nearest to return</span>
+          </label>
         </div>
+
+        {customLimit ? (
+          <div className="field field--narrow">
+            <label htmlFor={limitId}>How many nearest</label>
+            <input
+              id={limitId}
+              name="limit"
+              type="number"
+              min={1}
+              max={50}
+              step={1}
+              value={limit}
+              onChange={(event) => setLimit(Number(event.target.value))}
+              disabled={isPending}
+            />
+          </div>
+        ) : null}
 
         <div className="form__actions">
           <button type="submit" className="button" disabled={isPending}>
-            {pendingAction === "nearest"
-              ? "Searching…"
-              : "Find nearest grit bins"}
-          </button>
-          <button
-            type="button"
-            className="button button--secondary"
-            disabled={isPending}
-            onClick={onListAll}
-          >
-            {pendingAction === "all" ? "Loading…" : "List all grit bins"}
+            {isPending ? "Searching…" : "Find nearest grit bins"}
           </button>
         </div>
       </form>
@@ -246,33 +219,6 @@ export function SearchForm() {
                 </li>
               ))}
             </ol>
-          </div>
-        ) : null}
-
-        {allBins ? (
-          <div className="result result--ok">
-            <p className="result__label">All grit bins</p>
-            <p className="result__context">{allBins.count} features from WFS</p>
-            <div className="bin-scroll" tabIndex={0}>
-              <table className="bin-table">
-                <thead>
-                  <tr>
-                    <th scope="col">Title</th>
-                    <th scope="col">Easting</th>
-                    <th scope="col">Northing</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {allBins.grit_bins.map((bin, index) => (
-                    <tr key={`${bin.title}-${bin.easting}-${index}`}>
-                      <td>{bin.title}</td>
-                      <td>{bin.easting.toFixed(1)}</td>
-                      <td>{bin.northing.toFixed(1)}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
           </div>
         ) : null}
       </div>

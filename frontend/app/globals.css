@@ -181,6 +181,29 @@ input {
   cursor: not-allowed;
 }
 
+.field--check {
+  gap: 0;
+}
+
+.check {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--ink-soft);
+  cursor: pointer;
+}
+
+.check input[type="checkbox"] {
+  width: 1.1rem;
+  height: 1.1rem;
+  margin: 0;
+  accent-color: var(--moss);
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
 .form__actions {
   display: flex;
   flex-wrap: wrap;
