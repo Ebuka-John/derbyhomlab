@@ -58,7 +58,7 @@ export function SearchForm() {
   const [postcode, setPostcode] = useState(DEFAULT_POSTCODE);
   const [address, setAddress] = useState(DEFAULT_ADDRESS);
   const [customLimit, setCustomLimit] = useState(false);
-  const [limit, setLimit] = useState(DEFAULT_LIMIT);
+  const [limitInput, setLimitInput] = useState(String(DEFAULT_LIMIT));
   const [nearest, setNearest] = useState<NearestGritBinsSuccess | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
@@ -72,8 +72,9 @@ export function SearchForm() {
     event.preventDefault();
     const trimmedPostcode = postcode.trim();
     const trimmedAddress = address.trim();
+    const parsedLimit = Number.parseInt(limitInput, 10);
     const safeLimit = customLimit
-      ? Math.min(50, Math.max(1, Math.trunc(limit) || 1))
+      ? Math.min(50, Math.max(1, Number.isFinite(parsedLimit) ? parsedLimit : 1))
       : SINGLE_NEAREST;
 
     if (!trimmedPostcode || !trimmedAddress) {
@@ -172,8 +173,8 @@ export function SearchForm() {
               min={1}
               max={50}
               step={1}
-              value={limit}
-              onChange={(event) => setLimit(Number(event.target.value))}
+              value={limitInput}
+              onChange={(event) => setLimitInput(event.target.value)}
               disabled={isPending}
             />
           </div>
