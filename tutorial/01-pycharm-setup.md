@@ -16,9 +16,15 @@ You learn by **recreating** the app, not by reading a finished tree. Keep a
 ### 2. Lab project (where you type)
 
 1. `File → New Project…`
-2. Choose **Pure Python** (or Empty) — not “from existing sources”.
+2. Choose **Pure Python** (or Empty) — not “from existing sources”, and **not** the FastAPI wizard.
 3. Location example: `C:\Users\<you>\Cursor_AI_projects\grit-bin-lab`
 4. Create the project and open it in a **new window**.
+
+Why not the FastAPI project type? That wizard generates its own starter tree
+(`main.py`, sample routes, often a different layout). This lab teaches *our*
+layered `src/` layout by typing every file from the reference — a blank project
+avoids fighting or deleting scaffold you did not ask for. You still use FastAPI;
+you just install it yourself in the next backend step.
 
 ### 3. Python interpreter (lab window)
 
