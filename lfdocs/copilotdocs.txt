@@ -1,0 +1,448 @@
+For a G11 Senior Developer (Integration) exercise, I'd present pseudocode at service level, integration level, and business flow level. The objective is to show architecture, separation of concerns, maintainability, error handling, and scalability.
+Solution Architecture
+
+FastAPI Endpoint
+       |
+       v
+Nearest Asset Service
+       |
+       +------------------+
+       |                  |
+       v                  v
+Address API         GeoServer WFS
+       |                  |
+       +--------+---------+
+                |
+                v
+      Spatial Distance Logic
+                |
+                v
+         Return Grit Bin Title
+
+
+Main Business Flow
+
+FUNCTION FindNearestGritBin()
+
+    postcode = "DE55 5PB"
+    propertyName = "HILLBROW"
+    searchRadius = 100
+
+    addressRecord =
+        AddressService.GetAddress(
+            postcode,
+            propertyName
+        )
+
+    IF addressRecord IS NULL THEN
+
+        RETURN
+        {
+            success: false,
+            error: "Address not found"
+        }
+
+    END IF
+
+    gritBins =
+        GeoServerService.FindNearbyAssets(
+            layer = "DCC:Gritbins",
+            geometryField = "SP_GEOMETRY",
+            easting = addressRecord.easting,
+            northing = addressRecord.northing,
+            radius = searchRadius
+        )
+
+    IF gritBins IS EMPTY THEN
+
+        RETURN
+        {
+            success: false,
+            error: "No grit bins found within 100 metres"
+        }
+
+    END IF
+
+    nearestBin =
+        SpatialService.FindNearest(
+            addressRecord,
+            gritBins
+        )
+
+    RETURN
+    {
+        success: true,
+        title: nearestBin.Title,
+        distance: nearestBin.Distance
+    }
+
+END FUNCTION
+
+
+Address Service
+Responsibility
+
+Query Address API
+Find HILLBROW record
+Extract Easting/Northing
+
+FUNCTION GetAddress(
+    postcode,
+    propertyName
+)
+
+    url =
+    ADDRESS_API +
+    UrlEncode(postcode)
+
+    response =
+    HttpGet(
+        url,
+        requiredHeaders
+    )
+
+    IF response.status != 200 THEN
+
+        THROW
+        AddressApiException
+
+    END IF
+
+    addresses =
+    ParseJson(response)
+
+    FOR EACH address IN addresses
+
+        IF
+        ToUpper(address.description)
+        CONTAINS
+        ToUpper(propertyName)
+
+            RETURN
+            {
+                easting : address.Easting,
+                northing : address.Northing,
+                description : address.description
+            }
+
+        END IF
+
+    END FOR
+
+    RETURN NULL
+
+END FUNCTION
+
+GeoServer Service
+Why WFS?
+Not WMS.
+WMS:
+Plain Text1Returns ImagesShow more lines
+WFS:
+Plain Text1Returns FeaturesShow more lines
+We need actual geometry and attributes.
+
+GeoServer Query
+
+
+
+FUNCTION FindNearbyAssets(
+    layer,
+    geometryField,
+    easting,
+    northing,
+    radius
+)
+
+    build WFS query
+
+    GeoServerUrl =
+    "/geoserver/wfs"
+
+    parameters =
+
+        service = WFS
+        version = 2.0.0
+        request = GetFeature
+        typeNames = DCC:Gritbins
+        outputFormat = application/json
+
+        cql_filter =
+
+            DWITHIN(
+                SP_GEOMETRY,
+                POINT(easting northing),
+                radius,
+                meters
+            )
+
+    response =
+        HttpGet(
+            GeoServerUrl,
+            parameters
+        )
+
+    IF response.status != 200 THEN
+
+        THROW GeoServerException
+
+    END IF
+
+    RETURN ParseGeoJson(response)
+
+END FUNCTION
+
+
+Spatial Service
+Although GeoServer can perform some proximity filtering, I would still calculate distances in the service to guarantee correctness.
+
+FUNCTION FindNearest(
+    address,
+    gritBins
+)
+
+    shortestDistance =
+        INFINITY
+
+    nearestBin =
+        NULL
+
+    FOR EACH gritBin IN gritBins
+
+        binX =
+            gritBin.SP_GEOMETRY.X
+
+        binY =
+            gritBin.SP_GEOMETRY.Y
+
+        distance =
+            CalculateDistance(
+                address.easting,
+                address.northing,
+                binX,
+                binY
+            )
+
+        IF distance < shortestDistance
+
+            shortestDistance =
+                distance
+
+            nearestBin =
+                gritBin
+
+        END IF
+
+    END FOR
+
+    nearestBin.Distance =
+        shortestDistance
+
+    RETURN nearestBin
+
+END FUNCTION
+
+
+Distance Formula
+Because EPSG:27700 uses metres:
+
+FUNCTION CalculateDistance(
+    x1,
+    y1,
+    x2,
+    y2
+)
+
+    dx = x2 - x1
+    dy = y2 - y1
+
+    RETURN
+        SQRT(
+            dx² + dy²
+        )
+
+END FUNCTION
+
+
+FastAPI Endpoint Pseudocode
+
+GET /api/v1/gritbins/nearest
+
+TRY
+
+    result =
+        FindNearestGritBin()
+
+    RETURN 200
+
+CATCH AddressNotFoundException
+
+    RETURN 404
+
+    {
+        error:
+        "Address not found"
+    }
+
+CATCH NoGritBinsFoundException
+
+    RETURN 404
+
+    {
+        error:
+        "No grit bins found"
+    }
+
+CATCH GeoServerException
+
+    RETURN 503
+
+    {
+        error:
+        "GeoServer unavailable"
+    }
+
+CATCH Exception
+
+    LogError()
+
+    RETURN 500
+
+END TRY
+
+
+Production Version (Reusable Design)
+Instead of:
+Plain Text1FindNearestGritBin()Show more lines
+I'd create:
+Plain Text1FindNearestAsset()Show more lines
+Plain Text1GET /api/v1/assets/nearest2 3?postcode=DE55 5PB4&property=HILLBROW5&assetType=gritbinShow more lines
+Asset mappings:
+
+gritbin        -> DCC:Gritbins
+school         -> DCC:Schools
+library        -> DCC:Libraries
+hospital       -> DCC:Hospitals
+defibrillator  -> DCC:Defibrillators
+carpark        -> DCC:CarParks
+busstop        -> DCC:BusStops
+firehydrant    -> DCC:FireHydrants
+recycling      -> DCC:RecyclingCentres
+shelter        -> DCC:EmergencyShelters
+firstaid       -> DCC:FirstAidStations
+
+Error Handling
+Address API Failure
+
+{
+  "success": false,
+  "error": "Address lookup service unavailable"
+}
+HILLBROW Not Found
+{
+  "success": false,
+  "error": "Property HILLBROW not found in postcode DE55 5PB"
+}
+Missing Coordinates
+
+{
+  "success": false,
+  "error": "Address record contains no coordinates"
+}
+
+No Nearby Grit Bin
+
+{
+  "success": false,
+  "error": "No grit bin found within 100 metres"
+}
+
+GeoServer Failure
+
+{
+  "success": false,
+  "error": "Unable to query GeoServer"
+}
+
+
+Investigation Notes (What I'd Present)
+What I tried first
+
+Investigated Address Lookup API.
+Determined postcode is the lookup key.
+Identified HILLBROW from returned postcode results.
+Investigated GeoServer capabilities.
+Determined WFS is more suitable than WMS.
+
+Why WFS
+WMS -> map image
+WFS -> spatial features
+The solution requires geometry and attributes, therefore WFS is the appropriate service.
+
+Assumptions
+
+Address API returns Easting/Northing.
+Coordinates are EPSG:27700.
+SP_GEOMETRY contains point geometry.
+Grit bins contain a Title attribute.
+HILLBROW is returned within postcode results.
+
+Approaches Rejected
+Client-side JavaScript
+Rejected because exercise explicitly mentions CORS restrictions.
+Download Entire Layer
+Rejected because:
+
+Poor performance
+Unnecessary network traffic
+Poor scalability
+
+Instead:
+Spatial query against GeoServer
+
+Verification:
+Confirm HILLBROW coordinates.
+Execute WFS query.
+Verify returned grit bin location.
+Calculate distance independently.
+Check nearest returned bin.
+
+Follow-Up Discussion Answers
+Nearest 5 Grit Bins
+
+Follow-Up Discussion Answers
+Nearest 5 Grit Bins
+
+Batch Processing
+
+CSV
+  ->
+Queue
+  ->
+Worker
+  ->
+Address Lookup
+  ->
+GeoServer Query
+  ->
+Results File
+
+Shared Service For Other Teams
+Expose:
+
+REST API
+OpenAPI / Swagger
+Versioned Endpoints
+SDK Generation
+
+Monitoring:
+
+Application Insights
+Structured Logging
+Health Checks
+Metrics
+Distributed Tracing
+Snapshot Debugger
+Alerting
+
+This is the level of pseudocode and architectural reasoning I'd expect from a strong Senior Developer (Integration) submission.
