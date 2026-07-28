@@ -50,6 +50,9 @@ pytest -q
 
 ## Checkpoint
 
+Do **not** continue to the next lesson until this passes.
+
+
 `/health` returns `{"status":"ok"}` and `/docs` loads.
 
 Backend done → [Frontend lab](../frontend/README.md)

@@ -34,6 +34,9 @@ GeoServer filters with `DWITHIN` on **`SP_GEOMETRY`** (not `the_geom`).
 
 ## Checkpoint
 
+Do **not** continue to the next lesson until this passes.
+
+
 ```powershell
 .\.venv\Scripts\Activate.ps1
 python -c "from src.models.domain.geometry import Point27700; from src.utils.geospatial import euclidean_distance_meters; from src.models.dto.gritbin import NearestGritBinResponse; print('models ok')"

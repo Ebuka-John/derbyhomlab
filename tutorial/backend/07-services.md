@@ -20,6 +20,9 @@ Shared `httpx.AsyncClient` is injected (from app lifespan later) so connections 
 
 ## Checkpoint
 
+Do **not** continue to the next lesson until this passes.
+
+
 ```powershell
 .\.venv\Scripts\Activate.ps1
 python -c "from src.services.address_service import AddressService; from src.services.gritbin_service import GritBinService; print('services ok')"

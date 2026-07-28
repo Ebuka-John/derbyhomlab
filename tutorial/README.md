@@ -24,7 +24,16 @@ For each step:
 1. In the **reference** window, open the listed path.
 2. In the **lab** window, create the same path (`Alt+Insert` → File / Package).
 3. **Type** the file (do not copy-paste if you want the learning benefit).
-4. Run the **checkpoint**, then move on.
+4. **Run that lesson’s Checkpoint immediately** — do **not** type the whole
+   backend/frontend and only test at the end.
+5. Only then open the next lesson.
+
+Catching a typo after one file is cheap; catching it after twenty is not.
+
+Early checkpoints are usually `import` / install checks. The live API and UI
+smoke tests come once those layers exist (`backend/09-run.md`,
+`frontend/04-run.md`). That is still “test as you go” — each layer must pass
+before you build on it.
 
 > Tip: arrange both windows side by side, or use PyCharm’s split editor with
 > the reference file on the left and your new file on the right.

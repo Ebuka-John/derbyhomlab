@@ -3,6 +3,9 @@
 Still use **two windows**: reference = this branch’s `frontend/`; lab = your new
 project’s `frontend/` folder.
 
+**Rule:** after each lesson, run the **Checkpoint** before opening the next
+file list. Do not scaffold + proxy + UI in one go and only run `npm` at the end.
+
 PyCharm can edit TypeScript fine; for Node tooling use the **lab Terminal**.
 (WebStorm is optional — not required.)
 

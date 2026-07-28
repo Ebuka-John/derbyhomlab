@@ -42,6 +42,9 @@ Router  →  Service  →  Repository  →  External HTTP
 
 ## Checkpoint
 
+Do **not** continue to the next lesson until this passes.
+
+
 Sketch from memory (paper or a PyCharm scratch file):
 
 `Browser → Next proxy → FastAPI → Address API + GeoServer → JSON back`

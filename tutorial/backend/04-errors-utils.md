@@ -19,6 +19,9 @@ import `Point27700` / `GritBinMatch`.
 
 ## Checkpoint
 
+Do **not** continue to the next lesson until this passes.
+
+
 ```powershell
 .\.venv\Scripts\Activate.ps1
 python -c "from src.utils.exceptions import AppError, NoGritBinNearbyError; from src.utils.postcode import require_valid_uk_postcode; print('errors ok')"

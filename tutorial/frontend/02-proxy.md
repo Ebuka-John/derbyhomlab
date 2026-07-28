@@ -21,6 +21,9 @@ The browser never sees Address API tokens or GeoServer URLs.
 
 ## Checkpoint
 
+Do **not** continue to the next lesson until this passes.
+
+
 With backend running on :8000 and (optionally) frontend later on :3000, the proxy
 files should exist and import without red squiggles in PyCharm once
 `node_modules` is installed.

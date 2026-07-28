@@ -31,6 +31,9 @@ Try `DE55 5PB` / `HILLBROW` → expect **GB0199**.
 
 ## Checkpoint
 
+Do **not** continue to the next lesson until this passes.
+
+
 Form returns a grit-bin title and distance without browser network calls to
 `derbyshire.gov.uk` (only calls to `:3000/api/...`).
 

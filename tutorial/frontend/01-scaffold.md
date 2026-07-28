@@ -53,6 +53,9 @@ cd ..
 
 ## Checkpoint
 
+Do **not** continue to the next lesson until this passes.
+
+
 ```powershell
 Test-Path frontend\node_modules\next
 ```

@@ -20,6 +20,9 @@ After each file, save (`Ctrl+S`). Do not skip settings — everything else depen
 
 ## Checkpoint
 
+Do **not** continue to the next lesson until this passes.
+
+
 ```powershell
 .\.venv\Scripts\Activate.ps1
 python -c "from src.config import get_settings; s=get_settings(); print(s.geoserver_layer)"

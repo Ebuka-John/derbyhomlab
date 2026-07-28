@@ -28,6 +28,9 @@ pip install -r requirements.txt -r requirements-dev.txt
 
 ## Checkpoint
 
+Do **not** continue to the next lesson until this passes.
+
+
 ```powershell
 python -c "import fastapi, httpx, pyproj, pydantic_settings; print('deps ok')"
 ```

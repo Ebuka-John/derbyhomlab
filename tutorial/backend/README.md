@@ -3,6 +3,9 @@
 Work in your **lab** PyCharm project. For every file, open the same path in the
 **reference** window (`readytosubmit`) and type it into the lab.
 
+**Rule:** finish a lesson → run its **Checkpoint** → only then start the next
+lesson. Do not batch-type steps 1–8 and hope step 9 will reveal every mistake.
+
 ## Order
 
 | Step | Lesson | You create |
@@ -33,6 +36,8 @@ settings + exceptions + postcode
 
 - New package: right-click parent → `New → Python Package` (creates `__init__.py`).
 - New module: `New → Python File`.
+- After the last file in a lesson: run the Checkpoint in the Terminal before
+  clicking Next.
 - Run configs later: `uvicorn` module or a Shell Script configuration.
 
 ## Deeper reading (`main`)

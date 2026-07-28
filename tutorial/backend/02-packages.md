@@ -58,6 +58,9 @@ Open each path in the reference window and type the same content into the lab
 
 ## Checkpoint
 
+Do **not** continue to the next lesson until this passes.
+
+
 ```powershell
 .\.venv\Scripts\Activate.ps1
 python -c "import src; print('ok')"

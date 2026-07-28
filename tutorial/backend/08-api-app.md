@@ -21,6 +21,9 @@
 
 ## Checkpoint
 
+Do **not** continue to the next lesson until this passes.
+
+
 ```powershell
 .\.venv\Scripts\Activate.ps1
 python -c "from src.app import app; print(app.title)"

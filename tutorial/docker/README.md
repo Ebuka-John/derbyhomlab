@@ -32,6 +32,9 @@ docker compose up --build
 
 ## Checkpoint
 
+Do **not** continue to the next lesson until this passes.
+
+
 Same HILLBROW lookup works through Compose.
 
 ## Deeper reading

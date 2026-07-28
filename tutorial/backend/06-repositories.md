@@ -22,6 +22,9 @@ Key GeoServer detail: geometry property is **`SP_GEOMETRY`**. Wrong name → emp
 
 ## Checkpoint
 
+Do **not** continue to the next lesson until this passes.
+
+
 ```powershell
 .\.venv\Scripts\Activate.ps1
 python -c "from src.repositories.address_repository import AddressRepository; from src.repositories.gritbin_repository import GritBinRepository, GEOMETRY_FIELD; print(GEOMETRY_FIELD)"

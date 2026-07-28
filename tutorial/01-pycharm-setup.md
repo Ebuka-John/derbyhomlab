@@ -61,6 +61,9 @@ Use PyCharm’s **Terminal** tab in the **lab** window for all checkpoints
 
 ## Checkpoint
 
+Do **not** continue to the next lesson until this passes.
+
+
 In the lab terminal:
 
 ```powershell
