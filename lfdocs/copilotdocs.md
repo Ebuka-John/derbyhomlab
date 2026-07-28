@@ -2,146 +2,121 @@
 
 I'd present pseudocode at service level, integration level, and business flow level. The objective is to show architecture, separation of concerns, maintainability, error handling, and scalability.
 
+Panel pack companions: [`submission-notes.md`](./submission-notes.md) (tools, issues, deploy, test) · [`interview.md`](./interview.md) (brief) · [`interview-coverage.md`](./interview-coverage.md) (checklist).
+
 ## Solution Architecture
 
 ```
-FastAPI Endpoint
+FastAPI Router
        |
        v
-Nearest Asset Service
-       |
-       +------------------+
+AddressService + GritBinService
+       |                  |
+       v                  v
+AddressRepository   GritBinRepository
        |                  |
        v                  v
 Address API         GeoServer WFS
-       |                  |
-       +--------+---------+
-                |
-                v
-      Spatial Distance Logic
-                |
-                v
-         Return Grit Bin Title
+                          |
+                          v
+               geospatial helpers
+               (Euclidean nearest)
+                          |
+                          v
+               Return grit bin title
+               + distance_meters
 ```
+
+Layers:
+
+- **routers** — HTTP only (query params → DTOs)
+- **services** — business rules (no FastAPI imports)
+- **repositories** — upstream HTTP
+- **utils/geospatial** — CRS + planar distance
 
 ## Main Business Flow
 
 ```
-FUNCTION FindNearestGritBin()
+FUNCTION FindNearestGritBin(postcode, address, searchRadius = 100)
 
-    postcode = "DE55 5PB"
-    propertyName = "HILLBROW"
-    searchRadius = 100
+    // Validate UK postcode format (invalid → 400 invalid_postcode)
 
-    addressRecord =
-        AddressService.GetAddress(
+    resolved =
+        AddressService.ResolveAddress(
             postcode,
-            propertyName
+            address
         )
+    // throws address_not_found / target_address_not_found / …
 
-    IF addressRecord IS NULL THEN
-
-        RETURN
-        {
-            success: false,
-            error: "Address not found"
-        }
-
-    END IF
-
-    gritBins =
-        GeoServerService.FindNearbyAssets(
-            layer = "DCC:Gritbins",
-            geometryField = "SP_GEOMETRY",
-            easting = addressRecord.easting,
-            northing = addressRecord.northing,
+    features =
+        GritBinService.CandidateFeatures(
+            origin = resolved.point,   // EPSG:27700
             radius = searchRadius
         )
-
-    IF gritBins IS EMPTY THEN
-
-        RETURN
-        {
-            success: false,
-            error: "No grit bins found within 100 metres"
-        }
-
-    END IF
+    // 1) WFS DWITHIN on SP_GEOMETRY
+    // 2) if DWITHIN fails or is empty → fetch full layer (fallback)
 
     nearestBin =
-        SpatialService.FindNearest(
-            addressRecord,
-            gritBins
+        Geospatial.FindNearest(
+            origin = resolved.point,
+            features,
+            radius = searchRadius
         )
+    // throws no_grit_bin_nearby if none within radius
 
     RETURN
     {
-        success: true,
-        title: nearestBin.Title,
-        distance: nearestBin.Distance
+        address: address,
+        postcode: resolved.postcode,
+        nearest_grit_bin_title: nearestBin.title,
+        distance_meters: nearestBin.distance_meters
     }
 
 END FUNCTION
 ```
 
+Interview example (any pair works): `postcode=DE55 5PB`, `address=HILLBROW`.
+
 ## Address Service
 
 ### Responsibility
 
-- Query Address API
-- Find HILLBROW record
-- Extract Easting/Northing
+- Query Address API by postcode
+- Match address hint (case-insensitive substring)
+- Extract Easting/Northing (BNG), or convert lat/lon → EPSG:27700
 
 ```
-FUNCTION GetAddress(
-    postcode,
-    propertyName
-)
+FUNCTION ResolveAddress(postcode, address)
+
+    cleaned = RequireValidUkPostcode(postcode)
 
     url =
-    ADDRESS_API +
-    UrlEncode(postcode)
+        ADDRESS_API + "/" + UrlEncode(cleaned)
 
     response =
-    HttpGet(
-        url,
-        requiredHeaders
-    )
+        HttpGet(url, requiredHeaders)   // x-alias, x-auth-token, Accept: json
 
-    IF response.status != 200 THEN
+    // Map XML/JSON ResponseError → invalid_postcode / address_not_found
+    // Empty list → address_not_found
 
-        THROW
-        AddressApiException
+    records = ParseAddressList(response)
 
-    END IF
-
-    addresses =
-    ParseJson(response)
-
-    FOR EACH address IN addresses
-
-        IF
-        ToUpper(address.description)
-        CONTAINS
-        ToUpper(propertyName)
-
-            RETURN
-            {
-                easting : address.Easting,
-                northing : address.Northing,
-                description : address.description
-            }
-
+    FOR EACH record IN records
+        IF ToUpper(MatchableText(record)) CONTAINS ToUpper(address)
+            RETURN ResolvedAddress(
+                title,
+                postcode = cleaned,
+                point = Point27700(easting, northing)
+            )
         END IF
-
     END FOR
 
-    RETURN NULL
+    THROW target_address_not_found
 
 END FUNCTION
 ```
 
-## GeoServer Service
+## Grit Bin / GeoServer
 
 ### Why WFS?
 
@@ -152,32 +127,18 @@ Not WMS.
 
 We need actual geometry and attributes.
 
-### GeoServer Query
+### GeoServer Query (as implemented)
 
 ```
-FUNCTION FindNearbyAssets(
-    layer,
-    geometryField,
-    easting,
-    northing,
-    radius
-)
-
-    build WFS query
-
-    GeoServerUrl =
-    "/geoserver/wfs"
+FUNCTION QueryDWithin(origin, radius)
 
     parameters =
-
         service = WFS
-        version = 2.0.0
+        version = 1.0.0
         request = GetFeature
-        typeNames = DCC:Gritbins
+        typeName = DCC:Gritbins
         outputFormat = application/json
-
-        cql_filter =
-
+        CQL_FILTER =
             DWITHIN(
                 SP_GEOMETRY,
                 POINT(easting northing),
@@ -185,71 +146,58 @@ FUNCTION FindNearbyAssets(
                 meters
             )
 
-    response =
-        HttpGet(
-            GeoServerUrl,
-            parameters
-        )
-
-    IF response.status != 200 THEN
-
-        THROW GeoServerException
-
-    END IF
-
-    RETURN ParseGeoJson(response)
+    RETURN ParseGeoJson(HttpGet(GEOSERVER/DCC/ows, parameters))
 
 END FUNCTION
 ```
 
-## Spatial Service
-
-Although GeoServer can perform some proximity filtering, I would still calculate distances in the service to guarantee correctness.
+### Candidate features + fallback
 
 ```
-FUNCTION FindNearest(
-    address,
-    gritBins
-)
+FUNCTION CandidateFeatures(origin, radius)
 
-    shortestDistance =
-        INFINITY
+    TRY
+        features = QueryDWithin(origin, radius)
+    CATCH GeoServer failure
+        features = FetchAll()          // full GetFeature
+    END TRY
 
-    nearestBin =
-        NULL
+    IF features IS EMPTY
+        features = FetchAll()          // empty DWITHIN can be a CRS miss
+    END IF
 
-    FOR EACH gritBin IN gritBins
+    RETURN features
 
-        binX =
-            gritBin.SP_GEOMETRY.X
+END FUNCTION
+```
 
-        binY =
-            gritBin.SP_GEOMETRY.Y
+## Spatial helpers
 
-        distance =
-            CalculateDistance(
-                address.easting,
-                address.northing,
-                binX,
-                binY
-            )
+Although GeoServer can perform proximity filtering, distances are still calculated in-process to guarantee correctness and ranking.
 
-        IF distance < shortestDistance
+```
+FUNCTION FindNearest(origin, features, radius)
 
-            shortestDistance =
-                distance
+    shortestDistance = INFINITY
+    nearestBin = NULL
 
-            nearestBin =
-                gritBin
-
+    FOR EACH feature IN features
+        point = FeaturePoint(feature)      // GeoJSON coords → BNG
+        distance = CalculateDistance(
+            origin.easting, origin.northing,
+            point.easting, point.northing
+        )
+        IF distance <= radius AND distance < shortestDistance
+            shortestDistance = distance
+            nearestBin = feature
         END IF
-
     END FOR
 
-    nearestBin.Distance =
-        shortestDistance
+    IF nearestBin IS NULL
+        THROW no_grit_bin_nearby
+    END IF
 
-    RETURN nearestBin
+    RETURN { title, distance_meters: shortestDistance }
 
 END FUNCTION
 ```
@@ -259,94 +207,79 @@ END FUNCTION
 Because EPSG:27700 uses metres:
 
 ```
-FUNCTION CalculateDistance(
-    x1,
-    y1,
-    x2,
-    y2
-)
+FUNCTION CalculateDistance(x1, y1, x2, y2)
 
     dx = x2 - x1
     dy = y2 - y1
 
-    RETURN
-        SQRT(
-            dx² + dy²
-        )
+    RETURN SQRT(dx² + dy²)
 
 END FUNCTION
 ```
 
-## FastAPI Endpoint Pseudocode
+## FastAPI Endpoints (as implemented)
 
 ```
-GET /api/v1/gritbins/nearest
+GET /nearest-grit-bin?postcode=&address=
+GET /nearest-grit-bins?postcode=&address=&limit=5
+GET /grit-bins
+GET /health
+```
+
+```
+GET /nearest-grit-bin
 
 TRY
-
-    result =
-        FindNearestGritBin()
-
-    RETURN 200
-
-CATCH AddressNotFoundException
-
-    RETURN 404
-
-    {
-        error:
-        "Address not found"
-    }
-
-CATCH NoGritBinsFoundException
-
-    RETURN 404
-
-    {
-        error:
-        "No grit bins found"
-    }
-
-CATCH GeoServerException
-
-    RETURN 503
-
-    {
-        error:
-        "GeoServer unavailable"
-    }
-
-CATCH Exception
-
-    LogError()
-
-    RETURN 500
-
+    result = FindNearestGritBin(postcode, address)
+    RETURN 200 + result
+CATCH missing_parameter | invalid_postcode
+    RETURN 400 { error: { code, message } }
+CATCH address_not_found | target_address_not_found | no_grit_bin_nearby
+    RETURN 404 { error: { code, message } }
+CATCH address_api_unreachable | geoserver_unreachable | unexpected_schema
+    RETURN 502 { error: { code, message } }
 END TRY
 ```
 
+Frontend: Next.js UI proxies `/api/*` → FastAPI (browser never calls Address API or GeoServer).
+
+## Error Handling (as implemented)
+
+Stable body shape:
+
+```json
+{
+  "error": {
+    "code": "target_address_not_found",
+    "message": "Address 'HILLBROW' was not found within postcode 'DE55 5PB'."
+  }
+}
+```
+
+| HTTP | code |
+|------|------|
+| 400 | `missing_parameter`, `invalid_postcode` |
+| 404 | `address_not_found`, `target_address_not_found`, `no_grit_bin_nearby` |
+| 502 | `address_api_unreachable`, `geoserver_unreachable`, `unexpected_schema` |
+
 ## Production Version (Reusable Design)
 
-Instead of:
+Built today:
 
 ```
-FindNearestGritBin()
+FindNearestGritBin / FindNearestGritBins(limit)
+GET /nearest-grit-bin
+GET /nearest-grit-bins?limit=5
 ```
 
-I'd create:
+Future generalisation:
 
 ```
-FindNearestAsset()
+FindNearestAsset(assetType)
+GET /assets/nearest?postcode=&address=&assetType=gritbin
 ```
 
-```
-GET /api/v1/assets/nearest
-?postcode=DE55 5PB
-&property=HILLBROW
-&assetType=gritbin
-```
-
-### Asset mappings:
+### Asset mappings (future):
 
 - gritbin -> DCC:Gritbins
 - school -> DCC:Schools
@@ -359,53 +292,6 @@ GET /api/v1/assets/nearest
 - recycling -> DCC:RecyclingCentres
 - shelter -> DCC:EmergencyShelters
 - firstaid -> DCC:FirstAidStations
-
-## Error Handling
-
-### Address API Failure
-
-```json
-{
-  "success": false,
-  "error": "Address lookup service unavailable"
-}
-```
-
-### HILLBROW Not Found
-
-```json
-{
-  "success": false,
-  "error": "Property HILLBROW not found in postcode DE55 5PB"
-}
-```
-
-### Missing Coordinates
-
-```json
-{
-  "success": false,
-  "error": "Address record contains no coordinates"
-}
-```
-
-### No Nearby Grit Bin
-
-```json
-{
-  "success": false,
-  "error": "No grit bin found within 100 metres"
-}
-```
-
-### GeoServer Failure
-
-```json
-{
-  "success": false,
-  "error": "Unable to query GeoServer"
-}
-```
 
 ## Investigation Notes (What I'd Present)
 
@@ -440,7 +326,7 @@ Rejected because exercise explicitly mentions CORS restrictions.
 
 #### Download Entire Layer
 
-Rejected because:
+Rejected as the **primary** path because:
 
 - Poor performance
 - Unnecessary network traffic
@@ -448,7 +334,11 @@ Rejected because:
 
 Instead:
 
-- Spatial query against GeoServer
+- Spatial query against GeoServer (`DWITHIN`)
+
+Fallback only:
+
+- If DWITHIN fails or returns empty, fetch the layer and rank by Euclidean distance within the radius.
 
 ### Verification:
 
@@ -462,9 +352,14 @@ Instead:
 
 ### Nearest 5 Grit Bins
 
-### Follow-Up Discussion Answers
+```
+GET /nearest-grit-bins?postcode=&address=&limit=5
+```
 
-### Nearest 5 Grit Bins
+- Same address resolve as nearest-one
+- Load candidates (full layer for unbounded nearest-N, or DWITHIN when a radius is set)
+- Sort by Euclidean distance ascending, take `limit`
+- Return `{ nearest_grit_bins: [{ title, distance_meters }, ...] }`
 
 ### Batch Processing
 
