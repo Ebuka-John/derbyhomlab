@@ -106,7 +106,7 @@ Broken into parts: **routers** (HTTP) → **services** (rules) → **repositorie
 
 - **Browser-direct calls to Address API / GeoServer** — brief forbids this (CORS); credentials would also leak.
 - **WMS** — returns map images, not feature geometry/attributes needed for Title + distance.
-- **Download the entire grit-bin layer as the primary path** — poor performance and scalability; prefer `DWITHIN`. Full fetch is only a **fallback** if DWITHIN fails or returns empty.
+- **Download the entire grit-bin layer as the primary path** — poor performance and scalability; prefer `DWITHIN`. For this exercise a full-layer fallback exists only to survive/validate DWITHIN gaps — not as a production strategy (see issue 5 and “improve with more time”).
 - **Hard-coding HILLBROW / DE55 5PB in business logic** — interview pair is a fixture; the service accepts any postcode + address hint.
 - **Matching only on a `Title` field** — live Address API uses `BuildingName` and related parts.
 
@@ -152,7 +152,12 @@ Broken into parts: **routers** (HTTP) → **services** (rules) → **repositorie
 
 - **Issue:** Spatial filter can return empty (e.g. CRS/filter quirks) even when bins exist nearby.
 - **Investigation:** Compared DWITHIN vs unfiltered GetFeature + local distance for the same origin.
-- **Fix:** Fallback to full-layer fetch, then Euclidean nearest within radius.
+- **Fix (exercise):** For this exercise, a full-layer fallback was used to validate DWITHIN results and still return a correct nearest bin within the radius.
+- **Production preference:** I would not rely on downloading the whole layer if `DCC:Gritbins` grew large (e.g. hundreds of thousands of records). Prefer:
+  - expanding-radius queries
+  - nearest-neighbour GeoServer queries
+  - spatial indexing
+  - PostGIS-backed nearest searches
 
 ### 6. CORS / browser-direct calls
 
@@ -176,11 +181,18 @@ Broken into parts: **routers** (HTTP) → **services** (rules) → **repositorie
 
 - Recorded HTTP fixtures (VCR) for Address/WFS schema drift in CI
 - Stronger observability: correlation IDs, structured logs, metrics on upstream latency/errors
+- API versioning for a stable public contract (e.g. `/api/v1/nearest-grit-bin` rather than unversioned `/nearest-grit-bin`)
 - Optional radius query param on nearest-N (UI + API) instead of unbounded full-layer when ranking N
 - Generalise to `assetType` → layer mapping (schools, libraries, …) behind one endpoint
 - Batch job: CSV/queue/worker with retries, dead-letter, and a results file
 - AuthN/Z if exposing beyond an internal network
 - Richer frontend: map pin for address vs grit bin, clearer empty/error states
+
+### Spatial scalability
+
+For this exercise GeoServer WFS queries are performed directly.
+
+For high-volume production workloads I would consider loading GIS assets into a spatially indexed datastore such as PostGIS and performing nearest-neighbour searches using database spatial indexes rather than retrieving larger GeoServer result sets.
 
 ---
 
@@ -196,7 +208,8 @@ Broken into parts: **routers** (HTTP) → **services** (rules) → **repositorie
 
 **Reuse / follow-up discussion**
 
-- **Other Solutions:** REST + OpenAPI (`/docs`); browser apps use a server-side proxy (this Next.js BFF pattern or their own).
+- **Other Solutions:** The API contract is self-documenting through FastAPI’s OpenAPI specification and Swagger UI (`/docs`). This allows other internal solutions to consume the service without requiring separate API documentation. Browser apps still use a server-side proxy (this Next.js BFF pattern or their own).
+- **Versioned public API (design):** expose stable routes under `/api/v1/...` (e.g. `/api/v1/nearest-grit-bin`) when packaging for other teams.
 - **Nearest five grit bins (built):** `GET /nearest-grit-bins?postcode=&address=&limit=5` (UI checkbox for custom limit).
 - **Other asset types (design):** same pipeline with `assetType` → layer map (e.g. gritbin → `DCC:Gritbins`, school → `DCC:Schools`, …).
 - **Large batch (design):**
@@ -206,6 +219,20 @@ CSV → Queue → Worker → Address Lookup → GeoServer query → Results file
 ```
 
   (retries, dead-letter, rate limits with more time)
+
+---
+
+## Resilience (upstream Address API / GeoServer)
+
+Implemented today:
+
+- HTTP timeout on upstream calls (`HTTP_TIMEOUT_SECONDS` / shared `httpx` client)
+
+Production intent (more time):
+
+- Retry transient failures (timeouts, 502/503)
+- Circuit breaker for repeated upstream failures
+- Clear typed errors when Address API or GeoServer is unavailable (`address_api_unreachable`, `geoserver_unreachable`)
 
 ---
 
