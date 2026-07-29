@@ -13,7 +13,7 @@ WFS URL: `{GEOSERVER_BASE_URL}/DCC/ows`
 30-Second Summary
 Search Address Lookup API using postcode DE55 5PB.
 Find the address record for HILLBROW.
-Extract Easting/Northing coordinates.
+Extract Easting/Northing (already EPSG:27700 — not a CRS convert).
 Query GeoServer WFS using DWITHIN on SP_GEOMETRY.
 Find grit bins within 100 metres.
 Calculate distance and return the nearest grit bin.
@@ -131,7 +131,8 @@ No FullAddress — join BuildingName / OrganisationName / street /
 locality / town / PostCode.
 Hillbrow → HILLBROW, ALFRETON ROAD, TIBSHELF, ALFRETON, DE55 5PB
 Hint HILLBROW matches BuildingName (case-insensitive).
-Coords: SpatialFeature.Eastings / Northings.
+Coords: SpatialFeature.Eastings / Northings (already EPSG:27700).
+Also present: Longitude / Latitude (EPSG:4326) — prefer BNG; convert only if BNG missing.
 ---
 Postman (upstream vs downstream)
 Upstream: Derbyshire Address API (raw JSON for DE55 5PB).
@@ -141,7 +142,7 @@ Compare BuildingName:HILLBROW row with our cleaned API / GB0199 result.
 Assumptions
 Address API returns valid address data.
 HILLBROW exists in DE55 5PB results.
-Coordinates are available or convertible to EPSG:27700.
+Eastings/Northings under SpatialFeature are already EPSG:27700 (lon/lat fallback only).
 Grit bins expose a Title attribute.
 Default search radius is 100 metres.
 WFS lives at workspace OWS path /DCC/ows on the Derbyshire host.
@@ -178,6 +179,10 @@ From GeoServer workspace URL conventions + live probing of
 https://wms.derbyshire.gov.uk/geoserver — layer DCC:Gritbins implies workspace DCC.
 What is EPSG:27700?
 British National Grid coordinate system used by the layer.
+Why “convert” Eastings if Lon/Lat are also returned?
+Eastings/Northings already are EPSG:27700 — we extract/wrap them as a BNG point.
+Lon/Lat are EPSG:4326 degrees; wrong units for metre DWITHIN / Euclidean.
+ensure_bng prefers Eastings/Northings; pyproj lon/lat→BNG only if BNG missing.
 Why use DWITHIN?
 To allow GeoServer to perform spatial filtering.
 What is SP_GEOMETRY?
@@ -197,10 +202,10 @@ Issues Encountered
 Address API Has No Single Title Field
 Found:
 BuildingName
-SpatialFeature.Eastings
-SpatialFeature.Northings
+SpatialFeature.Eastings / Northings (EPSG:27700 — use these)
+SpatialFeature.Longitude / Latitude (EPSG:4326 — present but not preferred)
 Solution:
-Match across address components.
+Match across address components; wrap Eastings/Northings as Point27700 (no CRS convert).
 Invalid Postcodes Return HTTP 200 + XML
 Solution:
 Validate postcode first.

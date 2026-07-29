@@ -120,7 +120,8 @@ Interview example (any pair works): `postcode=DE55 5PB`, `address=HILLBROW`.
 
 - Query Address API by postcode
 - Match address hint (case-insensitive substring)
-- Extract Easting/Northing (BNG), or convert lat/lon → EPSG:27700
+- Extract Easting/Northing — already EPSG:27700 (BNG metres); wrap as `Point27700`
+- Lon/Lat on the same `SpatialFeature` are EPSG:4326 — convert to BNG only if Eastings/Northings are missing (`ensure_bng`)
 
 ### Keys and how `BuildingName` becomes an address
 
@@ -140,7 +141,8 @@ Live JSON has **no** single `FullAddress` / `Title`. Parts are NLPG-style. Examp
 | `DependentLocality` | `TIBSHELF` |
 | `PostTown` | `ALFRETON` |
 | `PostCode` | `DE55 5PB` |
-| `SpatialFeature.Eastings` / `Northings` | ~443563 / ~360212 |
+| `SpatialFeature.Eastings` / `Northings` | ~443563 / ~360212 (EPSG:27700 — use these) |
+| `SpatialFeature.Longitude` / `Latitude` | also present (EPSG:4326) — fallback only |
 
 Composed title (join non-empty parts + postcode):
 
@@ -408,8 +410,8 @@ The solution requires geometry and attributes, therefore WFS is the appropriate 
 
 ### Assumptions
 
-- Address API returns Easting/Northing.
-- Coordinates are EPSG:27700.
+- Address API returns Easting/Northing under `SpatialFeature` (already EPSG:27700).
+- Lon/Lat may also be present (EPSG:4326); prefer BNG fields — no reproject when Eastings/Northings exist.
 - SP_GEOMETRY contains point geometry.
 - Grit bins contain a Title attribute.
 - HILLBROW is returned within postcode results.

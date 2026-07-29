@@ -8,7 +8,7 @@ Brief: [`interview.md`](./interview.md). Coverage checklist: [`interview-coverag
 
 ## Approach (one paragraph)
 
-Resolve any UK postcode + address hint via Derbyshire’s Address Lookup API, normalise to EPSG:27700, query GeoServer WFS with `DWITHIN` on `SP_GEOMETRY` (100 m default), then rank by planar Euclidean distance in-process. FastAPI owns integrations; Next.js proxies browser calls so upstream APIs and tokens never leave the server (CORS). Interview pair `HILLBROW` / `DE55 5PB` returns grit bin **GB0199** at ~49 m.
+Resolve any UK postcode + address hint via Derbyshire’s Address Lookup API; take `SpatialFeature.Eastings` / `Northings` (already EPSG:27700 — lon/lat → BNG only if missing), query GeoServer WFS with `DWITHIN` on `SP_GEOMETRY` (100 m default), then rank by planar Euclidean distance in-process. FastAPI owns integrations; Next.js proxies browser calls so upstream APIs and tokens never leave the server (CORS). Interview pair `HILLBROW` / `DE55 5PB` returns grit bin **GB0199** at ~49 m.
 
 Broken into parts: **routers** (HTTP) → **services** (rules) → **repositories** (Address API / GeoServer) → **geospatial helpers** (CRS + distance). Typed errors map to stable `{ error: { code, message } }` JSON (400 / 404 / 502).
 
@@ -52,7 +52,7 @@ Composed display / match text (as built in `address_service._compose_title`):
 
 `HILLBROW, ALFRETON ROAD, TIBSHELF, ALFRETON, DE55 5PB`
 
-Hint `HILLBROW` matches because it appears in `BuildingName` (and the composed string), case-insensitive. Some rows use `OrganisationName` instead (e.g. Town End Junior School) with the same street/locality/town/postcode assembly. Coordinates for distance work sit under `SpatialFeature.Eastings` / `Northings` (EPSG:27700).
+Hint `HILLBROW` matches because it appears in `BuildingName` (and the composed string), case-insensitive. Some rows use `OrganisationName` instead (e.g. Town End Junior School) with the same street/locality/town/postcode assembly. Coordinates for distance work sit under `SpatialFeature.Eastings` / `Northings` — those **are** EPSG:27700 (metres). The same object also has `Longitude` / `Latitude` (EPSG:4326 degrees); we prefer Eastings/Northings and do **not** reproject them. Lon/lat → BNG via `pyproj` is only a fallback if BNG fields are absent.
 
 ---
 
@@ -187,7 +187,7 @@ var — it is the workspace OWS path discovered above and hard-coded next to the
 
 - Address API is keyed by **postcode in the URL path** and returns one or more address records (no address-string query on upstream).
 - `HILLBROW` appears in the returned set for `DE55 5PB` as `BuildingName`; the postal line is composed from NLPG parts (see section above).
-- Coordinates are (or can be converted to) EPSG:27700 easting/northing under `SpatialFeature`.
+- `SpatialFeature.Eastings` / `Northings` are already EPSG:27700; wrap them as `Point27700`. Lon/lat on the same object are EPSG:4326 and used only as a conversion fallback.
 - Grit-bin layer is `DCC:Gritbins`; geometry field is `SP_GEOMETRY` (not `the_geom`).
 - Grit bins expose a usable `Title` attribute.
 - “Approximately 100 metres” is enforced as a configurable radius (default 100).
