@@ -8,6 +8,7 @@ import httpx
 
 from src.core.settings import Settings
 from src.models.domain.address import ResolvedAddress
+from src.models.dto.address import AddressLookupItem
 from src.repositories.address_repository import AddressRepository
 from src.utils.exceptions import TargetAddressNotFoundError, UnexpectedSchemaError
 from src.utils.geospatial import ensure_bng
@@ -161,6 +162,44 @@ def find_matching_address(
     raise TargetAddressNotFoundError(address, postcode)
 
 
+def _optional_str(record: dict[str, Any], *keys: str) -> str | None:
+    value = _first_present(record, keys)
+    if value is None:
+        return None
+    text = str(value).strip()
+    return text or None
+
+
+def summarise_address_record(record: dict[str, Any]) -> AddressLookupItem | None:
+    """Map a raw Address API row to a stable DTO (skip empty stubs)."""
+    title = _compose_title(record)
+    if title is None:
+        return None
+
+    easting: float | None = None
+    northing: float | None = None
+    try:
+        point = _extract_point(record)
+        easting = point.easting
+        northing = point.northing
+    except UnexpectedSchemaError:
+        pass
+
+    return AddressLookupItem(
+        title=title,
+        postcode=_optional_str(record, "PostCode", "Postcode", "postcode"),
+        uprn=_optional_str(record, "UPRN", "uprn"),
+        building_name=_optional_str(record, "BuildingName", "buildingName"),
+        building_number=_optional_str(record, "BuildingNumber", "buildingNumber"),
+        thoroughfare=_optional_str(
+            record, "ThoroughFareName", "ThoroughfareName", "thoroughfare"
+        ),
+        post_town=_optional_str(record, "PostTown", "postTown"),
+        easting=easting,
+        northing=northing,
+    )
+
+
 class AddressService:
     """Resolves a postcode + address hint to a BNG point."""
 
@@ -202,6 +241,29 @@ class AddressService:
     async def lookup_postcode(self, postcode: str) -> list[dict[str, Any]]:
         cleaned = require_valid_uk_postcode(postcode)
         return await self._repo().fetch_by_postcode(cleaned)
+
+    async def list_addresses(
+        self,
+        *,
+        postcode: str,
+        address: str | None = None,
+    ) -> list[AddressLookupItem]:
+        """Fetch Address Lookup rows for a postcode; optional substring filter."""
+        cleaned = require_valid_uk_postcode(postcode)
+        records = await self._repo().fetch_by_postcode(cleaned)
+
+        needle = address.strip().upper() if address and address.strip() else None
+        items: list[AddressLookupItem] = []
+        for record in records:
+            if needle is not None and needle not in _matchable_text(record):
+                continue
+            item = summarise_address_record(record)
+            if item is not None:
+                items.append(item)
+
+        if needle is not None and not items:
+            raise TargetAddressNotFoundError(address or "", cleaned)
+        return items
 
     async def resolve_address(self, *, postcode: str, address: str) -> ResolvedAddress:
         """Fetch postcode records, match hint, return BNG point."""

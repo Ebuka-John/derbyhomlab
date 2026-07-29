@@ -24,6 +24,7 @@ All endpoints live under `/api/v1`.
 
 | Method | Path | Purpose |
 |--------|------|---------|
+| `GET` | `/api/v1/addresses?postcode=&address=` | Address Lookup rows (easting/northing, …) |
 | `GET` | `/api/v1/nearest-grit-bin?postcode=&address=` | Nearest grit bin within radius |
 | `GET` | `/api/v1/nearest-grit-bins?postcode=&address=&limit=5` | Nearest N grit bins |
 | `GET` | `/api/v1/grit-bins` | Full WFS grit-bin layer |

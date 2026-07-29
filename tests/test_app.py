@@ -187,3 +187,95 @@ def test_list_grit_bins(client, settings) -> None:
 
 def test_health(client) -> None:
     assert client.get("/api/v1/health").json() == {"status": "ok"}
+
+
+@respx.mock
+def test_list_addresses_happy_path(client, settings) -> None:
+    client.app.state.settings = settings
+
+    respx.get(
+        "https://example.com/DerbyshireApplicationsWebService/api/Address/AB12%203CD"
+    ).mock(
+        return_value=httpx.Response(
+            200,
+            json=[
+                {
+                    "UPRN": "200004519931",
+                    "Title": "Example Building, ALFRETON, AB12 3CD",
+                    "BuildingName": "Example Building",
+                    "BuildingNumber": None,
+                    "ThoroughFareName": "High Street",
+                    "PostTown": "ALFRETON",
+                    "PostCode": "AB12 3CD",
+                    "SpatialFeature": {
+                        "Eastings": 443609,
+                        "Northings": 351791,
+                    },
+                },
+                {
+                    "UPRN": "2",
+                    "Title": "Other Place, ALFRETON, AB12 3CD",
+                    "BuildingName": "Other Place",
+                    "ThoroughFareName": "Low Street",
+                    "PostTown": "ALFRETON",
+                    "PostCode": "AB12 3CD",
+                    "SpatialFeature": {
+                        "Eastings": 443700,
+                        "Northings": 351800,
+                    },
+                },
+            ],
+        )
+    )
+
+    response = client.get("/api/v1/addresses", params={"postcode": "AB12 3CD"})
+    assert response.status_code == 200
+    body = response.json()
+    assert body["count"] == 2
+    assert body["addresses"][0]["title"] == "Example Building, ALFRETON, AB12 3CD"
+    assert body["addresses"][0]["easting"] == 443609.0
+    assert body["addresses"][0]["northing"] == 351791.0
+    assert body["addresses"][0]["uprn"] == "200004519931"
+    assert body["addresses"][0]["thoroughfare"] == "High Street"
+
+
+@respx.mock
+def test_list_addresses_optional_filter(client, settings) -> None:
+    client.app.state.settings = settings
+
+    respx.get(
+        "https://example.com/DerbyshireApplicationsWebService/api/Address/AB12%203CD"
+    ).mock(
+        return_value=httpx.Response(
+            200,
+            json=[
+                {
+                    "Title": "Example Building, ALFRETON, AB12 3CD",
+                    "BuildingName": "Example Building",
+                    "PostCode": "AB12 3CD",
+                    "SpatialFeature": {"Eastings": 443609, "Northings": 351791},
+                },
+                {
+                    "Title": "Other Place, ALFRETON, AB12 3CD",
+                    "BuildingName": "Other Place",
+                    "PostCode": "AB12 3CD",
+                    "SpatialFeature": {"Eastings": 443700, "Northings": 351800},
+                },
+            ],
+        )
+    )
+
+    response = client.get(
+        "/api/v1/addresses",
+        params={"postcode": "AB12 3CD", "address": "Example Building"},
+    )
+    assert response.status_code == 200
+    body = response.json()
+    assert body["count"] == 1
+    assert body["addresses"][0]["building_name"] == "Example Building"
+
+
+def test_list_addresses_missing_postcode(client) -> None:
+    response = client.get("/api/v1/addresses")
+    assert response.status_code == 400
+    assert response.json()["error"]["code"] == "missing_parameter"
