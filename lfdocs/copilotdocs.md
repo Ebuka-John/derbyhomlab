@@ -122,6 +122,34 @@ Interview example (any pair works): `postcode=DE55 5PB`, `address=HILLBROW`.
 - Match address hint (case-insensitive substring)
 - Extract Easting/Northing (BNG), or convert lat/lon → EPSG:27700
 
+### Keys and how `BuildingName` becomes an address
+
+| Key | Role |
+|-----|------|
+| **Postcode (URL path)** | Only lookup key on Derbyshire Address API — `…/api/Address/DE55%205PB` returns all delivery points for that postcode |
+| **`UPRN`** | Stable unique property id (Hillbrow = `200004519931`) |
+| **Address hint (our query)** | Client-side filter, e.g. `address=HILLBROW` — not an upstream query param |
+
+Live JSON has **no** single `FullAddress` / `Title`. Parts are NLPG-style. Example Hillbrow row:
+
+| Field | Value |
+|-------|-------|
+| `BuildingName` | `HILLBROW` |
+| `BuildingNumber` | *(empty)* |
+| `ThoroughFareName` | `ALFRETON ROAD` |
+| `DependentLocality` | `TIBSHELF` |
+| `PostTown` | `ALFRETON` |
+| `PostCode` | `DE55 5PB` |
+| `SpatialFeature.Eastings` / `Northings` | ~443563 / ~360212 |
+
+Composed title (join non-empty parts + postcode):
+
+`HILLBROW, ALFRETON ROAD, TIBSHELF, ALFRETON, DE55 5PB`
+
+Matching: substring over composed parts (`BuildingName`, `OrganisationName`, street, locality, …). Schools may lead with `OrganisationName` instead of `BuildingName`.
+
+**Postman:** explored **upstream** (`Derbyshire Upstream` → raw Address API) and **downstream** (Health, Address Lookup, Nearest Grit Bin single/N on `/api/v1/...`) to confirm field shapes and the HILLBROW → GB0199 path. Narrative: [`submission-notes.md`](./submission-notes.md) § Postman exploration.
+
 ```
 FUNCTION ResolveAddress(postcode, address)
 
@@ -365,9 +393,9 @@ GET /assets/nearest?postcode=&address=&assetType=gritbin
 
 ### What I tried first
 
-- Investigated Address Lookup API.
-- Determined postcode is the lookup key.
-- Identified HILLBROW from returned postcode results.
+- Investigated Address Lookup API (Postman upstream request + live JSON).
+- Determined postcode is the lookup key; `BuildingName` (etc.) compose the postal line — no single `Title`.
+- Identified HILLBROW from returned postcode results; confirmed via downstream Address Lookup / nearest-bin in Postman.
 - Investigated GeoServer capabilities.
 - Determined WFS is more suitable than WMS.
 

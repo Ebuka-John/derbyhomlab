@@ -20,9 +20,64 @@ Broken into parts: **routers** (HTTP) → **services** (rules) → **repositorie
 - Read the brief: CORS constraint, Address Lookup for `DE55 5PB`, find `HILLBROW`, nearest grit bin ~100 m, return Title.
 - Called the Address API with the supplied headers; confirmed postcode is the path key and inspected the JSON shape.
 - Identified the `HILLBROW` row (`BuildingName` + `SpatialFeature` coords — not a single `Title` field).
+- Explored live responses in **Postman** (upstream Derbyshire Address API + downstream FastAPI) — see “Postman exploration” below.
 - Probed Derbyshire GeoServer (public host); confirmed **WFS** GetFeature on `DCC:Gritbins` (hostname says `wms.` but WMS is images only).
 - **Discovered WFS entry `{base}/DCC/ows`** — not stated in the brief (see “How `/DCC/ows` was found” below).
 - Tried `DWITHIN` on `SP_GEOMETRY`, then ranked by Euclidean metres; verified Title **GB0199** ~49 m from HILLBROW.
+
+---
+
+## How the Address API maps to an address (BuildingName → postal line)
+
+**Lookup key on the URL:** postcode only. Example:
+
+`GET …/api/Address/DE55%205PB`
+
+That returns every delivery point for the postcode. There is no separate “address string” query param — filtering is done client-side (our service matches an address hint such as `HILLBROW`).
+
+**Stable property id:** `UPRN` (Unique Property Reference Number). For Hillbrow: `200004519931`.
+
+**No single `FullAddress` / `Title` field.** UK LLPG/NLPG-style records split the postal line into parts. Non-empty fields are joined for display and matching:
+
+| Field | Hillbrow example | Role |
+|-------|------------------|------|
+| `BuildingName` | `HILLBROW` | Named property (often no house number) |
+| `BuildingNumber` | `""` | Empty for many named houses |
+| `ThoroughFareName` | `ALFRETON ROAD` | Street |
+| `DependentLocality` | `TIBSHELF` | Locality |
+| `PostTown` | `ALFRETON` | Town |
+| `PostCode` | `DE55 5PB` | Postcode |
+
+Composed display / match text (as built in `address_service._compose_title`):
+
+`HILLBROW, ALFRETON ROAD, TIBSHELF, ALFRETON, DE55 5PB`
+
+Hint `HILLBROW` matches because it appears in `BuildingName` (and the composed string), case-insensitive. Some rows use `OrganisationName` instead (e.g. Town End Junior School) with the same street/locality/town/postcode assembly. Coordinates for distance work sit under `SpatialFeature.Eastings` / `Northings` (EPSG:27700).
+
+---
+
+## Postman exploration (upstream vs downstream)
+
+Used a Postman collection under **gritbin** to inspect live JSON while building and verifying the integration.
+
+**Upstream (Derbyshire — outside our app)**
+
+| Request | Purpose |
+|---------|---------|
+| **Derbyshire Upstream** | `GET …/DerbyshireApplicationsWebService/api/Address/DE55%205PB` — raw Address Lookup list; confirm postcode path key, `BuildingName` / `UPRN` / `SpatialFeature`, nested Councillor noise |
+
+Also probed GeoServer WFS GetFeature / GetCapabilities (browser or HTTP client) for layer, `SP_GEOMETRY`, and `/DCC/ows`.
+
+**Downstream (our FastAPI — what callers / the UI use)**
+
+| Request | Purpose |
+|---------|---------|
+| **Health Check** | `GET /api/v1/health` — stack up |
+| **Address Lookup** | `GET /api/v1/addresses?postcode=DE55%205PB` — cleaned titles / UPRN / BNG after our mapping |
+| **Nearest Grit Bin (single)** | `GET /api/v1/nearest-grit-bin?postcode=…&address=HILLBROW` — expect Title **GB0199** |
+| **Nearest Grit Bin (N)** | `GET /api/v1/nearest-grit-bins?postcode=…&address=…&limit=5` — ranked list |
+
+Workflow: compare upstream row for `BuildingName: HILLBROW` with downstream address list and nearest-bin payload so schema quirks stay behind the repository/service boundary and the public contract stays stable.
 
 ---
 
@@ -30,6 +85,7 @@ Broken into parts: **routers** (HTTP) → **services** (rules) → **repositorie
 
 - **PyCharm** — primary IDE for Python/FastAPI, debugging, and running tests
 - **Copilot** — research aid (WFS vs WMS, CQL/`DWITHIN`, CRS concepts, pseudocode structuring); all integration decisions verified against live APIs and docs
+- **Postman** — explore upstream Address API and downstream FastAPI responses side by side (see above)
 - PowerShell / curl / `httpx` — probe Address API and WFS responses
 - FastAPI `/docs` (Swagger) — exercise endpoints interactively
 - pytest + respx — unit/API tests with mocked upstream HTTP
@@ -129,9 +185,9 @@ var — it is the workspace OWS path discovered above and hard-coded next to the
 
 ## Assumptions
 
-- Address API is keyed by postcode and returns one or more address records.
-- `HILLBROW` appears in the returned set for `DE55 5PB` (BuildingName / composed text).
-- Coordinates are (or can be converted to) EPSG:27700 easting/northing.
+- Address API is keyed by **postcode in the URL path** and returns one or more address records (no address-string query on upstream).
+- `HILLBROW` appears in the returned set for `DE55 5PB` as `BuildingName`; the postal line is composed from NLPG parts (see section above).
+- Coordinates are (or can be converted to) EPSG:27700 easting/northing under `SpatialFeature`.
 - Grit-bin layer is `DCC:Gritbins`; geometry field is `SP_GEOMETRY` (not `the_geom`).
 - Grit bins expose a usable `Title` attribute.
 - “Approximately 100 metres” is enforced as a configurable radius (default 100).
@@ -215,6 +271,7 @@ var — it is the workspace OWS path discovered above and hard-coded next to the
 
 ## How the result was verified
 
+- In Postman: upstream Address API for `DE55 5PB` shows `BuildingName: HILLBROW` with BNG under `SpatialFeature`; downstream `nearest-grit-bin` returns Title **GB0199**.
 - Resolved `HILLBROW` / `DE55 5PB` and recorded BNG coordinates (~443563, ~360212).
 - Ran WFS `DWITHIN` / nearest path; confirmed returned Title **GB0199**.
 - Independently computed Euclidean distance to GB0199 geometry (~49 m) — inside 100 m.

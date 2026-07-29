@@ -19,9 +19,9 @@ Also useful:
 ## How to prepare
 
 1. Read **interview.md** — know what they mark you on (CORS, HILLBROW path, follow-ups).
-2. Practise **submission-notes.md** out loud — approach, tried first, one issue, GB0199, deploy, nearest-5.
+2. Practise **submission-notes.md** out loud — approach, tried first, BuildingName→address, Postman upstream/downstream, one issue, GB0199, deploy, nearest-5.
 3. Skim **G11_Interview_Rivision_Notes.md** the morning of — especially `/DCC/ows` and **Design Patterns**.
-4. Keep **copilotdocs.md** open for probing questions (design patterns, WFS vs WMS, spatial filters, batch/reuse).
+4. Keep **copilotdocs.md** open for probing questions (design patterns, Address API keys, WFS vs WMS, spatial filters, batch/reuse).
 
 ## Panel flow
 

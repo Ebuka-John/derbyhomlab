@@ -110,9 +110,10 @@ GEOSERVER_LAYER only sets typeName=DCC:Gritbins
 ---
 Investigation Process
 Reviewed exercise requirements.
-Called Address Lookup API.
-Confirmed postcode is the lookup key.
-Found HILLBROW record.
+Called Address Lookup API (Postman + HTTP clients).
+Confirmed postcode is the lookup key (URL path only).
+Found HILLBROW record via BuildingName (no single Title field).
+Composed postal line from NLPG parts + SpatialFeature coords.
 Investigated GeoServer (research task from the brief).
 Determined WFS was required (not WMS).
 Discovered WFS path /DCC/ows (brief silent on this path).
@@ -121,7 +122,21 @@ Layer: DCC:Gritbins
 Geometry: SP_GEOMETRY
 Projection: EPSG:27700
 Implemented DWITHIN query.
-Verified returned grit bin independently.
+Verified returned grit bin independently (upstream vs downstream in Postman).
+---
+Address API → postal line (quick)
+Lookup key: postcode in URL (…/Address/DE55%205PB).
+Property id: UPRN.
+No FullAddress — join BuildingName / OrganisationName / street /
+locality / town / PostCode.
+Hillbrow → HILLBROW, ALFRETON ROAD, TIBSHELF, ALFRETON, DE55 5PB
+Hint HILLBROW matches BuildingName (case-insensitive).
+Coords: SpatialFeature.Eastings / Northings.
+---
+Postman (upstream vs downstream)
+Upstream: Derbyshire Address API (raw JSON for DE55 5PB).
+Downstream: Health, /addresses, nearest-grit-bin, nearest-grit-bins.
+Compare BuildingName:HILLBROW row with our cleaned API / GB0199 result.
 ---
 Assumptions
 Address API returns valid address data.
