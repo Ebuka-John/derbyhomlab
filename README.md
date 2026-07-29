@@ -16,21 +16,23 @@ docker compose up --build
 
 - UI: http://127.0.0.1:3000  
 - API docs: http://127.0.0.1:8000/docs  
-- Health: http://127.0.0.1:8000/health  
+- Health: http://127.0.0.1:8000/api/v1/health  
 
 ## API
 
+All endpoints live under `/api/v1`.
+
 | Method | Path | Purpose |
 |--------|------|---------|
-| `GET` | `/nearest-grit-bin?postcode=&address=` | Nearest grit bin within radius |
-| `GET` | `/nearest-grit-bins?postcode=&address=&limit=5` | Nearest N grit bins |
-| `GET` | `/grit-bins` | Full WFS grit-bin layer |
-| `GET` | `/health` | Liveness |
+| `GET` | `/api/v1/nearest-grit-bin?postcode=&address=` | Nearest grit bin within radius |
+| `GET` | `/api/v1/nearest-grit-bins?postcode=&address=&limit=5` | Nearest N grit bins |
+| `GET` | `/api/v1/grit-bins` | Full WFS grit-bin layer |
+| `GET` | `/api/v1/health` | Liveness |
 
 Example:
 
 ```bash
-curl "http://127.0.0.1:8000/nearest-grit-bin?postcode=AB12%203CD&address=Example%20Building"
+curl "http://127.0.0.1:8000/api/v1/nearest-grit-bin?postcode=AB12%203CD&address=Example%20Building"
 ```
 
 ### Errors

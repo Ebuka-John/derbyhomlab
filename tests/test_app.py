@@ -10,19 +10,19 @@ from src.config import get_settings
 
 
 def test_missing_postcode(client) -> None:
-    response = client.get("/nearest-grit-bin", params={"address": "Example Building"})
+    response = client.get("/api/v1/nearest-grit-bin", params={"address": "Example Building"})
     assert response.status_code == 400
     assert response.json()["error"]["code"] == "missing_parameter"
 
 
 def test_missing_address(client) -> None:
-    response = client.get("/nearest-grit-bin", params={"postcode": "AB12 3CD"})
+    response = client.get("/api/v1/nearest-grit-bin", params={"postcode": "AB12 3CD"})
     assert response.status_code == 400
 
 
 def test_invalid_postcode_format(client) -> None:
     response = client.get(
-        "/nearest-grit-bin",
+        "/api/v1/nearest-grit-bin",
         params={"postcode": "DE55 5PB4", "address": "Example Building"},
     )
     assert response.status_code == 400
@@ -69,7 +69,7 @@ def test_nearest_grit_bin_happy_path(client, settings) -> None:
     )
 
     response = client.get(
-        "/nearest-grit-bin",
+        "/api/v1/nearest-grit-bin",
         params={"postcode": "AB12 3CD", "address": "Example Building"},
     )
     assert response.status_code == 200
@@ -137,7 +137,7 @@ def test_nearest_grit_bins_limit(client, settings) -> None:
     )
 
     response = client.get(
-        "/nearest-grit-bins",
+        "/api/v1/nearest-grit-bins",
         params={"postcode": "AB12 3CD", "address": "Example Building", "limit": 2},
     )
     assert response.status_code == 200
@@ -178,7 +178,7 @@ def test_list_grit_bins(client, settings) -> None:
         )
     )
 
-    response = client.get("/grit-bins")
+    response = client.get("/api/v1/grit-bins")
     assert response.status_code == 200
     body = response.json()
     assert body["count"] == 2
@@ -186,4 +186,4 @@ def test_list_grit_bins(client, settings) -> None:
 
 
 def test_health(client) -> None:
-    assert client.get("/health").json() == {"status": "ok"}
+    assert client.get("/api/v1/health").json() == {"status": "ok"}

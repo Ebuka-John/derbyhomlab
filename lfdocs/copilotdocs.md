@@ -288,14 +288,14 @@ END FUNCTION
 ## FastAPI Endpoints (as implemented)
 
 ```
-GET /nearest-grit-bin?postcode=&address=
-GET /nearest-grit-bins?postcode=&address=&limit=5
-GET /grit-bins
-GET /health
+GET /api/v1/nearest-grit-bin?postcode=&address=
+GET /api/v1/nearest-grit-bins?postcode=&address=&limit=5
+GET /api/v1/grit-bins
+GET /api/v1/health
 ```
 
 ```
-GET /nearest-grit-bin
+GET /api/v1/nearest-grit-bin
 
 TRY
     result = FindNearestGritBin(postcode, address)
@@ -336,8 +336,8 @@ Built today:
 
 ```
 FindNearestGritBin / FindNearestGritBins(limit)
-GET /nearest-grit-bin
-GET /nearest-grit-bins?limit=5
+GET /api/v1/nearest-grit-bin
+GET /api/v1/nearest-grit-bins?limit=5
 ```
 
 Future generalisation:
@@ -421,7 +421,7 @@ Fallback only:
 ### Nearest 5 Grit Bins
 
 ```
-GET /nearest-grit-bins?postcode=&address=&limit=5
+GET /api/v1/nearest-grit-bins?postcode=&address=&limit=5
 ```
 
 - Same address resolve as nearest-one

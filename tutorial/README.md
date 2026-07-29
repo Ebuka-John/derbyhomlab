@@ -79,7 +79,7 @@ Also useful on this branch: root [README.md](../README.md).
 
 ## Finished product
 
-- FastAPI on **:8000** — `/nearest-grit-bin`, `/nearest-grit-bins`, `/grit-bins`, `/health`
+- FastAPI on **:8000** — `/api/v1/nearest-grit-bin`, `/api/v1/nearest-grit-bins`, `/api/v1/grit-bins`, `/api/v1/health`
 - Next.js on **:3000** — form → server proxy → FastAPI (browser never hits Derbyshire APIs)
 
 Start → [01-pycharm-setup.md](./01-pycharm-setup.md)

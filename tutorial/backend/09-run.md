@@ -27,13 +27,13 @@ Browser: http://127.0.0.1:8000/docs
 Or:
 
 ```powershell
-curl http://127.0.0.1:8000/health
+curl http://127.0.0.1:8000/api/v1/health
 ```
 
 Live (replace with your fixture when ready):
 
 ```powershell
-curl "http://127.0.0.1:8000/nearest-grit-bin?postcode=DE55%205PB&address=HILLBROW"
+curl "http://127.0.0.1:8000/api/v1/nearest-grit-bin?postcode=DE55%205PB&address=HILLBROW"
 ```
 
 Expect nearest title **GB0199** and distance around **49** metres when credentials and upstream are healthy.
@@ -53,7 +53,7 @@ pytest -q
 Do **not** continue to the next lesson until this passes.
 
 
-`/health` returns `{"status":"ok"}` and `/docs` loads.
+`/api/v1/health` returns `{"status":"ok"}` and `/docs` loads.
 
 Backend done → [Frontend lab](../frontend/README.md)
 

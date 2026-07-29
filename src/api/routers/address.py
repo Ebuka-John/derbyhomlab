@@ -8,7 +8,7 @@ from fastapi import APIRouter
 
 from src.models.dto.address import HealthResponse
 
-router = APIRouter(tags=["system"])
+router = APIRouter(prefix="/api/v1", tags=["system"])
 
 
 @router.get("/health", response_model=HealthResponse)
@@ -24,10 +24,10 @@ async def root() -> dict[str, Any]:
         "service": "nearest-grit-bin",
         "docs": "/docs",
         "endpoints": {
-            "nearest": "/nearest-grit-bin?postcode=AB12%203CD&address=Example%20Building",
+            "nearest": "/api/v1/nearest-grit-bin?postcode=AB12%203CD&address=Example%20Building",
             "nearest_n": (
-                "/nearest-grit-bins?postcode=AB12%203CD&address=Example%20Building&limit=5"
+                "/api/v1/nearest-grit-bins?postcode=AB12%203CD&address=Example%20Building&limit=5"
             ),
-            "all": "/grit-bins",
+            "all": "/api/v1/grit-bins",
         },
     }

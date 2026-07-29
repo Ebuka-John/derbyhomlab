@@ -16,7 +16,7 @@ from src.services.address_service import AddressService
 from src.services.gritbin_service import GritBinService
 from src.utils.exceptions import MissingParameterError
 
-router = APIRouter(tags=["gritbins"])
+router = APIRouter(prefix="/api/v1", tags=["gritbins"])
 
 
 def _require_postcode_address(

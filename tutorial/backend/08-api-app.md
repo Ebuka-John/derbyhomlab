@@ -4,8 +4,8 @@
 
 - **Dependencies** — `Depends(...)` factories that pull `settings` + shared `httpx` client from `app.state` and build services.
 - **Routers** — HTTP only: validate query params, call services, return DTOs.
-  - `address.py` — `/health`, `/`
-  - `gritbins.py` — `/nearest-grit-bin`, `/nearest-grit-bins`, `/grit-bins`
+  - `address.py` — `/api/v1/health`, `/`
+  - `gritbins.py` — `/api/v1/nearest-grit-bin`, `/api/v1/nearest-grit-bins`, `/api/v1/grit-bins`
 - **`app.py`** — lifespan (create/close HTTP client), register exception handler for `AppError`, include routers.
 - **`main.py`** — optional `uvicorn` entrypoint.
 

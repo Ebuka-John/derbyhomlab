@@ -227,7 +227,6 @@ var — it is the workspace OWS path discovered above and hard-coded next to the
 
 - Recorded HTTP fixtures (VCR) for Address/WFS schema drift in CI
 - Stronger observability: correlation IDs, structured logs, metrics on upstream latency/errors
-- API versioning for a stable public contract (e.g. `/api/v1/nearest-grit-bin` rather than unversioned `/nearest-grit-bin`)
 - Optional radius query param on nearest-N (UI + API) instead of unbounded full-layer when ranking N
 - Generalise to `assetType` → layer mapping (schools, libraries, …) behind one endpoint
 - Batch job: CSV/queue/worker with retries, dead-letter, and a results file
@@ -249,14 +248,14 @@ For high-volume production workloads I would consider loading GIS assets into a 
 - `docker compose up --build` → UI http://127.0.0.1:3000 · API http://127.0.0.1:8000/docs
 - Or local: `uvicorn src.app:app` + `npm run dev` in `frontend/` (see `README.md`)
 - Config via `.env` (Address API credentials, GeoServer base URL/layer, radius)
-- Health: `GET /health`
+- Health: `GET /api/v1/health`
 - Demo check: `HILLBROW` + `DE55 5PB` → Title **GB0199**
 
 **Reuse / follow-up discussion**
 
 - **Other Solutions:** The API contract is self-documenting through FastAPI’s OpenAPI specification and Swagger UI (`/docs`). This allows other internal solutions to consume the service without requiring separate API documentation. Browser apps still use a server-side proxy (this Next.js BFF pattern or their own).
-- **Versioned public API (design):** expose stable routes under `/api/v1/...` (e.g. `/api/v1/nearest-grit-bin`) when packaging for other teams.
-- **Nearest five grit bins (built):** `GET /nearest-grit-bins?postcode=&address=&limit=5` (UI checkbox for custom limit).
+- **Versioned public API (built):** all routes live under `/api/v1/...` (e.g. `GET /api/v1/nearest-grit-bin`) for a stable public contract.
+- **Nearest five grit bins (built):** `GET /api/v1/nearest-grit-bins?postcode=&address=&limit=5` (UI checkbox for custom limit).
 - **Other asset types (design):** same pipeline with `assetType` → layer map (e.g. gritbin → `DCC:Gritbins`, school → `DCC:Schools`, …).
 - **Large batch (design):**
 
@@ -292,7 +291,7 @@ Production intent (more time):
 
 **Monitor**
 
-- Health checks (`/health`)
+- Health checks (`/api/v1/health`)
 - Structured logging (upstream failures, fallbacks)
 - Metrics: request rate, latency, error codes (`invalid_postcode`, `no_grit_bin_nearby`, 502s)
 - Alerts on Address API / GeoServer error rate

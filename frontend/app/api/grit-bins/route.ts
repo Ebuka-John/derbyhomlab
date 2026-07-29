@@ -5,7 +5,7 @@ import type { ApiErrorBody, GritBinsSuccess } from "@/lib/types";
 
 /** Server-side proxy to FastAPI (browser never calls upstream APIs). */
 export async function GET() {
-  const url = new URL("/grit-bins", backendBaseUrl());
+  const url = new URL("/api/v1/grit-bins", backendBaseUrl());
 
   try {
     const upstream = await fetch(url, {

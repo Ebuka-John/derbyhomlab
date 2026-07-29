@@ -30,7 +30,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json(body, { status: 400 });
   }
 
-  const url = new URL("/nearest-grit-bins", backendBaseUrl());
+  const url = new URL("/api/v1/nearest-grit-bins", backendBaseUrl());
   url.searchParams.set("postcode", postcode);
   url.searchParams.set("address", address);
   url.searchParams.set("limit", String(limit));
