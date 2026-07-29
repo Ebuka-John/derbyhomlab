@@ -142,11 +142,19 @@ input {
 
 .field--narrow {
   max-width: 10rem;
+  flex: 0 0 10rem;
 }
 
 .form {
   display: grid;
   gap: 1rem;
+}
+
+.form__row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  gap: 1rem 1.25rem;
 }
 
 .field {
@@ -183,6 +191,12 @@ input {
 
 .field--check {
   gap: 0;
+}
+
+.field--check-inline {
+  flex: 1 1 12rem;
+  min-width: 12rem;
+  padding-bottom: 0.85rem;
 }
 
 .check {

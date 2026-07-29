@@ -113,20 +113,21 @@ class GritBinService:
         limit: int = 5,
         radius_meters: float | None = None,
     ) -> list[GritBinMatch]:
-        """Nearest ``limit`` grit bins, sorted by distance ascending."""
+        """Nearest ``limit`` grit bins within radius (default: settings / 100 m)."""
         if limit < 1:
             raise ValueError("limit must be >= 1")
 
-        if radius_meters is not None:
-            features = await self._candidate_features(origin, radius=radius_meters)
-        else:
-            features = await self._repo().fetch_all()
-
+        radius = (
+            radius_meters
+            if radius_meters is not None
+            else self._settings.nearest_search_radius_meters
+        )
+        features = await self._candidate_features(origin, radius=radius)
         return nearest_n_from_features(
             features,
             origin,
             limit=limit,
-            radius_meters=radius_meters,
+            radius_meters=radius,
         )
 
     async def list_all(self) -> list[GritBin]:

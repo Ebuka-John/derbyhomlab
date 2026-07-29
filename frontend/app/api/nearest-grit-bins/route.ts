@@ -9,6 +9,8 @@ export async function GET(request: NextRequest) {
   const address = request.nextUrl.searchParams.get("address")?.trim() ?? "";
   const limitRaw = request.nextUrl.searchParams.get("limit")?.trim() ?? "5";
   const limit = Number.parseInt(limitRaw, 10);
+  const radiusRaw = request.nextUrl.searchParams.get("radius_meters")?.trim();
+  const radiusMeters = radiusRaw ? Number.parseFloat(radiusRaw) : undefined;
 
   if (!postcode || !address) {
     const body: ApiErrorBody = {
@@ -30,10 +32,26 @@ export async function GET(request: NextRequest) {
     return NextResponse.json(body, { status: 400 });
   }
 
+  if (
+    radiusMeters !== undefined &&
+    (!Number.isFinite(radiusMeters) || radiusMeters <= 0)
+  ) {
+    const body: ApiErrorBody = {
+      error: {
+        code: "invalid_parameter",
+        message: "radius_meters must be a number greater than 0.",
+      },
+    };
+    return NextResponse.json(body, { status: 400 });
+  }
+
   const url = new URL("/api/v1/nearest-grit-bins", backendBaseUrl());
   url.searchParams.set("postcode", postcode);
   url.searchParams.set("address", address);
   url.searchParams.set("limit", String(limit));
+  if (radiusMeters !== undefined) {
+    url.searchParams.set("radius_meters", String(radiusMeters));
+  }
 
   try {
     const upstream = await fetch(url, {

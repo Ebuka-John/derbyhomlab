@@ -94,6 +94,14 @@ async def nearest_grit_bins(
         le=50,
         description="How many nearest grit bins to return (sorted by distance).",
     ),
+    radius_meters: float | None = Query(
+        default=None,
+        gt=0,
+        description=(
+            "Search radius in metres. Defaults to NEAREST_SEARCH_RADIUS_METERS "
+            "(100) when omitted."
+        ),
+    ),
     address_service: AddressService = Depends(provide_address_service),
     gritbin_service: GritBinService = Depends(provide_gritbin_service),
 ) -> NearestGritBinsResponse:
@@ -103,7 +111,11 @@ async def nearest_grit_bins(
         postcode=postcode_clean,
         address=address_clean,
     )
-    matches = await gritbin_service.find_nearest_n(resolved.point, limit=limit)
+    matches = await gritbin_service.find_nearest_n(
+        resolved.point,
+        limit=limit,
+        radius_meters=radius_meters,
+    )
 
     return NearestGritBinsResponse(
         address=address_clean,

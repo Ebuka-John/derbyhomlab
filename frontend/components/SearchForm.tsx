@@ -11,6 +11,7 @@ import type {
 const DEFAULT_POSTCODE = "";
 const DEFAULT_ADDRESS = "";
 const DEFAULT_LIMIT = 5;
+const DEFAULT_RADIUS_METERS = 100;
 const SINGLE_NEAREST = 1;
 
 async function parseLookup<T>(response: Response): Promise<LookupResult<T>> {
@@ -34,11 +35,13 @@ async function lookupNearestN(
   postcode: string,
   address: string,
   limit: number,
+  radiusMeters: number,
 ): Promise<LookupResult<NearestGritBinsSuccess>> {
   const params = new URLSearchParams({
     postcode,
     address,
     limit: String(limit),
+    radius_meters: String(radiusMeters),
   });
   const response = await fetch(`/api/nearest-grit-bins?${params.toString()}`, {
     method: "GET",
@@ -53,12 +56,14 @@ export function SearchForm() {
   const addressId = `${formId}-address`;
   const customLimitId = `${formId}-custom-limit`;
   const limitId = `${formId}-limit`;
+  const radiusId = `${formId}-radius`;
   const statusId = `${formId}-status`;
 
   const [postcode, setPostcode] = useState(DEFAULT_POSTCODE);
   const [address, setAddress] = useState(DEFAULT_ADDRESS);
   const [customLimit, setCustomLimit] = useState(false);
   const [limitInput, setLimitInput] = useState(String(DEFAULT_LIMIT));
+  const [radiusInput, setRadiusInput] = useState(String(DEFAULT_RADIUS_METERS));
   const [nearest, setNearest] = useState<NearestGritBinsSuccess | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
@@ -76,6 +81,11 @@ export function SearchForm() {
     const safeLimit = customLimit
       ? Math.min(50, Math.max(1, Number.isFinite(parsedLimit) ? parsedLimit : 1))
       : SINGLE_NEAREST;
+    const parsedRadius = Number.parseFloat(radiusInput);
+    const safeRadius =
+      Number.isFinite(parsedRadius) && parsedRadius > 0
+        ? parsedRadius
+        : DEFAULT_RADIUS_METERS;
 
     if (!trimmedPostcode || !trimmedAddress) {
       setError("Enter both a postcode and an address.");
@@ -91,6 +101,7 @@ export function SearchForm() {
           trimmedPostcode,
           trimmedAddress,
           safeLimit,
+          safeRadius,
         );
         if (outcome.ok) {
           setNearest(outcome.data);
@@ -110,8 +121,8 @@ export function SearchForm() {
           Look up grit bins
         </h2>
         <p className="panel__lede">
-          Resolve an address, then find the closest grit bin or choose how
-          many nearest results to return.
+          Resolve an address, then find the closest grit bin within the search
+          radius — or choose how many nearest results to return.
         </p>
       </header>
 
@@ -149,36 +160,53 @@ export function SearchForm() {
           />
         </div>
 
-        <div className="field field--check">
-          <label htmlFor={customLimitId} className="check">
-            <input
-              id={customLimitId}
-              name="customLimit"
-              type="checkbox"
-              checked={customLimit}
-              onChange={(event) => setCustomLimit(event.target.checked)}
-              disabled={isPending}
-            />
-            <span>Choose how many nearest to return</span>
-          </label>
-        </div>
-
-        {customLimit ? (
+        <div className="form__row">
           <div className="field field--narrow">
-            <label htmlFor={limitId}>How many nearest</label>
+            <label htmlFor={radiusId}>Search radius (metres)</label>
             <input
-              id={limitId}
-              name="limit"
+              id={radiusId}
+              name="radius_meters"
               type="number"
               min={1}
-              max={50}
               step={1}
-              value={limitInput}
-              onChange={(event) => setLimitInput(event.target.value)}
+              value={radiusInput}
+              onChange={(event) => setRadiusInput(event.target.value)}
               disabled={isPending}
+              required
             />
           </div>
-        ) : null}
+
+          <div className="field field--check field--check-inline">
+            <label htmlFor={customLimitId} className="check">
+              <input
+                id={customLimitId}
+                name="customLimit"
+                type="checkbox"
+                checked={customLimit}
+                onChange={(event) => setCustomLimit(event.target.checked)}
+                disabled={isPending}
+              />
+              <span>Choose how many nearest to return</span>
+            </label>
+          </div>
+
+          {customLimit ? (
+            <div className="field field--narrow">
+              <label htmlFor={limitId}>How many nearest</label>
+              <input
+                id={limitId}
+                name="limit"
+                type="number"
+                min={1}
+                max={50}
+                step={1}
+                value={limitInput}
+                onChange={(event) => setLimitInput(event.target.value)}
+                disabled={isPending}
+              />
+            </div>
+          ) : null}
+        </div>
 
         <div className="form__actions">
           <button type="submit" className="button" disabled={isPending}>

@@ -134,7 +134,7 @@ async def test_geoserver_unreachable(settings) -> None:
 @pytest.mark.asyncio
 @respx.mock
 async def test_find_nearest_n(settings) -> None:
-    """Nearest-N ranks the full layer (not the 100 m exercise window)."""
+    """Nearest-N defaults to the configured search radius (100 m)."""
     route = respx.get("https://wms.example.com/geoserver/DCC/ows").mock(
         return_value=httpx.Response(
             200,
@@ -148,8 +148,8 @@ async def test_find_nearest_n(settings) -> None:
     async with GritBinService(settings) as svc:
         matches = await svc.find_nearest_n(ORIGIN, limit=3)
 
-    assert [m.title for m in matches] == ["GB-NEAR", "GB-MID", "GB-FAR"]
-    assert "DWITHIN" not in str(route.calls.last.request.url)
+    assert [m.title for m in matches] == ["GB-NEAR", "GB-MID"]
+    assert "DWITHIN" in str(route.calls.last.request.url)
 
 
 @pytest.mark.asyncio
