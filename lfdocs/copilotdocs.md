@@ -34,6 +34,43 @@ Layers:
 - **repositories** — upstream HTTP
 - **utils/geospatial** — CRS + planar distance
 
+## Design patterns
+
+### What I used
+
+| Pattern | Where in this repo | Why |
+|---------|-------------------|-----|
+| **Layered architecture** | `api/` → `services/` → `repositories/` | One job per layer; change GeoServer without touching routers |
+| **Repository** | `AddressRepository`, `GritBinRepository` | Encapsulate Address API / WFS HTTP; no matching or ranking here |
+| **Service / application layer** | `AddressService`, `GritBinService` | Business rules; no FastAPI imports → easy unit tests |
+| **DTO vs domain** | `models/dto` vs `models/domain` | Wire JSON ≠ internal value objects (`ResolvedAddress`, `Point27700`) |
+| **Dependency injection** | FastAPI `Depends` + lifespan `httpx.AsyncClient` | Shared client/settings injected into services |
+| **Centralised errors** | `AppError` hierarchy + handler in `app.py` | Stable `{ error: { code, message } }` for UI and tests |
+| **Settings / 12-factor** | `pydantic-settings` + `.env` | Secrets and URLs outside source |
+| **BFF / server proxy** | Next.js `app/api/*` → FastAPI | CORS + credentials stay server-side (brief requirement) |
+
+```text
+Browser → Next.js proxy → FastAPI router → service → repository → upstream
+```
+
+### Why not a single “god” module?
+
+- Hard to mock Address API vs GeoServer independently
+- HTTP status codes mixed into spatial logic
+- Reuse for nearest-5 / other asset layers becomes copy-paste
+
+### What I rejected (design-wise)
+
+- **Fat controllers** — all logic in route handlers
+- **Browser-direct upstream calls** — forbidden by brief; leaks tokens; CORS
+- **Anemic “utils-only” dump** — no clear ownership of Address vs grit-bin rules
+
+### Panel soundbite
+
+> I used a layered FastAPI design: routers for HTTP, services for rules, repositories for Address API and GeoServer. DTOs sit at the edge; domain models stay internal. Next.js proxies so the browser never talks to Derbyshire. That makes each integration mockable and matches the CORS constraint.
+
+Pocket card: [`G11_Interview_Rivision_Notes.md`](./G11_Interview_Rivision_Notes.md) · spoken script: [`submission-notes.md`](./submission-notes.md)
+
 ## Main Business Flow
 
 ```
@@ -126,6 +163,37 @@ Not WMS.
 - **WFS:** Returns Features
 
 We need actual geometry and attributes.
+
+### Where does `/DCC/ows` come from?
+
+**Not in the assessment brief.** The brief asks you to identify the correct
+GeoServer service; env gives the host root (`GEOSERVER_BASE_URL`) and we configure
+the layer as `DCC:Gritbins`.
+
+Discovery:
+
+| Clue | Inference |
+|------|-----------|
+| `DCC:Gritbins` | Workspace `DCC`, layer `Gritbins` |
+| GeoServer convention | Workspace OGC endpoint ≈ `{base}/{workspace}/ows` |
+| Live probe | GetCapabilities / GetFeature on Derbyshire host returns grit-bin features |
+
+Encoded in settings:
+
+```text
+geoserver_wfs_url = f"{GEOSERVER_BASE_URL}/DCC/ows"
+```
+
+`GEOSERVER_LAYER` is only the WFS `typeName` query param — not the path.
+
+**References**
+
+- GeoServer WFS GetFeature: https://docs.geoserver.org/maintain/en/user/services/wfs/reference.html
+- GeoServer virtual / workspace services: https://docs.geoserver.org/maintain/en/user/services/virtual-services.html
+- Live host: https://wms.derbyshire.gov.uk/geoserver  
+  Smoke: `…/DCC/ows?service=WFS&version=1.0.0&request=GetCapabilities`
+- Same `/DCC/ows` pattern in the wild: https://sourceforge.net/p/geoserver/mailman/message/58756516/
+- Panel narrative: [`submission-notes.md`](./submission-notes.md) § “How `/DCC/ows` was found”
 
 ### GeoServer Query (as implemented)
 

@@ -44,8 +44,9 @@ python -c "from src.models.domain.geometry import Point27700; from src.utils.geo
 
 ## Deeper reading
 
-- `main`: `tutorial/backend/06-coordinates.md`, `tutorial/10-spatial-querying.md`
-- This branch: `lfdocs/copilotdocs.md`
+- [06-coordinates.md (main)](https://github.com/Ebuka-John/derbyhomlab/blob/main/tutorial/backend/06-coordinates.md)
+- [10-spatial-querying.md (main)](https://github.com/Ebuka-John/derbyhomlab/blob/main/tutorial/10-spatial-querying.md)
+- This branch: [lfdocs/copilotdocs.md](../../lfdocs/copilotdocs.md)
 
 ---
 

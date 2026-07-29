@@ -25,7 +25,7 @@ on the same origin; the Route Handler forwards to FastAPI using `BACKEND_URL`.
 
 ## Deeper reading (`main`)
 
-- `tutorial/frontend/` (full numbered lessons with embedded code on `main`)
+- Full frontend lab: [tutorial/frontend/ (main)](https://github.com/Ebuka-John/derbyhomlab/tree/main/tutorial/frontend)
 - Code you type: this branch’s `frontend/`
 
 Start → [01-scaffold.md](./01-scaffold.md)

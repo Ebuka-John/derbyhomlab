@@ -39,7 +39,9 @@ Confirm `.env` exists and is **not** the same as committed secrets (use your rea
 
 ## Deeper reading
 
-- `main`: `tutorial/backend/01-requirements.md`, `tutorial/backend/02-env.md`, `tutorial/04-environment-variables.md`
+- [01-requirements.md (main)](https://github.com/Ebuka-John/derbyhomlab/blob/main/tutorial/backend/01-requirements.md)
+- [02-env.md (main)](https://github.com/Ebuka-John/derbyhomlab/blob/main/tutorial/backend/02-env.md)
+- [04-environment-variables.md (main)](https://github.com/Ebuka-John/derbyhomlab/blob/main/tutorial/04-environment-variables.md)
 
 ---
 

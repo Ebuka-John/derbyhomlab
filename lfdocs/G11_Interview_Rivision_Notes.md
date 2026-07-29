@@ -6,7 +6,9 @@ Distance: ~49 metres
 Projection: EPSG:27700 (British National Grid)  
 Layer: DCC:Gritbins  
 Geometry Field: SP_GEOMETRY  
-GeoServer Service: WFS (not WMS)
+GeoServer Service: WFS (not WMS)  
+WFS URL: `{GEOSERVER_BASE_URL}/DCC/ows`  
+  (not in the brief — discovered by probing live GeoServer; see below)
 ---
 30-Second Summary
 Search Address Lookup API using postcode DE55 5PB.
@@ -31,6 +33,7 @@ FastAPI
    |                   |
    v                   v
 Address API      GeoServer WFS
+                 …/DCC/ows
 ```
 Backend Layers:
 ```text
@@ -42,6 +45,32 @@ Repository
   ↓
 External APIs
 ```
+---
+Design Patterns (if asked)
+Main pattern: layered architecture
+Also: Repository, Service, DTO vs domain, DI, BFF proxy
+
+```text
+Router → Service → Repository → External APIs
+```
+
+| Pattern | Why here |
+|---------|----------|
+| Layered | Separate HTTP, rules, and upstream I/O |
+| Repository | Address API / GeoServer HTTP only |
+| Service | Match address, nearest bin — no FastAPI |
+| DTO vs domain | JSON wire shape ≠ BNG value objects |
+| DI (Depends) | Shared httpx client + settings |
+| AppError mapping | Stable error.code for UI/tests |
+| Next.js proxy | CORS + secrets stay server-side |
+
+Panel line:
+I used layered FastAPI with Repository and Service layers,
+DTOs at the edge, and a Next.js server proxy so the browser
+never calls Derbyshire APIs — testable and CORS-safe.
+
+Rejected: fat controllers, browser-direct calls, one mega module.
+Depth: copilotdocs.md § Design patterns
 ---
 Key Decisions
 Why WFS instead of WMS?
@@ -70,14 +99,23 @@ Why Server Side?
 Exercise forbids browser calls
 Avoids CORS issues
 Protects credentials
+Where does /DCC/ows come from?
+Not written in the assessment doc.
+Env gives host root: https://wms.derbyshire.gov.uk/geoserver
+Layer id DCC:Gritbins → workspace DCC
+GeoServer convention: {base}/{workspace}/ows
+Confirmed with live GetCapabilities / GetFeature
+Settings builds: f"{GEOSERVER_BASE_URL}/DCC/ows"
+GEOSERVER_LAYER only sets typeName=DCC:Gritbins
 ---
 Investigation Process
 Reviewed exercise requirements.
 Called Address Lookup API.
 Confirmed postcode is the lookup key.
 Found HILLBROW record.
-Investigated GeoServer.
-Determined WFS was required.
+Investigated GeoServer (research task from the brief).
+Determined WFS was required (not WMS).
+Discovered WFS path /DCC/ows (brief silent on this path).
 Identified:
 Layer: DCC:Gritbins
 Geometry: SP_GEOMETRY
@@ -91,6 +129,7 @@ HILLBROW exists in DE55 5PB results.
 Coordinates are available or convertible to EPSG:27700.
 Grit bins expose a Title attribute.
 Default search radius is 100 metres.
+WFS lives at workspace OWS path /DCC/ows on the Derbyshire host.
 ---
 Approaches Rejected
 Browser Direct Integration
@@ -111,8 +150,17 @@ Spatial filtering
 Smaller result sets
 ---
 Interview Questions to Expect
+What design pattern did you use?
+Layered architecture with Repository + Service, DTO vs domain,
+FastAPI Depends for DI, and a Next.js BFF-style proxy.
+Why not put everything in the router?
+Harder to test; mixes HTTP with spatial/business rules;
+harder to reuse for nearest-5 or other asset types.
 Why WFS instead of WMS?
 Because WFS returns geometry and attributes. WMS returns images.
+Where did you get /DCC/ows? It is not in the brief.
+From GeoServer workspace URL conventions + live probing of
+https://wms.derbyshire.gov.uk/geoserver — layer DCC:Gritbins implies workspace DCC.
 What is EPSG:27700?
 British National Grid coordinate system used by the layer.
 Why use DWITHIN?
@@ -142,6 +190,13 @@ Invalid Postcodes Return HTTP 200 + XML
 Solution:
 Validate postcode first.
 Detect XML error responses.
+WFS Path Not Documented In Brief
+Found via:
+Workspace from DCC:Gritbins
+GeoServer /{workspace}/ows pattern
+Live GetFeature probe
+Solution:
+Hard-code /DCC/ows onto GEOSERVER_BASE_URL in settings.
 Geometry Field Is Not the_geom
 Solution:
 Use SP_GEOMETRY.
@@ -160,7 +215,7 @@ Verification
 Verified by:
 Resolving HILLBROW from Address API.
 Extracting coordinates.
-Executing GeoServer query.
+Executing GeoServer query on …/DCC/ows.
 Confirming GB0199.
 Calculating distance independently.
 Result:
@@ -170,6 +225,16 @@ Postcode: DE55 5PB
 Nearest Grit Bin: GB0199
 Distance: ~49 metres
 ```
+---
+References (GeoServer path)
+GeoServer WFS: https://docs.geoserver.org/maintain/en/user/services/wfs/reference.html
+Virtual / workspace services: https://docs.geoserver.org/maintain/en/user/services/virtual-services.html
+Live host: https://wms.derbyshire.gov.uk/geoserver
+GetCapabilities smoke:
+https://wms.derbyshire.gov.uk/geoserver/DCC/ows?service=WFS&version=1.0.0&request=GetCapabilities
+Public example of Derbyshire /DCC/ows WFS:
+https://sourceforge.net/p/geoserver/mailman/message/58756516/
+Full narrative: submission-notes.md · depth: copilotdocs.md
 ---
 Improvements With More Time
 Technical
@@ -232,4 +297,4 @@ Swagger
 Versioned endpoints
 ---
 Final Talking Point
-The exercise was not just about finding a grit bin. It was about demonstrating investigation, integration, spatial reasoning, GeoServer research, error handling, architecture decisions, and the ability to build a reusable GIS asset lookup service.
+The exercise was not just about finding a grit bin. It was about demonstrating investigation, integration, spatial reasoning, GeoServer research (including discovering /DCC/ows when the brief omitted it), error handling, architecture decisions, and the ability to build a reusable GIS asset lookup service.

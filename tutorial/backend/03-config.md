@@ -33,7 +33,7 @@ fix missing keys in `.env`.
 
 ## Deeper reading
 
-- `main`: `tutorial/backend/04-config.md`
+- [04-config.md (main)](https://github.com/Ebuka-John/derbyhomlab/blob/main/tutorial/backend/04-config.md)
 
 ---
 

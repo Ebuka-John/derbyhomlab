@@ -68,7 +68,8 @@ python -c "import src; print('ok')"
 
 ## Deeper reading
 
-- `main`: `tutorial/backend/03-init-packages.md`, `tutorial/03-folder-structure.md`
+- [03-init-packages.md (main)](https://github.com/Ebuka-John/derbyhomlab/blob/main/tutorial/backend/03-init-packages.md)
+- [03-folder-structure.md (main)](https://github.com/Ebuka-John/derbyhomlab/blob/main/tutorial/03-folder-structure.md)
 
 ---
 

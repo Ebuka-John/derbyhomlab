@@ -29,7 +29,7 @@ python -c "from src.utils.exceptions import AppError, NoGritBinNearbyError; from
 
 ## Deeper reading
 
-- `main`: `tutorial/backend/05-errors.md`
+- [05-errors.md (main)](https://github.com/Ebuka-John/derbyhomlab/blob/main/tutorial/backend/05-errors.md)
 
 ---
 

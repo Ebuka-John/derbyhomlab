@@ -56,14 +56,14 @@ before you build on it.
 
 Check out or browse `main` when you want more detail:
 
-- `tutorial/00-study-plan.md` — timed 8-hour plan  
-- `tutorial/backend/00-backend-design.md` — layered design + Mermaid  
-- `tutorial/backend/00-python-fastapi-basics.md` — Python/FastAPI primer  
-- `tutorial/10-spatial-querying.md` — EPSG:27700, WFS, `DWITHIN`  
-- `tutorial/09-sources-and-references.md` — domain background  
-- `lfdocs/` on this branch — interview notes (submission / panel)
+- [00-study-plan.md](https://github.com/Ebuka-John/derbyhomlab/blob/main/tutorial/00-study-plan.md) — timed 8-hour plan
+- [00-backend-design.md](https://github.com/Ebuka-John/derbyhomlab/blob/main/tutorial/backend/00-backend-design.md) — layered design + Mermaid
+- [00-python-fastapi-basics.md](https://github.com/Ebuka-John/derbyhomlab/blob/main/tutorial/backend/00-python-fastapi-basics.md) — Python/FastAPI primer
+- [10-spatial-querying.md](https://github.com/Ebuka-John/derbyhomlab/blob/main/tutorial/10-spatial-querying.md) — EPSG:27700, WFS, `DWITHIN`
+- [09-sources-and-references.md](https://github.com/Ebuka-John/derbyhomlab/blob/main/tutorial/09-sources-and-references.md) — domain background
+- [lfdocs/](../lfdocs/) on this branch — interview notes (submission / panel)
 
-Also useful on this branch: root [README.md](../README.md), [docs/](../docs/).
+Also useful on this branch: root [README.md](../README.md).
 
 ---
 

@@ -33,7 +33,7 @@ Should print `Nearest Grit Bin API`.
 
 ## Deeper reading
 
-- `main`: `tutorial/backend/09-app.md`
+- [09-app.md (main)](https://github.com/Ebuka-John/derbyhomlab/blob/main/tutorial/backend/09-app.md)
 
 ---
 

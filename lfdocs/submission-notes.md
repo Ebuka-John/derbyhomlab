@@ -12,6 +12,7 @@ Resolve any UK postcode + address hint via Derbyshire’s Address Lookup API, no
 
 Broken into parts: **routers** (HTTP) → **services** (rules) → **repositories** (Address API / GeoServer) → **geospatial helpers** (CRS + distance). Typed errors map to stable `{ error: { code, message } }` JSON (400 / 404 / 502).
 
+**Design (if asked):** layered architecture with Repository + Service patterns, DTO vs domain models, FastAPI dependency injection for a shared `httpx` client, and a Next.js server-side proxy (BFF-style) so the browser never calls Derbyshire APIs. That keeps integrations mockable, matches the CORS constraint, and lets me swap GeoServer queries without rewriting HTTP handlers. Depth: [`copilotdocs.md`](./copilotdocs.md) § Design patterns.
 ---
 
 ## What I tried first
@@ -19,7 +20,8 @@ Broken into parts: **routers** (HTTP) → **services** (rules) → **repositorie
 - Read the brief: CORS constraint, Address Lookup for `DE55 5PB`, find `HILLBROW`, nearest grit bin ~100 m, return Title.
 - Called the Address API with the supplied headers; confirmed postcode is the path key and inspected the JSON shape.
 - Identified the `HILLBROW` row (`BuildingName` + `SpatialFeature` coords — not a single `Title` field).
-- Probed Derbyshire GeoServer; confirmed **WFS** GetFeature on `DCC:Gritbins` (hostname says `wms.` but WMS is images only).
+- Probed Derbyshire GeoServer (public host); confirmed **WFS** GetFeature on `DCC:Gritbins` (hostname says `wms.` but WMS is images only).
+- **Discovered WFS entry `{base}/DCC/ows`** — not stated in the brief (see “How `/DCC/ows` was found” below).
 - Tried `DWITHIN` on `SP_GEOMETRY`, then ranked by Euclidean metres; verified Title **GB0199** ~49 m from HILLBROW.
 
 ---
@@ -51,14 +53,48 @@ Broken into parts: **routers** (HTTP) → **services** (rules) → **repositorie
   (hostname says `wms.` — this solution uses **WFS** GetFeature, not WMS images)
 - WFS entry: `{GEOSERVER_BASE_URL}/DCC/ows` — layer `DCC:Gritbins`, geometry `SP_GEOMETRY`
 
+### How `/DCC/ows` was found (not in the assessment brief)
+
+The exercise asks you to **identify the correct GeoServer service** — it does **not**
+give the WFS path. Discovery steps:
+
+1. Env / public base: `GEOSERVER_BASE_URL=https://wms.derbyshire.gov.uk/geoserver`
+2. Layer id `DCC:Gritbins` → GeoServer **workspace** is `DCC`, layer is `Gritbins`
+3. GeoServer’s usual workspace OGC endpoint is `/{workspace}/ows` (one URL; pick
+   WFS/WMS via query params such as `service=WFS&request=GetFeature`)
+4. Live probe (browser / PowerShell / curl) of GetCapabilities / GetFeature until
+   JSON features with `Title` and `SP_GEOMETRY` appeared
+
+Working pattern encoded in `src/core/settings.py` as `geoserver_wfs_url`:
+
+```text
+{GEOSERVER_BASE_URL}/DCC/ows
+  ?service=WFS
+  &version=1.0.0
+  &request=GetFeature
+  &typeName=DCC:Gritbins
+  &outputFormat=application/json
+```
+
+`GEOSERVER_LAYER` in `.env` supplies `typeName` only; `/DCC/ows` is **not** an env
+var — it is the workspace OWS path discovered above and hard-coded next to the base URL.
+
 ### Spatial / GIS references
 
 - OGC WFS: https://www.ogc.org/standard/wfs/
 - GeoServer docs: https://docs.geoserver.org/
-- WFS GetFeature reference: https://docs.geoserver.org/latest/en/user/services/wfs/reference.html
+- WFS GetFeature reference: https://docs.geoserver.org/maintain/en/user/services/wfs/reference.html  
+  (standard GetFeature / GetCapabilities URL shape on GeoServer)
+- GeoServer workspace / virtual service URLs (pattern `{base}/{workspace}/…`):  
+  https://docs.geoserver.org/maintain/en/user/services/virtual-services.html
 - CQL / ECQL (incl. `DWITHIN`):  
   https://docs.geoserver.org/latest/en/user/tutorials/cql/cql_tutorial.html  
   https://docs.geoserver.org/latest/en/user/filter/ecql_reference.html
+- Live Derbyshire host: https://wms.derbyshire.gov.uk/geoserver  
+  Example GetCapabilities smoke-check:  
+  `https://wms.derbyshire.gov.uk/geoserver/DCC/ows?service=WFS&version=1.0.0&request=GetCapabilities`
+- Independent public use of the same Derbyshire `/DCC/ows` WFS pattern (mailing list):  
+  https://sourceforge.net/p/geoserver/mailman/message/58756516/
 - GeoJSON: https://geojson.org/ · RFC 7946: https://datatracker.ietf.org/doc/html/rfc7946
 - EPSG:27700 (BNG): https://epsg.io/27700 · EPSG:4326: https://epsg.io/4326
 - EPSG registry: https://epsg.io/
@@ -106,7 +142,7 @@ Broken into parts: **routers** (HTTP) → **services** (rules) → **repositorie
 
 - **Browser-direct calls to Address API / GeoServer** — brief forbids this (CORS); credentials would also leak.
 - **WMS** — returns map images, not feature geometry/attributes needed for Title + distance.
-- **Download the entire grit-bin layer as the primary path** — poor performance and scalability; prefer `DWITHIN`. For this exercise a full-layer fallback exists only to survive/validate DWITHIN gaps — not as a production strategy (see issue 5 and “improve with more time”).
+- **Download the entire grit-bin layer as the primary path** — poor performance and scalability; prefer `DWITHIN`. For this exercise a full-layer fallback exists only to survive/validate DWITHIN gaps — not as a production strategy (see issue 6 and “improve with more time”).
 - **Hard-coding HILLBROW / DE55 5PB in business logic** — interview pair is a fixture; the service accepts any postcode + address hint.
 - **Matching only on a `Title` field** — live Address API uses `BuildingName` and related parts.
 
@@ -142,13 +178,23 @@ Broken into parts: **routers** (HTTP) → **services** (rules) → **repositorie
 - **Investigation:** Body-wide search for `ResponseError` hit nested Councillor objects (`"No results"`).
 - **Fix:** Only treat top-level / XML error stubs as failures; ignore nested Councillor noise.
 
-### 4. Geometry field name
+### 4. WFS path `/DCC/ows` is not in the brief
+
+- **Issue:** Credentials / env give `GEOSERVER_BASE_URL` and (in our config) a layer
+  name; the assessment text never mentions `/DCC/ows`.
+- **Investigation:** Treated “identify the correct GeoServer service” as a research
+  task — used GeoServer docs for workspace `/ows` + WFS GetFeature, then probed the
+  live Derbyshire server until GetFeature returned grit-bin GeoJSON.
+- **Fix:** Build WFS URL as `{GEOSERVER_BASE_URL}/DCC/ows` in settings; pass
+  `typeName=DCC:Gritbins` from config. Documented under “How `/DCC/ows` was found”.
+
+### 5. Geometry field name
 
 - **Issue:** Default GeoServer examples use `the_geom`; this layer does not.
 - **Investigation:** Inspected GetFeature / layer properties.
 - **Fix:** Use `SP_GEOMETRY` in `DWITHIN`.
 
-### 5. Empty DWITHIN is not always “no bins”
+### 6. Empty DWITHIN is not always “no bins”
 
 - **Issue:** Spatial filter can return empty (e.g. CRS/filter quirks) even when bins exist nearby.
 - **Investigation:** Compared DWITHIN vs unfiltered GetFeature + local distance for the same origin.
@@ -159,7 +205,7 @@ Broken into parts: **routers** (HTTP) → **services** (rules) → **repositorie
   - spatial indexing
   - PostGIS-backed nearest searches
 
-### 6. CORS / browser-direct calls
+### 7. CORS / browser-direct calls
 
 - **Issue:** Brief forbids client-side calls to upstream services.
 - **Investigation:** Confirmed CORS would block browser → Address API / GeoServer with credentials.

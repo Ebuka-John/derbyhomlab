@@ -39,8 +39,8 @@ Same HILLBROW lookup works through Compose.
 
 ## Deeper reading
 
-- `main`: `tutorial/docker/` (split lessons + run notes)
-- This branch: root `README.md`, `docs/deploy.md`
+- Docker lab folder (main): [tutorial/docker/](https://github.com/Ebuka-John/derbyhomlab/tree/main/tutorial/docker)
+- This branch: root [README.md](../../README.md)
 
 ---
 

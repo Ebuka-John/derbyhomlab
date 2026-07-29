@@ -41,8 +41,9 @@ Optional next: [Docker lab](../docker/README.md)
 
 ## Deeper reading
 
-- `main`: `tutorial/frontend/09-run-and-test.md`, `tutorial/05-running-fullstack.md`
-- This branch: root `README.md`
+- [09-run-and-test.md (main)](https://github.com/Ebuka-John/derbyhomlab/blob/main/tutorial/frontend/09-run-and-test.md)
+- [05-running-fullstack.md (main)](https://github.com/Ebuka-John/derbyhomlab/blob/main/tutorial/05-running-fullstack.md)
+- This branch: root [README.md](../../README.md)
 
 ---
 

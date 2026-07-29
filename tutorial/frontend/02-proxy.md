@@ -40,7 +40,8 @@ cd ..
 
 ## Deeper reading
 
-- `main`: `tutorial/frontend/03-types.md`, `tutorial/frontend/04-api-route.md`
+- [03-types.md (main)](https://github.com/Ebuka-John/derbyhomlab/blob/main/tutorial/frontend/03-types.md)
+- [04-api-route.md (main)](https://github.com/Ebuka-John/derbyhomlab/blob/main/tutorial/frontend/04-api-route.md)
 
 ---
 

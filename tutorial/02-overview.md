@@ -36,9 +36,9 @@ Router  →  Service  →  Repository  →  External HTTP
 
 ## Deeper reading (`main`)
 
-- `tutorial/01-introduction.md`, `tutorial/02-architecture.md`
-- `tutorial/10-spatial-querying.md`
-- This branch: `lfdocs/G11_Interview_Rivision_Notes.md`, `lfdocs/copilotdocs.md`
+- [01-introduction.md](https://github.com/Ebuka-John/derbyhomlab/blob/main/tutorial/01-introduction.md), [02-architecture.md](https://github.com/Ebuka-John/derbyhomlab/blob/main/tutorial/02-architecture.md)
+- [10-spatial-querying.md](https://github.com/Ebuka-John/derbyhomlab/blob/main/tutorial/10-spatial-querying.md)
+- This branch: [G11_Interview_Rivision_Notes.md](../lfdocs/G11_Interview_Rivision_Notes.md), [copilotdocs.md](../lfdocs/copilotdocs.md)
 
 ## Checkpoint
 

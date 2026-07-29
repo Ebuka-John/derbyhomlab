@@ -30,7 +30,9 @@ python -c "from src.services.address_service import AddressService; from src.ser
 
 ## Deeper reading
 
-- `main`: `tutorial/backend/07-address-service.md`, `tutorial/backend/08-geoserver-service.md`
+- [07-address-service.md (main)](https://github.com/Ebuka-John/derbyhomlab/blob/main/tutorial/backend/07-address-service.md)
+- [08-geoserver-service.md (main)](https://github.com/Ebuka-John/derbyhomlab/blob/main/tutorial/backend/08-geoserver-service.md)
+- Design patterns: [lfdocs/copilotdocs.md](../../lfdocs/copilotdocs.md) § Design patterns
 
 ---
 

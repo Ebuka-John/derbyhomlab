@@ -64,7 +64,8 @@ Should be `True`.
 
 ## Deeper reading
 
-- `main`: `tutorial/frontend/01-scaffold.md`, `tutorial/frontend/02-env.md`
+- [01-scaffold.md (main)](https://github.com/Ebuka-John/derbyhomlab/blob/main/tutorial/frontend/01-scaffold.md)
+- [02-env.md (main)](https://github.com/Ebuka-John/derbyhomlab/blob/main/tutorial/frontend/02-env.md)
 
 ---
 

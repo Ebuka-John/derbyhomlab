@@ -59,8 +59,9 @@ Backend done → [Frontend lab](../frontend/README.md)
 
 ## Deeper reading
 
-- `main`: `tutorial/backend/10-run-and-test.md`, `tutorial/05-running-fullstack.md`
-- This branch: root `README.md`
+- [10-run-and-test.md (main)](https://github.com/Ebuka-John/derbyhomlab/blob/main/tutorial/backend/10-run-and-test.md)
+- [05-running-fullstack.md (main)](https://github.com/Ebuka-John/derbyhomlab/blob/main/tutorial/05-running-fullstack.md)
+- This branch: root [README.md](../../README.md)
 
 ---
 

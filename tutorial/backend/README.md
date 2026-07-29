@@ -42,10 +42,10 @@ settings + exceptions + postcode
 
 ## Deeper reading (`main`)
 
-- `tutorial/backend/00-backend-design.md`
-- `tutorial/backend/00-python-fastapi-basics.md`
-- Matching numbered lessons under `tutorial/backend/` (full embedded code on `main`;
-  **your** code comes from this branch’s `src/`)
+- [00-backend-design.md](https://github.com/Ebuka-John/derbyhomlab/blob/main/tutorial/backend/00-backend-design.md)
+- [00-python-fastapi-basics.md](https://github.com/Ebuka-John/derbyhomlab/blob/main/tutorial/backend/00-python-fastapi-basics.md)
+- Full numbered lessons under [tutorial/backend/ (main)](https://github.com/Ebuka-John/derbyhomlab/tree/main/tutorial/backend) (embedded code on `main`; **your** code comes from this branch’s `src/`)
+- Design patterns (panel): [lfdocs/copilotdocs.md](../lfdocs/copilotdocs.md) § Design patterns
 
 Start → [01-requirements-env.md](./01-requirements-env.md)
 
